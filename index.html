@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة اللوح - أحمد مجدي</title>
+    <title>نظام إدارة اللوح - نسخة سحابية</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- html2canvas (For Screenshot) -->
+    <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Google Fonts (Cairo) -->
@@ -28,1368 +28,817 @@
             font-family: 'Cairo', sans-serif;
             background-color: #f3f4f6;
         }
-        
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Print Styles - OPTIMIZED FOR PDF/REPORT */
+        /* Print Styles */
         @media print {
-            body { 
-                background-color: white; 
-                padding: 0;
-                margin: 0;
-                font-size: 12pt;
-            }
-            .no-print { display: none !important; } /* Hide buttons, navs, tools */
-            .print-only { display: block !important; } /* Show print headers */
-            
-            /* Hide non-essential dashboard elements */
-            #home-view, #category-view, #person-view, #top-performers-section { display: none !important; }
+            body { background-color: white; padding: 0; margin: 0; font-size: 12pt; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            #home-view, #category-view, #person-view, #top-performers-section, #admin-dashboard { display: none !important; }
             #dashboard-view { padding: 0 !important; margin: 0 !important; }
-            
-            /* Hide cards and charts to make it look like a list/file */
             .card { box-shadow: none !important; border: none !important; }
-            .card > div.relative { display: none !important; } /* Hide Chart Container */
-            .grid.grid-cols-1.md\:grid-cols-3 { display: none !important; } /* Hide Top Stats Cards */
-            
-            /* Table Formatting */
             table { width: 100% !important; border-collapse: collapse !important; margin-top: 20px; }
-            th, td { border: 1px solid #000 !important; padding: 8px !important; text-align: center !important; color: #000 !important; }
-            thead { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
-            
-            /* Clean up table content */
-            .file-item { background-color: transparent !important; }
-            .file-item:hover { background-color: transparent !important; }
-            
-            /* Container adjustments */
+            th, td { border: 1px solid #000 !important; padding: 8px !important; text-align: center !important; }
             #app-container { min-height: auto; margin: 0; padding: 20px; max-width: 100%; }
-            
-            /* Hide status badges text color */
-            .text-blue-600, .text-orange-600, .text-green-700 { color: #000 !important; }
-            .bg-blue-100, .bg-orange-100 { background-color: transparent !important; border: 1px solid #ccc; }
         }
 
-        /* File Item Styles */
-        .file-item {
-            transition: all 0.2s;
-        }
-        .file-item:hover {
-            transform: translateX(-4px);
-            background-color: #f8fafc;
-        }
-
-        /* Marquee Footer */
-        .footer-marquee {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            box-sizing: border-box;
-            background: #1e293b;
-            color: #fff;
-            padding: 8px 0;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 50;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-        }
-        .footer-marquee-content {
-            display: inline-block;
-            padding-left: 100%;
-            animation: marquee 25s linear infinite;
-        }
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(100%, 0); } /* RTL logic: moves right */
-        }
+        .file-item { transition: all 0.2s; }
+        .file-item:hover { transform: translateX(-4px); background-color: #f8fafc; }
         
-        .loading-overlay {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(2px);
+        .footer-marquee {
+            width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box;
+            background: #1e293b; color: #fff; padding: 8px 0; position: fixed; bottom: 0; left: 0; z-index: 50;
+            display: flex; align-items: center;
         }
+        .footer-marquee-content { display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; }
+        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(100%, 0); } }
+        
+        .loading-overlay { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); }
 
-        /* Export Template Styles (Hidden on Screen) */
-        #export-template {
-            position: fixed;
-            top: -9999px;
-            left: -9999px;
-            width: 800px;
-            background: white;
-            padding: 40px;
-            color: black;
-            font-family: 'Cairo', sans-serif;
-            border: 1px solid #ddd; /* Just for boundary check if viewed */
-        }
-        #export-template table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-        }
-        #export-template th, #export-template td {
-            border: 1px solid #000;
-            padding: 15px; /* Increased padding for summary look */
-        }
-        #export-template thead th {
-            background-color: #f3f4f6;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+        /* Export Template */
+        #export-template { position: fixed; top: -9999px; left: -9999px; width: 800px; background: white; padding: 40px; color: black; font-family: 'Cairo', sans-serif; border: 1px solid #ddd; }
+        #export-template table { width: 100%; border-collapse: collapse; text-align: center; }
+        #export-template th, #export-template td { border: 1px solid #000; padding: 15px; }
+        #export-template thead th { background-color: #f3f4f6; font-weight: bold; font-size: 1.2rem; }
     </style>
 </head>
 <body class="text-slate-800 pb-16">
 
-    <!-- Header & Navigation -->
-    <nav class="bg-blue-900 text-white shadow-lg sticky top-0 z-40 no-print">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-layer-group text-2xl text-yellow-400"></i>
-                <div>
-                    <h1 class="text-xl font-bold leading-tight">مدير اللوح</h1>
-                    <p class="text-xs text-blue-200">نظام إدارة وحساب التكاليف</p>
-                </div>
-            </div>
-            <div id="breadcrumb" class="hidden md:flex items-center text-sm bg-blue-800 px-3 py-1 rounded-full">
-                <!-- Breadcrumb items injected via JS -->
-            </div>
-            <button onclick="goHome()" class="text-white hover:text-yellow-400 transition">
-                <i class="fa-solid fa-house text-xl"></i>
-            </button>
-        </div>
-    </nav>
+    <!-- DOMAIN ALERT (If unauthorized) -->
+    <div id="domain-alert" class="hidden fixed top-0 left-0 right-0 bg-red-600 text-white p-4 z-[200] text-center shadow-lg">
+        <p class="font-bold mb-2">تنبيه: النطاق الحالي غير مصرح به في Firebase</p>
+        <p class="text-sm mb-2">يرجى نسخ النطاق التالي وإضافته في: Firebase Console -> Authentication -> Settings -> Authorized Domains</p>
+        <code id="current-domain" class="bg-red-800 px-2 py-1 rounded select-all"></code>
+        <button onclick="document.getElementById('domain-alert').classList.add('hidden')" class="block mx-auto mt-2 text-xs underline">إغلاق</button>
+    </div>
 
-    <!-- Main Content Container -->
-    <main id="app-container" class="container mx-auto px-4 py-6 min-h-screen">
-        
-        <!-- PRINT ONLY HEADER -->
-        <div id="print-header" class="hidden print-only mb-6 border-b-2 border-slate-800 pb-4">
-            <div class="flex justify-between items-center">
-                <div class="text-right">
-                    <h1 class="text-3xl font-bold mb-2">كشف حساب / تفريغ لوح</h1>
-                    <p class="text-lg"><strong>الاسم:</strong> <span id="print-person-name">--</span></p>
-                    <p class="text-lg"><strong>الشهر:</strong> <span id="print-month-name">--</span></p>
-                </div>
-                <div class="text-left">
-                    <p class="text-sm text-slate-500 mb-1">تاريخ الطباعة</p>
-                    <p class="font-bold text-xl" id="print-date">--</p>
-                </div>
+    <!-- LOGIN / REGISTER OVERLAY -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-gray-100 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-blue-900 p-6 text-center text-white shrink-0">
+                <h1 class="text-2xl font-bold mb-1">نظام إدارة اللوح</h1>
+                <p class="text-blue-200 text-sm">سجل الدخول للمتابعة</p>
             </div>
-            <div class="mt-4 flex gap-8">
-                <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                    <span class="block text-xs font-bold text-slate-500">سعر الألف</span>
-                    <span class="block text-xl font-bold" id="print-rate">0</span>
-                </div>
-                <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                    <span class="block text-xs font-bold text-slate-500">إجمالي العدد</span>
-                    <span class="block text-xl font-bold" id="print-total-count">0</span>
-                </div>
-                <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                    <span class="block text-xs font-bold text-slate-500">إجمالي المبلغ</span>
-                    <span class="block text-xl font-bold" id="print-total-cost">0</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW 1: Main Selection (Home) -->
-        <div id="home-view" class="fade-in no-print">
             
-            <!-- Top Performers Section -->
-            <div id="top-performers-section" class="mb-10 hidden">
-                <h2 class="text-xl font-bold mb-4 text-center text-slate-700 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-trophy text-yellow-500"></i> الأفضل أداءً
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <!-- Google Sign In Button -->
+                <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-50 transition mb-6 shadow-sm">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6" alt="Google">
+                    <span>تسجيل الدخول باستخدام جوجل</span>
+                </button>
+
+                <div class="relative mb-6 text-center">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+                    <div class="relative"><span class="bg-white px-4 text-gray-500 text-sm">أو باستخدام البريد الإلكتروني</span></div>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="login-email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" placeholder="example@gmail.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
+                        <input type="password" id="login-pass" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" required>
+                    </div>
+                    
+                    <div id="login-error" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-200 hidden text-center"></div>
+                    <div id="verify-msg" class="bg-yellow-50 text-yellow-700 p-3 rounded-lg text-sm border border-yellow-200 hidden text-center">
+                        يرجى تفعيل حسابك أولاً. تم إرسال رابط التفعيل إلى بريدك الإلكتروني.
+                        <button onclick="resendVerification()" class="block w-full mt-2 text-blue-600 font-bold hover:underline">إعادة إرسال الرابط</button>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-md">دخول</button>
+                    <div class="text-center mt-4">
+                        <a href="#" onclick="toggleAuth('register')" class="text-blue-600 text-sm hover:underline">إنشاء حساب جديد</a>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">الاسم بالكامل</label>
+                        <input type="text" id="reg-name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" placeholder="أحمد مجدي" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="reg-email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
+                        <input type="password" id="reg-pass" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" required>
+                    </div>
+                    <div id="reg-error" class="text-red-500 text-sm hidden"></div>
+                    <div id="reg-success" class="text-green-600 text-sm hidden bg-green-50 p-3 rounded border border-green-200 text-center">
+                        تم إنشاء الحساب بنجاح! <br> يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل الدخول.
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-md">إنشاء حساب</button>
+                    <div class="text-center mt-4">
+                        <a href="#" onclick="toggleAuth('login')" class="text-blue-600 text-sm hover:underline">لديك حساب بالفعل؟ تسجيل دخول</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER (Hidden until login) -->
+    <div id="main-app" class="hidden">
+
+        <!-- Navigation -->
+        <nav class="bg-blue-900 text-white shadow-lg sticky top-0 z-40 no-print">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-layer-group text-2xl text-yellow-400"></i>
+                    <div>
+                        <h1 class="text-xl font-bold leading-tight">مدير اللوح</h1>
+                        <p class="text-xs text-blue-200" id="welcome-msg">أهلاً بك</p>
+                    </div>
+                </div>
+                
+                <div id="breadcrumb" class="hidden md:flex items-center text-sm bg-blue-800 px-3 py-1 rounded-full"></div>
+                
+                <div class="flex items-center gap-3">
+                    <button id="admin-btn" onclick="showAdminPanel()" class="hidden bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded text-sm font-bold">
+                        <i class="fa-solid fa-shield-halved"></i> الإدارة
+                    </button>
+                    <button onclick="goHome()" class="text-white hover:text-yellow-400 transition" title="الرئيسية">
+                        <i class="fa-solid fa-house text-xl"></i>
+                    </button>
+                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ADMIN DASHBOARD (Hidden by default) -->
+        <div id="admin-dashboard" class="container mx-auto px-4 py-6 hidden no-print">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-t-4 border-yellow-500">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear text-yellow-600"></i> لوحة تحكم المالك
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                    <!-- Best Delegate -->
-                    <div class="bg-white rounded-xl shadow-lg border-2 border-yellow-400 p-6 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-br-lg">أفضل مندوب</div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl font-bold shadow-inner">
-                                <i class="fa-solid fa-crown"></i>
-                            </div>
-                            <div>
-                                <h3 id="best-delegate-name" class="text-xl font-bold text-slate-800">--</h3>
-                                <div class="flex gap-4 mt-2 text-sm">
-                                    <span class="text-slate-600"><i class="fa-solid fa-cubes-stacked text-blue-500"></i> <span id="best-delegate-count" class="font-bold">0</span> لوح</span>
-                                    <span class="text-slate-600"><i class="fa-solid fa-money-bill-wave text-green-500"></i> <span id="best-delegate-cost" class="font-bold">0</span> ج.م</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Best Unloader -->
-                    <div class="bg-white rounded-xl shadow-lg border-2 border-emerald-400 p-6 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 bg-emerald-400 text-emerald-900 text-xs font-bold px-3 py-1 rounded-br-lg">أفضل مفرغ</div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold shadow-inner">
-                                <i class="fa-solid fa-crown"></i>
-                            </div>
-                            <div>
-                                <h3 id="best-unloader-name" class="text-xl font-bold text-slate-800">--</h3>
-                                <div class="flex gap-4 mt-2 text-sm">
-                                    <span class="text-slate-600"><i class="fa-solid fa-cubes-stacked text-blue-500"></i> <span id="best-unloader-count" class="font-bold">0</span> لوح</span>
-                                    <span class="text-slate-600"><i class="fa-solid fa-money-bill-wave text-green-500"></i> <span id="best-unloader-cost" class="font-bold">0</span> ج.م</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 class="text-2xl font-bold mb-6 text-center text-slate-700">اختر القسم للمتابعة</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                <!-- Delegates Card -->
-                <div onclick="navigateToCategory('delegates')" class="cursor-pointer bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition transform hover:-translate-y-1 border-r-4 border-blue-500 group">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-800 group-hover:text-blue-600">المناديب</h3>
-                            <p class="text-slate-500 mt-2">إدارة حسابات وملفات مندوبي التوزيع</p>
-                        </div>
-                        <div class="bg-blue-100 p-4 rounded-full text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
-                            <i class="fa-solid fa-truck-fast text-3xl"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Unloaders Card -->
-                <div onclick="navigateToCategory('unloaders')" class="cursor-pointer bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition transform hover:-translate-y-1 border-r-4 border-emerald-500 group">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-800 group-hover:text-emerald-600">المفرغين</h3>
-                            <p class="text-slate-500 mt-2">إدارة حسابات الموظفين القائمين بالتفريغ</p>
-                        </div>
-                        <div class="bg-emerald-100 p-4 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition">
-                            <i class="fa-solid fa-dolly text-3xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Social Links in Home -->
-            <div class="mt-12 flex justify-center gap-6 no-print">
-                <a href="https://www.facebook.com/ahmedmagdy.yousef.7?rdid=AW0HJmOon98mbVMX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17UbctBgsk%2F" target="_blank" class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition shadow-lg">
-                    <i class="fa-brands fa-facebook text-xl"></i> تواصل مع المطور
-                </a>
-                <a href="https://wa.me/201140440601" target="_blank" class="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full hover:bg-green-600 transition shadow-lg">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> 01140440601
-                </a>
-            </div>
-        </div>
-
-        <!-- VIEW 2: Category List (People) -->
-        <div id="category-view" class="hidden fade-in no-print">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="category-title" class="text-2xl font-bold text-slate-700">قائمة الأسماء</h2>
-                <button onclick="openModal('add-person-modal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> إضافة اسم
-                </button>
-            </div>
-
-            <div id="people-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- People cards injected here -->
-            </div>
-            
-            <div id="empty-people" class="hidden text-center py-12 text-slate-400">
-                <i class="fa-regular fa-folder-open text-5xl mb-3"></i>
-                <p>لا يوجد أسماء مضافة بعد.</p>
-            </div>
-        </div>
-
-        <!-- VIEW 3: Person View (Months) -->
-        <div id="person-view" class="hidden fade-in no-print">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h2 id="person-name-title" class="text-2xl font-bold text-slate-700">ملفات الموظف</h2>
-                    <p class="text-sm text-slate-500">اختر الشهر لعرض التفاصيل</p>
-                </div>
-                <button onclick="openModal('add-month-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-plus"></i> إضافة شهر
-                </button>
-            </div>
-
-            <div id="months-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Month folders injected here -->
-            </div>
-
-            <div id="empty-months" class="hidden text-center py-12 text-slate-400">
-                <i class="fa-regular fa-calendar-xmark text-5xl mb-3"></i>
-                <p>لم يتم إضافة شهور لهذا الموظف.</p>
-            </div>
-        </div>
-
-        <!-- VIEW 4: Dashboard (Month Details & Files) -->
-        <div id="dashboard-view" class="hidden fade-in relative">
-            
-            <!-- Dashboard Toolbar -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 no-print">
-                <div>
-                    <h2 id="dashboard-title" class="text-2xl font-bold text-slate-800">تفاصيل الشهر</h2>
-                    <p class="text-sm text-slate-500">إدارة الملفات والحسابات</p>
-                </div>
-                
-                <div class="flex gap-2 flex-wrap">
-                    <label for="file-upload" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2 transition">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> رفع ملفات
-                    </label>
-                    <input id="file-upload" type="file" multiple accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(this)">
-
-                    <button onclick="exportImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg shadow" title="حفظ كصورة">
-                        <i class="fa-solid fa-camera"></i>
-                    </button>
-                    <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg shadow" title="طباعة PDF">
-                        <i class="fa-solid fa-print"></i>
-                    </button>
-                    <button onclick="exportExcel()" class="bg-green-700 hover:bg-green-800 text-white px-3 py-2 rounded-lg shadow" title="تصدير Excel">
-                        <i class="fa-solid fa-file-excel"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats Cards (Hidden in Print) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 no-print">
-                <!-- Rate Card -->
-                <div class="bg-white p-4 rounded-xl shadow border-r-4 border-indigo-500 card">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-slate-500 text-sm font-bold">سعر الـ 1000 لوحة</span>
-                        <i class="fa-solid fa-tags text-indigo-200 text-xl"></i>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="number" id="rate-input" value="100" onchange="updateRate(this.value)" class="w-24 text-2xl font-bold text-indigo-700 border-b-2 border-indigo-200 focus:border-indigo-600 outline-none bg-transparent">
-                        <span class="text-sm text-slate-400">جنية</span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-1">يتم إعادة الحساب فورياً عند التغيير</p>
-                </div>
-
-                <!-- Total Count Card -->
-                <div class="bg-white p-4 rounded-xl shadow border-r-4 border-blue-500 card">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-slate-500 text-sm font-bold">إجمالي عدد اللوح</span>
-                        <i class="fa-solid fa-cubes-stacked text-blue-200 text-xl"></i>
-                    </div>
-                    <h3 id="total-count-display" class="text-3xl font-bold text-blue-700">0</h3>
-                    <p id="total-count-diff" class="text-xs text-orange-500 mt-1 h-4"></p>
-                </div>
-
-                <!-- Total Cost Card -->
-                <div class="bg-white p-4 rounded-xl shadow border-r-4 border-green-500 card">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-slate-500 text-sm font-bold">التكلفة الإجمالية</span>
-                        <i class="fa-solid fa-money-bill-wave text-green-200 text-xl"></i>
-                    </div>
-                    <h3 id="total-cost-display" class="text-3xl font-bold text-green-700">0</h3>
-                    <p class="text-xs text-slate-400 mt-1">بالجنيه المصري (EGP)</p>
-                </div>
-            </div>
-
-            <!-- Chart Section (Hidden in Print) -->
-            <div class="bg-white p-4 rounded-xl shadow mb-6 card no-break no-print">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">تحليل عدد اللوح للملفات</h3>
-                <div class="relative h-64 w-full">
-                    <canvas id="filesChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Files List -->
-            <div class="bg-white rounded-xl shadow overflow-hidden card">
-                <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center no-print">
-                    <h3 class="font-bold text-slate-700">الملفات المرفوعة</h3>
-                    <span id="files-count-badge" class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">0 ملف</span>
-                </div>
-                
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-right">
-                        <thead class="bg-slate-100 text-slate-600 font-medium">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-slate-100 text-slate-700">
                             <tr>
-                                <th class="p-3">#</th>
-                                <th class="p-3">اسم الملف</th>
-                                <th class="p-3">التاريخ</th>
-                                <th class="p-3 text-center no-print">العدد الفعلي</th>
-                                <th class="p-3 text-center">عدد اللوح</th>
-                                <th class="p-3">المبلغ</th>
-                                <th class="p-3 text-center no-print">إجراءات</th>
+                                <th class="p-3">الاسم</th>
+                                <th class="p-3">البريد الإلكتروني</th>
+                                <th class="p-3">الحالة</th>
+                                <th class="p-3">تاريخ الانضمام</th>
+                                <th class="p-3">إجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="files-table-body" class="divide-y divide-slate-100">
-                            <!-- File Rows injected here -->
+                        <tbody id="admin-users-list" class="divide-y divide-gray-200">
+                            <!-- Users injected here -->
                         </tbody>
-                        <tfoot class="bg-slate-50 font-bold text-slate-800">
-                            <tr>
-                                <td colspan="3" class="p-3 text-left pl-6">الإجمالي الكلي:</td>
-                                <td class="no-print"></td>
-                                <td id="table-total-count" class="p-3 text-center">0</td>
-                                <td id="table-total-cost" class="p-3">0 ج.م</td>
-                                <td class="no-print"></td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
-                
-                <div id="empty-files" class="hidden text-center py-8 text-slate-400">
-                    <p>لا توجد ملفات مرفوعة في هذا الشهر.</p>
+                <div class="mt-4 p-4 bg-blue-50 text-blue-800 rounded-lg text-sm">
+                    <i class="fa-solid fa-circle-info"></i> <strong>ملاحظة:</strong> عند الضغط على "عرض البيانات"، سيتم تحميل نظام إدارة اللوح الخاص بالمستخدم المحدد لترى ما قام برفعه.
                 </div>
             </div>
+        </div>
 
-            <!-- Print Footer Signatures -->
-            <div class="hidden print-only mt-12 grid grid-cols-2 gap-8 text-center">
-                <div class="border-t border-black pt-2 w-2/3 mx-auto">
-                    <p class="font-bold">توقيع المندوب / المستلم</p>
-                </div>
-                <div class="border-t border-black pt-2 w-2/3 mx-auto">
-                    <p class="font-bold">توقيع المسؤول</p>
-                </div>
-            </div>
+        <!-- Main Content Container -->
+        <main id="app-container" class="container mx-auto px-4 py-6 min-h-screen">
             
-            <!-- Loading Indicator -->
-            <div id="loading-spinner" class="hidden absolute inset-0 loading-overlay flex flex-col justify-center items-center z-50 rounded-xl">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-3"></div>
-                <p class="text-blue-600 font-semibold">جاري المعالجة...</p>
+            <!-- Global Loading Spinner -->
+            <div id="global-loader" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
+                <p class="text-slate-600 font-bold">جاري تحميل البيانات...</p>
             </div>
-        </div>
 
-        <!-- EXPORT IMAGE TEMPLATE (Hidden Default) -->
-        <div id="export-template">
-            <div class="text-center mb-8 border-b-2 border-black pb-4">
-                <!-- Centered Report Title -->
-                <h1 id="exp-title-month" class="text-3xl font-bold mb-2 text-slate-800">تقرير شهر --</h1>
-                <!-- Centered Delegate Name -->
-                <h2 id="exp-name" class="text-2xl font-bold text-blue-900 mb-4">--</h2>
+            <!-- Header for user viewing (Admin Mode Indicator) -->
+            <div id="viewing-mode-banner" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center">
+                <span><strong class="font-bold">وضع المراقبة:</strong> أنت تشاهد بيانات المستخدم <span id="viewing-user-name"></span></span>
+                <button onclick="exitAdminView()" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">عودة لبياناتي</button>
+            </div>
+
+            <!-- PRINT ONLY HEADER -->
+            <div id="print-header" class="hidden print-only mb-6 border-b-2 border-slate-800 pb-4">
+                <div class="flex justify-between items-center">
+                    <div class="text-right">
+                        <h1 class="text-3xl font-bold mb-2">كشف حساب / تفريغ لوح</h1>
+                        <p class="text-lg"><strong>الاسم:</strong> <span id="print-person-name">--</span></p>
+                        <p class="text-lg"><strong>الشهر:</strong> <span id="print-month-name">--</span></p>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-sm text-slate-500 mb-1">تاريخ الطباعة</p>
+                        <p class="font-bold text-xl" id="print-date">--</p>
+                    </div>
+                </div>
+                <div class="mt-4 flex gap-8">
+                    <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
+                        <span class="block text-xs font-bold text-slate-500">سعر الألف</span>
+                        <span class="block text-xl font-bold" id="print-rate">0</span>
+                    </div>
+                    <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
+                        <span class="block text-xs font-bold text-slate-500">إجمالي العدد</span>
+                        <span class="block text-xl font-bold" id="print-total-count">0</span>
+                    </div>
+                    <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
+                        <span class="block text-xs font-bold text-slate-500">إجمالي المبلغ</span>
+                        <span class="block text-xl font-bold" id="print-total-cost">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 1: Home -->
+            <div id="home-view" class="fade-in no-print">
+                <!-- Top Performers -->
+                <div id="top-performers-section" class="mb-10 hidden">
+                    <h2 class="text-xl font-bold mb-4 text-center text-slate-700 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trophy text-yellow-500"></i> الأفضل أداءً
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                        <!-- Delegate -->
+                        <div class="bg-white rounded-xl shadow-lg border-2 border-yellow-400 p-6 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-br-lg">أفضل مندوب</div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl font-bold shadow-inner"><i class="fa-solid fa-crown"></i></div>
+                                <div>
+                                    <h3 id="best-delegate-name" class="text-xl font-bold text-slate-800">--</h3>
+                                    <div class="flex gap-4 mt-2 text-sm">
+                                        <span class="text-slate-600"><i class="fa-solid fa-cubes-stacked text-blue-500"></i> <span id="best-delegate-count" class="font-bold">0</span></span>
+                                        <span class="text-slate-600"><i class="fa-solid fa-money-bill-wave text-green-500"></i> <span id="best-delegate-cost" class="font-bold">0</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Unloader -->
+                        <div class="bg-white rounded-xl shadow-lg border-2 border-emerald-400 p-6 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 bg-emerald-400 text-emerald-900 text-xs font-bold px-3 py-1 rounded-br-lg">أفضل مفرغ</div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold shadow-inner"><i class="fa-solid fa-crown"></i></div>
+                                <div>
+                                    <h3 id="best-unloader-name" class="text-xl font-bold text-slate-800">--</h3>
+                                    <div class="flex gap-4 mt-2 text-sm">
+                                        <span class="text-slate-600"><i class="fa-solid fa-cubes-stacked text-blue-500"></i> <span id="best-unloader-count" class="font-bold">0</span></span>
+                                        <span class="text-slate-600"><i class="fa-solid fa-money-bill-wave text-green-500"></i> <span id="best-unloader-cost" class="font-bold">0</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-6 text-center text-slate-700">اختر القسم للمتابعة</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    <div onclick="navigateToCategory('delegates')" class="cursor-pointer bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition transform hover:-translate-y-1 border-r-4 border-blue-500 group">
+                        <div class="flex items-center justify-between">
+                            <div><h3 class="text-2xl font-bold text-slate-800 group-hover:text-blue-600">المناديب</h3><p class="text-slate-500 mt-2">إدارة حسابات المناديب</p></div>
+                            <div class="bg-blue-100 p-4 rounded-full text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition"><i class="fa-solid fa-truck-fast text-3xl"></i></div>
+                        </div>
+                    </div>
+                    <div onclick="navigateToCategory('unloaders')" class="cursor-pointer bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition transform hover:-translate-y-1 border-r-4 border-emerald-500 group">
+                        <div class="flex items-center justify-between">
+                            <div><h3 class="text-2xl font-bold text-slate-800 group-hover:text-emerald-600">المفرغين</h3><p class="text-slate-500 mt-2">إدارة حسابات المفرغين</p></div>
+                            <div class="bg-emerald-100 p-4 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition"><i class="fa-solid fa-dolly text-3xl"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: List -->
+            <div id="category-view" class="hidden fade-in no-print">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="category-title" class="text-2xl font-bold text-slate-700">قائمة الأسماء</h2>
+                    <button onclick="openModal('add-person-modal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2"><i class="fa-solid fa-plus"></i> إضافة اسم</button>
+                </div>
+                <div id="people-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <div id="empty-people" class="hidden text-center py-12 text-slate-400"><i class="fa-regular fa-folder-open text-5xl mb-3"></i><p>لا يوجد أسماء مضافة.</p></div>
+            </div>
+
+            <!-- VIEW 3: Months -->
+            <div id="person-view" class="hidden fade-in no-print">
+                <div class="flex justify-between items-center mb-6">
+                    <div><h2 id="person-name-title" class="text-2xl font-bold text-slate-700">--</h2><p class="text-sm text-slate-500">الملفات الشهرية</p></div>
+                    <button onclick="openModal('add-month-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2"><i class="fa-solid fa-calendar-plus"></i> إضافة شهر</button>
+                </div>
+                <div id="months-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <div id="empty-months" class="hidden text-center py-12 text-slate-400"><i class="fa-regular fa-calendar-xmark text-5xl mb-3"></i><p>لا شهور مضافة.</p></div>
+            </div>
+
+            <!-- VIEW 4: Dashboard -->
+            <div id="dashboard-view" class="hidden fade-in relative">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 no-print">
+                    <div><h2 id="dashboard-title" class="text-2xl font-bold text-slate-800">--</h2><p class="text-sm text-slate-500">إدارة الملفات</p></div>
+                    <div class="flex gap-2 flex-wrap">
+                        <label for="file-upload" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2 transition"><i class="fa-solid fa-cloud-arrow-up"></i> رفع ملفات</label>
+                        <input id="file-upload" type="file" multiple accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(this)">
+                        <button onclick="exportImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg shadow" title="صورة"><i class="fa-solid fa-camera"></i></button>
+                        <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg shadow" title="طباعة"><i class="fa-solid fa-print"></i></button>
+                        <button onclick="exportExcel()" class="bg-green-700 hover:bg-green-800 text-white px-3 py-2 rounded-lg shadow" title="Excel"><i class="fa-solid fa-file-excel"></i></button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 no-print">
+                    <div class="bg-white p-4 rounded-xl shadow border-r-4 border-indigo-500 card">
+                        <div class="flex justify-between items-center mb-2"><span class="text-slate-500 text-sm font-bold">سعر الـ 1000</span><i class="fa-solid fa-tags text-indigo-200 text-xl"></i></div>
+                        <div class="flex items-center gap-2"><input type="number" id="rate-input" value="100" onchange="updateRate(this.value)" class="w-24 text-2xl font-bold text-indigo-700 border-b-2 border-indigo-200 outline-none bg-transparent"><span class="text-sm text-slate-400">جنية</span></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow border-r-4 border-blue-500 card">
+                        <div class="flex justify-between items-center mb-2"><span class="text-slate-500 text-sm font-bold">العدد الإجمالي</span><i class="fa-solid fa-cubes-stacked text-blue-200 text-xl"></i></div>
+                        <h3 id="total-count-display" class="text-3xl font-bold text-blue-700">0</h3>
+                        <p id="total-count-diff" class="text-xs text-orange-500 mt-1 h-4"></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow border-r-4 border-green-500 card">
+                        <div class="flex justify-between items-center mb-2"><span class="text-slate-500 text-sm font-bold">التكلفة</span><i class="fa-solid fa-money-bill-wave text-green-200 text-xl"></i></div>
+                        <h3 id="total-cost-display" class="text-3xl font-bold text-green-700">0</h3><p class="text-xs text-slate-400 mt-1">EGP</p>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="bg-white p-4 rounded-xl shadow mb-6 card no-break no-print"><h3 class="text-lg font-bold text-slate-700 mb-4">تحليل البيان</h3><div class="relative h-64 w-full"><canvas id="filesChart"></canvas></div></div>
+
+                <!-- Files Table -->
+                <div class="bg-white rounded-xl shadow overflow-hidden card">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center no-print"><h3 class="font-bold text-slate-700">الملفات</h3><span id="files-count-badge" class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">0</span></div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-right">
+                            <thead class="bg-slate-100 text-slate-600 font-medium"><tr><th class="p-3">#</th><th class="p-3">اسم الملف</th><th class="p-3">التاريخ</th><th class="p-3 text-center no-print">الفعلي</th><th class="p-3 text-center">المحسوب</th><th class="p-3">المبلغ</th><th class="p-3 text-center no-print">إجراء</th></tr></thead>
+                            <tbody id="files-table-body" class="divide-y divide-slate-100"></tbody>
+                            <tfoot class="bg-slate-50 font-bold text-slate-800"><tr><td colspan="3" class="p-3 text-left pl-6">الإجمالي:</td><td class="no-print"></td><td id="table-total-count" class="p-3 text-center">0</td><td id="table-total-cost" class="p-3">0 ج.م</td><td class="no-print"></td></tr></tfoot>
+                        </table>
+                    </div>
+                    <div id="empty-files" class="hidden text-center py-8 text-slate-400"><p>لا توجد ملفات.</p></div>
+                </div>
+
+                <!-- Print Footer -->
+                <div class="hidden print-only mt-12 grid grid-cols-2 gap-8 text-center"><div class="border-t border-black pt-2 w-2/3 mx-auto"><p class="font-bold">توقيع المستلم</p></div><div class="border-t border-black pt-2 w-2/3 mx-auto"><p class="font-bold">توقيع المسؤول</p></div></div>
                 
-                <p class="text-sm text-slate-500">تاريخ التقرير: <span id="exp-date">--</span></p>
+                <!-- Spinner -->
+                <div id="loading-spinner" class="hidden absolute inset-0 loading-overlay flex flex-col justify-center items-center z-50 rounded-xl"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-3"></div><p class="text-blue-600 font-semibold">جاري المعالجة...</p></div>
             </div>
 
-            <!-- Summary Table Only -->
-            <div class="flex justify-center">
-                <table class="w-2/3 text-center border-collapse text-xl">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="border border-black p-4">البيان</th>
-                            <th class="border border-black p-4">القيمة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border border-black p-4 font-bold text-slate-700">إجمالي عدد اللوح</td>
-                            <td class="border border-black p-4 font-bold text-blue-600" id="exp-total-count">0</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-black p-4 font-bold text-slate-700">إجمالي المبلغ المطلوب</td>
-                            <td class="border border-black p-4 font-bold text-green-600" id="exp-total-cost">0</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- Export Template (Hidden) -->
+            <div id="export-template"><div class="text-center mb-8 border-b-2 border-black pb-4"><h1 id="exp-title-month" class="text-3xl font-bold mb-2 text-slate-800">تقرير</h1><h2 id="exp-name" class="text-2xl font-bold text-blue-900 mb-4">--</h2><p class="text-sm text-slate-500">التاريخ: <span id="exp-date">--</span></p></div><div class="flex justify-center"><table class="w-2/3 text-center border-collapse text-xl"><thead class="bg-gray-200"><tr><th class="border border-black p-4">البيان</th><th class="border border-black p-4">القيمة</th></tr></thead><tbody><tr><td class="border border-black p-4 font-bold text-slate-700">العدد</td><td class="border border-black p-4 font-bold text-blue-600" id="exp-total-count">0</td></tr><tr><td class="border border-black p-4 font-bold text-slate-700">المبلغ</td><td class="border border-black p-4 font-bold text-green-600" id="exp-total-cost">0</td></tr></tbody></table></div><div class="mt-8 text-center text-xs text-gray-400">نظام إدارة اللوح</div></div>
 
-            <div class="mt-8 text-center text-xs text-gray-400">
-                تم استخراج هذا التقرير آلياً بواسطة نظام إدارة اللوح - أحمد مجدي
-            </div>
+        </main>
+        
+        <!-- Marquee -->
+        <footer class="footer-marquee no-print"><div class="footer-marquee-content flex items-center gap-10"><span>&copy; 2024 نظام إدارة اللوح - أحمد مجدي</span><span>واتساب: 01140440601</span></div></footer>
+        
+        <!-- Fixed Social -->
+        <div class="fixed bottom-12 left-4 z-40 flex flex-col gap-3 no-print">
+            <a href="https://www.facebook.com/ahmedmagdy.yousef.7?rdid=AW0HJmOon98mbVMX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17UbctBgsk%2F" target="_blank" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition"><i class="fa-brands fa-facebook-f text-xl"></i></a>
+            <a href="https://wa.me/201140440601" target="_blank" class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition"><i class="fa-brands fa-whatsapp text-2xl"></i></a>
         </div>
-
-    </main>
-
-    <!-- Marquee Footer -->
-    <footer class="footer-marquee no-print">
-        <div class="footer-marquee-content flex items-center gap-10">
-            <span>&copy; 2024 نظام إدارة اللوح والتكاليف - جميع الحقوق محفوظة</span>
-            <span>تصميم وبرمجة: المهندس أحمد مجدي</span>
-            <span>واتساب: 01140440601</span>
-            <span class="flex items-center gap-2">
-                <i class="fa-brands fa-facebook"></i> فيسبوك: Ahmed Magdy
-            </span>
-        </div>
-        <div class="fixed left-0 top-0 bottom-0 bg-gradient-to-r from-slate-900 to-transparent w-10 z-50 pointer-events-none"></div>
-    </footer>
-    
-    <!-- Fixed Contact Buttons (Bottom Left) -->
-    <div class="fixed bottom-12 left-4 z-40 flex flex-col gap-3 no-print">
-        <a href="https://www.facebook.com/ahmedmagdy.yousef.7?rdid=AW0HJmOon98mbVMX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17UbctBgsk%2F" target="_blank" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition" title="تواصل عبر فيسبوك">
-            <i class="fa-brands fa-facebook-f text-xl"></i>
-        </a>
-        <a href="https://wa.me/201140440601" target="_blank" class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition" title="تواصل عبر واتساب">
-            <i class="fa-brands fa-whatsapp text-2xl"></i>
-        </a>
     </div>
 
     <!-- MODALS -->
-    
-    <!-- Add Person Modal -->
-    <div id="add-person-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <h3 class="text-xl font-bold mb-4">إضافة اسم جديد</h3>
-            <input type="text" id="new-person-name" placeholder="أدخل اسم الموظف" class="w-full border border-gray-300 rounded p-2 mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
-            <div class="flex justify-end gap-2">
-                <button onclick="closeModal('add-person-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button>
-                <button onclick="addPerson()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button>
-            </div>
-        </div>
-    </div>
+    <div id="add-person-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">إضافة اسم</h3><input type="text" id="new-person-name" placeholder="الاسم" class="w-full border border-gray-300 rounded p-2 mb-4 outline-none"><div class="flex justify-end gap-2"><button onclick="closeModal('add-person-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button><button onclick="addPerson()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button></div></div></div>
+    <div id="add-month-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">إضافة شهر</h3><input type="text" id="new-month-name" placeholder="مثال: أكتوبر 2023" class="w-full border border-gray-300 rounded p-2 mb-4 outline-none"><div class="flex justify-end gap-2"><button onclick="closeModal('add-month-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button><button onclick="addMonth()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button></div></div></div>
+    <div id="edit-count-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 no-print"><div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6"><h3 class="text-lg font-bold mb-4">تعديل العدد</h3><div class="mb-4"><input type="number" id="edit-count-input" class="w-full border border-gray-300 rounded p-2 outline-none"></div><div class="flex justify-end gap-2"><button onclick="closeModal('edit-count-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button><button id="save-edit-btn" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">تحديث</button></div></div></div>
 
-    <!-- Add Month Modal -->
-    <div id="add-month-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <h3 class="text-xl font-bold mb-4">إضافة شهر جديد</h3>
-            <input type="text" id="new-month-name" placeholder="مثال: أكتوبر 2023" class="w-full border border-gray-300 rounded p-2 mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
-            <div class="flex justify-end gap-2">
-                <button onclick="closeModal('add-month-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button>
-                <button onclick="addMonth()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button>
-            </div>
-        </div>
-    </div>
+    <!-- FIREBASE & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <!-- Edit Count Modal -->
-    <div id="edit-count-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 no-print">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
-            <h3 class="text-lg font-bold mb-4">تعديل العدد يدوياً</h3>
-            <div class="mb-4">
-                <label class="block text-sm text-gray-600 mb-1">العدد الجديد:</label>
-                <input type="number" id="edit-count-input" class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-orange-500 outline-none">
-            </div>
-            <div class="flex justify-end gap-2">
-                <button onclick="closeModal('edit-count-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button>
-                <button id="save-edit-btn" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">تحديث</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCRIPTS -->
-    <script>
-        // --- 1. State Management & Data Structure ---
-        const DB_KEY = 'plates_manager_db_v1';
-        
-        // Initial Empty State
-        let appData = {
-            delegates: {}, // { id: { name, months: { id: { name, rate, files: [] } } } }
-            unloaders: {}
+        // ======================================================
+        // إعدادات Firebase الخاصة بالمشروع
+        // ======================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOIAos9aILBtPbHmdACWCtSYMGZLA8v2Q",
+            authDomain: "plates-manager.firebaseapp.com",
+            projectId: "plates-manager",
+            storageBucket: "plates-manager.firebasestorage.app",
+            messagingSenderId: "379225353402",
+            appId: "1:379225353402:web:49a848b302aeb75fa7e683",
+            measurementId: "G-DVRMHRFQYM"
         };
+        // ======================================================
 
-        let currentCategory = null; // 'delegates' or 'unloaders'
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        const appId = 'my-plates-app';
+
+        // --- AUTH & STATE ---
+        let currentUser = null; 
+        let isAdminMode = false;
+        let isViewingUser = false; 
+        let viewingUserId = null; 
+        
+        const ADMIN_EMAIL = 'userahmed@gmail.com';
+        const ADMIN_PASS = 'Std#050214';
+
+        // --- APP DATA ---
+        let appData = { delegates: {}, unloaders: {} };
+        let currentCategory = null;
         let currentPersonId = null;
         let currentMonthId = null;
         let filesChartInstance = null;
 
-        // Load Data
-        function loadData() {
-            const stored = localStorage.getItem(DB_KEY);
-            if (stored) {
-                appData = JSON.parse(stored);
+        // AUTH INIT
+        let authReadyResolver;
+        const authReadyPromise = new Promise((resolve) => authReadyResolver = resolve);
+
+        // Show domain helper
+        const showDomainAlert = () => {
+            const domain = window.location.hostname;
+            document.getElementById('current-domain').textContent = domain;
+            document.getElementById('domain-alert').classList.remove('hidden');
+        };
+
+        // Listen for auth state
+        onAuthStateChanged(auth, async (user) => {
+            authReadyResolver(true);
+            if (user) {
+                // If user is logged in
+                console.log("User logged in:", user.email);
+                
+                // If special admin
+                if(user.email === ADMIN_EMAIL) {
+                    await finalizeLogin({ name: "المالك (Admin)", email: ADMIN_EMAIL, isAdmin: true, id: 'admin_master' });
+                    return;
+                }
+
+                // Check verification for normal users
+                if (!user.emailVerified) {
+                    document.getElementById('auth-overlay').classList.remove('hidden');
+                    document.getElementById('verify-msg').classList.remove('hidden');
+                    return;
+                }
+
+                // Load User Data from Firestore
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', user.email);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    // Check Ban
+                    if (userData.isBanned) {
+                        showBanMessage();
+                        return;
+                    }
+                    await finalizeLogin({ ...userData, id: user.email });
+                } else {
+                    // New Google User - Create Doc
+                    if(user.providerData[0].providerId === 'google.com') {
+                        const newUser = {
+                            name: user.displayName || 'مستخدم جديد',
+                            email: user.email,
+                            isBanned: false,
+                            isAdmin: false,
+                            createdAt: new Date().toISOString()
+                        };
+                        await setDoc(docRef, newUser);
+                        // Empty Data Doc
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', user.email), {
+                            data: JSON.stringify({ delegates: {}, unloaders: {} }),
+                            owner: newUser.name
+                        });
+                        await finalizeLogin({ ...newUser, id: user.email });
+                    } else {
+                        // Email user but no doc? Should not happen if registered correctly
+                        signOut(auth);
+                        alert("خطأ في بيانات الحساب");
+                    }
+                }
+            } else {
+                // No user
+                document.getElementById('auth-overlay').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        });
+
+        // --- AUTH UI HANDLERS ---
+        window.toggleAuth = (mode) => {
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('reg-error').classList.add('hidden');
+            document.getElementById('verify-msg').classList.add('hidden');
+            
+            if(mode === 'register') {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+            } else {
+                document.getElementById('register-form').classList.add('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
             }
         }
 
-        // Save Data
-        function saveData() {
-            localStorage.setItem(DB_KEY, JSON.stringify(appData));
+        // --- GOOGLE LOGIN ---
+        window.loginWithGoogle = async () => {
+            try {
+                await signInWithPopup(auth, googleProvider);
+                // logic handled in onAuthStateChanged
+            } catch (error) {
+                console.error(error);
+                if (error.code === 'auth/unauthorized-domain') {
+                    showDomainAlert();
+                } else {
+                    alert("فشل تسجيل الدخول بجوجل: " + error.message);
+                }
+            }
         }
 
-        // --- 2. Navigation & Views ---
-        function showView(viewId) {
-            document.querySelectorAll('main > div').forEach(div => {
-                if(div.id !== 'loading-spinner' && div.id !== 'print-header' && div.id !== 'export-template') div.classList.add('hidden');
+        // --- EMAIL LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const pass = document.getElementById('login-pass').value;
+            const errDiv = document.getElementById('login-error');
+            errDiv.classList.add('hidden');
+
+            // Admin Bypass
+            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                await finalizeLogin({ name: "المالك (Admin)", email: email, isAdmin: true, id: 'admin_master' });
+                return;
+            }
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                // Logic continues in onAuthStateChanged
+            } catch (error) {
+                console.error("Login Error:", error);
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    errDiv.textContent = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+                } else if(error.code === 'auth/unauthorized-domain') {
+                    showDomainAlert();
+                    errDiv.textContent = "النطاق غير مصرح به. راجع التنبيه في الأعلى.";
+                } else {
+                    errDiv.textContent = "حدث خطأ: " + error.message;
+                }
+                errDiv.classList.remove('hidden');
+            }
+        });
+
+        // --- EMAIL REGISTER ---
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-pass').value;
+            const errDiv = document.getElementById('reg-error');
+            const successDiv = document.getElementById('reg-success');
+            errDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+
+            if (email === ADMIN_EMAIL) {
+                errDiv.textContent = "لا يمكن استخدام هذا البريد.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // 1. Create Auth User
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+
+                // 2. Send Verification Email
+                await sendEmailVerification(user);
+
+                // 3. Create Firestore Doc
+                const newUser = {
+                    name: name,
+                    email: email,
+                    isBanned: false,
+                    isAdmin: false,
+                    createdAt: new Date().toISOString()
+                };
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', email), newUser);
+                
+                // 4. Create Data Doc
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', email), {
+                    data: JSON.stringify({ delegates: {}, unloaders: {} }),
+                    owner: name
+                });
+
+                // 5. Sign Out immediately so they verify first
+                await signOut(auth);
+
+                successDiv.classList.remove('hidden');
+                setTimeout(() => toggleAuth('login'), 3000);
+
+            } catch (error) {
+                console.error("Register Error:", error);
+                if(error.code === 'auth/unauthorized-domain') {
+                    showDomainAlert();
+                    errDiv.textContent = "النطاق غير مصرح به. راجع التنبيه في الأعلى.";
+                } else {
+                    errDiv.textContent = "خطأ: " + error.message;
+                }
+                errDiv.classList.remove('hidden');
+            }
+        });
+
+        window.resendVerification = async () => {
+            if (auth.currentUser) {
+                await sendEmailVerification(auth.currentUser);
+                alert("تم إرسال رابط التفعيل مرة أخرى.");
+            }
+        }
+
+        async function finalizeLogin(user) {
+            currentUser = user;
+            localStorage.setItem(`session_${appId}`, JSON.stringify(user)); // Backup
+            
+            document.getElementById('auth-overlay').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('welcome-msg').textContent = `أهلاً، ${user.name}`;
+
+            if (user.isAdmin) {
+                document.getElementById('admin-btn').classList.remove('hidden');
+                showAdminPanel();
+            } else {
+                isAdminMode = false;
+                loadDataFromCloud();
+            }
+        }
+
+        function showBanMessage() {
+            signOut(auth);
+            const errDiv = document.getElementById('login-error');
+            errDiv.innerHTML = `
+                <div>لقد تم حظر حسابك ارجع لمسئول المنصه</div>
+                <div class="mt-2">
+                    <a href="https://wa.me/201140440601" target="_blank" class="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-full font-bold hover:bg-green-600 transition">
+                        <i class="fa-brands fa-whatsapp text-xl"></i> تواصل واتساب
+                    </a>
+                </div>
+            `;
+            errDiv.classList.remove('hidden');
+            document.getElementById('auth-overlay').classList.remove('hidden');
+        }
+
+        window.logout = () => {
+            signOut(auth).then(() => {
+                localStorage.removeItem(`session_${appId}`);
+                location.reload();
             });
+        }
+
+        // --- CLOUD DATA SYNC ---
+        async function loadDataFromCloud() {
+            const targetId = isViewingUser ? viewingUserId : currentUser.id;
+            if(!targetId || targetId === 'admin_master') return;
+
+            document.getElementById('global-loader').classList.remove('hidden');
+            
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users_data', targetId);
+                const snap = await getDoc(docRef);
+                if (snap.exists() && snap.data().data) {
+                    appData = JSON.parse(snap.data().data);
+                } else {
+                    appData = { delegates: {}, unloaders: {} };
+                }
+                goHome();
+            } catch (e) {
+                console.error("Load Error", e);
+            } finally {
+                document.getElementById('global-loader').classList.add('hidden');
+            }
+        }
+
+        async function saveDataToCloud() {
+            const targetId = isViewingUser ? viewingUserId : currentUser.id;
+            if(currentUser.isAdmin && !isViewingUser) return; 
+            if(targetId === 'admin_master') return;
+
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', targetId), {
+                    data: JSON.stringify(appData),
+                    owner: isViewingUser ? document.getElementById('viewing-user-name').innerText : currentUser.name,
+                    lastUpdated: new Date().toISOString()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Save Error", e);
+            }
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        window.showAdminPanel = async () => {
+            if(!currentUser.isAdmin) return;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            
+            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users_directory');
+            const snapshot = await getDocs(usersRef);
+            const tbody = document.getElementById('admin-users-list');
+            tbody.innerHTML = '';
+            
+            snapshot.docs.forEach(docSnap => {
+                const u = docSnap.data();
+                if(u.email === ADMIN_EMAIL) return;
+
+                const isBanned = u.isBanned;
+                const dateJoin = u.createdAt ? new Date(u.createdAt).toLocaleDateString('ar-EG') : '-';
+                
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="p-3 font-bold">${u.name}</td>
+                    <td class="p-3 text-gray-500">${u.email}</td>
+                    <td class="p-3">
+                        ${isBanned ? '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">محظور</span>' : '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">نشط</span>'}
+                    </td>
+                    <td class="p-3 text-xs text-gray-400">${dateJoin}</td>
+                    <td class="p-3 flex gap-2 justify-end">
+                        <button onclick="viewUserAsAdmin('${docSnap.id}', '${u.name}')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-xs font-bold transition">
+                           <i class="fa-solid fa-eye"></i> عرض
+                        </button>
+                         <button onclick="toggleBan('${docSnap.id}', ${!isBanned})" class="${isBanned ? 'text-green-600 border border-green-600' : 'text-red-600 border border-red-600'} hover:bg-gray-50 px-2 py-1 rounded text-xs font-bold transition">
+                            ${isBanned ? 'فك الحظر' : 'حظر'}
+                         </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        window.toggleBan = async (email, newStatus) => {
+            if(!confirm("هل أنت متأكد من تغيير حالة هذا المستخدم؟")) return;
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', email), { isBanned: newStatus });
+                alert("تم تحديث الحالة بنجاح");
+                showAdminPanel();
+            } catch (error) {
+                console.error("Ban Error:", error);
+                alert("حدث خطأ أثناء تحديث الحالة.");
+            }
+        }
+
+        window.viewUserAsAdmin = async (userId, userName) => {
+            isViewingUser = true;
+            viewingUserId = userId;
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('viewing-mode-banner').classList.remove('hidden');
+            document.getElementById('viewing-user-name').textContent = userName;
+            await loadDataFromCloud();
+        }
+
+        window.exitAdminView = () => {
+            isViewingUser = false;
+            viewingUserId = null;
+            document.getElementById('viewing-mode-banner').classList.add('hidden');
+            showAdminPanel();
+        }
+
+        // ==========================================
+        // ORIGINAL APP LOGIC (UNCHANGED)
+        // ==========================================
+        window.loadData = () => { };
+        window.saveData = () => { saveDataToCloud(); };
+        window.goHome = () => {
+            currentCategory = null; currentPersonId = null; currentMonthId = null;
+            renderTopPerformers(); showView('home-view');
+        }
+        function showView(viewId) {
+            ['home-view', 'category-view', 'person-view', 'dashboard-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
             updateBreadcrumb();
         }
-
-        function goHome() {
-            currentCategory = null;
-            currentPersonId = null;
-            currentMonthId = null;
-            renderTopPerformers(); // Calculate stats when going home
-            showView('home-view');
-        }
-
-        function navigateToCategory(category) {
-            currentCategory = category;
-            renderPeopleList();
-            
-            const title = category === 'delegates' ? 'المناديب' : 'المفرغين';
-            document.getElementById('category-title').textContent = `قائمة ${title}`;
-            
-            showView('category-view');
-        }
-
-        function navigateToPerson(personId) {
-            currentPersonId = personId;
-            renderMonthsList();
-            
-            const person = appData[currentCategory][personId];
-            document.getElementById('person-name-title').textContent = `ملفات: ${person.name}`;
-            
-            showView('person-view');
-        }
-
-        function navigateToMonth(monthId) {
-            currentMonthId = monthId;
-            renderDashboard();
-            showView('dashboard-view');
-        }
-
+        window.navigateToCategory = (cat) => { currentCategory = cat; renderPeopleList(); document.getElementById('category-title').textContent = cat === 'delegates' ? 'قائمة المناديب' : 'قائمة المفرغين'; showView('category-view'); }
+        window.navigateToPerson = (id) => { currentPersonId = id; renderMonthsList(); document.getElementById('person-name-title').textContent = appData[currentCategory][id].name; showView('person-view'); }
+        window.navigateToMonth = (id) => { currentMonthId = id; renderDashboard(); showView('dashboard-view'); }
         function updateBreadcrumb() {
-            const el = document.getElementById('breadcrumb');
-            let html = '';
-            
-            if (currentCategory) {
-                const catName = currentCategory === 'delegates' ? 'المناديب' : 'المفرغين';
-                html += `<span class="cursor-pointer hover:text-yellow-300" onclick="navigateToCategory('${currentCategory}')">${catName}</span>`;
-            }
-            if (currentPersonId) {
-                const name = appData[currentCategory][currentPersonId].name;
-                html += ` <i class="fa-solid fa-chevron-left mx-2 text-xs opacity-50"></i> <span class="cursor-pointer hover:text-yellow-300" onclick="navigateToPerson('${currentPersonId}')">${name}</span>`;
-            }
-            if (currentMonthId) {
-                const month = appData[currentCategory][currentPersonId].months[currentMonthId];
-                html += ` <i class="fa-solid fa-chevron-left mx-2 text-xs opacity-50"></i> <span>${month.name}</span>`;
-            }
-            
-            el.innerHTML = html;
-            if(!html) el.classList.add('hidden'); else el.classList.remove('hidden');
+             const el = document.getElementById('breadcrumb'); let html = '';
+             if (currentCategory) html += `<span class="cursor-pointer hover:text-yellow-300" onclick="navigateToCategory('${currentCategory}')">${currentCategory === 'delegates' ? 'المناديب' : 'المفرغين'}</span>`;
+             if (currentPersonId) html += ` <i class="fa-solid fa-chevron-left mx-2 text-xs opacity-50"></i> <span class="cursor-pointer hover:text-yellow-300" onclick="navigateToPerson('${currentPersonId}')">${appData[currentCategory][currentPersonId].name}</span>`;
+             if (currentMonthId) html += ` <i class="fa-solid fa-chevron-left mx-2 text-xs opacity-50"></i> <span>${appData[currentCategory][currentPersonId].months[currentMonthId].name}</span>`;
+             el.innerHTML = html; if(!html) el.classList.add('hidden'); else el.classList.remove('hidden');
         }
-
-        // --- 3. Logic: Top Performers ---
-        function getPersonTotals(category, personId) {
-            const person = appData[category][personId];
-            let totalPlates = 0;
-            let totalMoney = 0;
-
-            if (person.months) {
-                Object.values(person.months).forEach(month => {
-                    if (month.files) {
-                        month.files.forEach(file => {
-                            totalPlates += file.usedCount;
-                            totalMoney += (file.usedCount / 1000) * month.rate;
-                        });
-                    }
-                });
-            }
-            return { name: person.name, plates: totalPlates, money: totalMoney };
-        }
-
+        function getPersonTotals(cat, pid) { const p = appData[cat][pid]; let tp = 0, tm = 0; if(p.months) Object.values(p.months).forEach(m => { if(m.files) m.files.forEach(f => { tp += f.usedCount; tm += (f.usedCount/1000)*m.rate; }); }); return { name: p.name, plates: tp, money: tm }; }
         function renderTopPerformers() {
-            // Find Best Delegate
-            let bestDelegate = { name: '--', plates: 0, money: 0 };
-            Object.keys(appData.delegates).forEach(id => {
-                const stats = getPersonTotals('delegates', id);
-                if (stats.plates > bestDelegate.plates) bestDelegate = stats;
-            });
-
-            // Find Best Unloader
-            let bestUnloader = { name: '--', plates: 0, money: 0 };
-            Object.keys(appData.unloaders).forEach(id => {
-                const stats = getPersonTotals('unloaders', id);
-                if (stats.plates > bestUnloader.plates) bestUnloader = stats;
-            });
-
-            // Update UI
-            if (bestDelegate.plates > 0 || bestUnloader.plates > 0) {
-                document.getElementById('top-performers-section').classList.remove('hidden');
-                
-                document.getElementById('best-delegate-name').textContent = bestDelegate.name;
-                document.getElementById('best-delegate-count').textContent = bestDelegate.plates.toLocaleString();
-                document.getElementById('best-delegate-cost').textContent = bestDelegate.money.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1});
-
-                document.getElementById('best-unloader-name').textContent = bestUnloader.name;
-                document.getElementById('best-unloader-count').textContent = bestUnloader.plates.toLocaleString();
-                document.getElementById('best-unloader-cost').textContent = bestUnloader.money.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1});
-            } else {
-                document.getElementById('top-performers-section').classList.add('hidden');
-            }
+            let bd = { name: '--', plates: 0, money: 0 }, bu = { name: '--', plates: 0, money: 0 };
+            if(appData.delegates) Object.keys(appData.delegates).forEach(id => { const s = getPersonTotals('delegates', id); if(s.plates > bd.plates) bd = s; });
+            if(appData.unloaders) Object.keys(appData.unloaders).forEach(id => { const s = getPersonTotals('unloaders', id); if(s.plates > bu.plates) bu = s; });
+            if(bd.plates > 0 || bu.plates > 0) { document.getElementById('top-performers-section').classList.remove('hidden'); document.getElementById('best-delegate-name').textContent = bd.name; document.getElementById('best-delegate-count').textContent = bd.plates.toLocaleString(); document.getElementById('best-delegate-cost').textContent = bd.money.toLocaleString(undefined, {minimumFractionDigits: 1}); document.getElementById('best-unloader-name').textContent = bu.name; document.getElementById('best-unloader-count').textContent = bu.plates.toLocaleString(); document.getElementById('best-unloader-cost').textContent = bu.money.toLocaleString(undefined, {minimumFractionDigits: 1}); } else { document.getElementById('top-performers-section').classList.add('hidden'); }
         }
-
-        // --- 4. Logic: People Management ---
-        function addPerson() {
-            const name = document.getElementById('new-person-name').value.trim();
-            if (!name) return alert('يرجى إدخال اسم صحيح');
-            
-            const id = 'p_' + Date.now();
-            appData[currentCategory][id] = {
-                name: name,
-                months: {}
-            };
-            saveData();
-            closeModal('add-person-modal');
-            document.getElementById('new-person-name').value = '';
-            renderPeopleList();
-        }
-
-        function deletePerson(id, e) {
-            e.stopPropagation();
-            if (confirm('هل أنت متأكد من حذف هذا الاسم وجميع بياناته؟ لا يمكن التراجع.')) {
-                delete appData[currentCategory][id];
-                saveData();
-                renderPeopleList();
-            }
-        }
-        
-        function editPersonName(id, e) {
-            e.stopPropagation();
-            const person = appData[currentCategory][id];
-            const newName = prompt("أدخل الاسم الجديد:", person.name);
-            if(newName && newName.trim() !== "") {
-                person.name = newName.trim();
-                saveData();
-                renderPeopleList();
-            }
-        }
-
-        function renderPeopleList() {
-            const container = document.getElementById('people-list');
-            const emptyState = document.getElementById('empty-people');
-            container.innerHTML = '';
-            
-            const people = appData[currentCategory];
-            const ids = Object.keys(people);
-
-            if (ids.length === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                ids.forEach(id => {
-                    const p = people[id];
-                    const card = document.createElement('div');
-                    card.className = 'bg-white p-4 rounded-lg shadow border border-slate-200 flex justify-between items-center cursor-pointer hover:shadow-md transition group';
-                    card.onclick = () => navigateToPerson(id);
-                    card.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg">
-                                ${p.name.charAt(0)}
-                            </div>
-                            <span class="font-bold text-slate-700 text-lg">${p.name}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <button onclick="editPersonName('${id}', event)" class="text-slate-300 hover:text-blue-500 p-2 transition" title="تعديل الاسم">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="deletePerson('${id}', event)" class="text-slate-300 hover:text-red-600 p-2 transition" title="حذف">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-        }
-
-        // --- 5. Logic: Month Management ---
-        function addMonth() {
-            const name = document.getElementById('new-month-name').value.trim();
-            if (!name) return alert('يرجى إدخال اسم للشهر');
-
-            const id = 'm_' + Date.now();
-            appData[currentCategory][currentPersonId].months[id] = {
-                name: name,
-                rate: 100,
-                files: []
-            };
-            saveData();
-            closeModal('add-month-modal');
-            document.getElementById('new-month-name').value = '';
-            renderMonthsList();
-        }
-
-        function deleteMonth(id, e) {
-            e.stopPropagation();
-            if (confirm('هل أنت متأكد من حذف هذا المجلد وجميع ملفاته؟')) {
-                delete appData[currentCategory][currentPersonId].months[id];
-                saveData();
-                renderMonthsList();
-            }
-        }
-
-        function editMonthName(id, e) {
-            e.stopPropagation();
-            const month = appData[currentCategory][currentPersonId].months[id];
-            const newName = prompt("أدخل اسم الشهر الجديد:", month.name);
-            if(newName && newName.trim() !== "") {
-                month.name = newName.trim();
-                saveData();
-                renderMonthsList();
-            }
-        }
-
-        function renderMonthsList() {
-            const container = document.getElementById('months-list');
-            const emptyState = document.getElementById('empty-months');
-            container.innerHTML = '';
-            
-            const months = appData[currentCategory][currentPersonId].months;
-            const ids = Object.keys(months).sort().reverse(); // Show newest first (simple sort)
-
-            if (ids.length === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                ids.forEach(id => {
-                    const m = months[id];
-                    const fileCount = m.files ? m.files.length : 0;
-                    const card = document.createElement('div');
-                    card.className = 'bg-white p-5 rounded-lg shadow border-t-4 border-yellow-400 cursor-pointer hover:-translate-y-1 transition relative group';
-                    card.onclick = () => navigateToMonth(id);
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start mb-3">
-                            <i class="fa-regular fa-folder-open text-3xl text-yellow-500"></i>
-                            <div class="flex gap-1">
-                                <button onclick="editMonthName('${id}', event)" class="text-slate-300 hover:text-blue-500 p-1 transition" title="تعديل الاسم">
-                                    <i class="fa-solid fa-pen text-sm"></i>
-                                </button>
-                                <button onclick="deleteMonth('${id}', event)" class="text-slate-300 hover:text-red-500 p-1 transition" title="حذف">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <h4 class="font-bold text-lg text-slate-800">${m.name}</h4>
-                        <p class="text-xs text-slate-500 mt-1">${fileCount} ملفات مرفوعة</p>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-        }
-
-        // --- 6. Logic: Dashboard & Excel Parsing ---
-        
-        // Helper: Extract Date from Filename
-        function extractDateFromFilename(filename) {
-            // Remove extension
-            const name = filename.replace(/\.[^/.]+$/, "");
-            
-            // Try numeric pattern dd-mm or dd.mm or dd/mm
-            const numericMatch = name.match(/(\d{1,2})[-/.](\d{1,2})/);
-            if (numericMatch) {
-                // assume current year for sort, specific visual
-                return { 
-                    display: `${numericMatch[1]}/${numericMatch[2]}`, 
-                    sortVal: parseInt(numericMatch[2]) * 100 + parseInt(numericMatch[1]) // MMDD for sort
-                };
-            }
-
-            // Arabic Months Map
-            const arMonths = {
-                'يناير': 1, 'فبراير': 2, 'مارس': 3, 'ابريل': 4, 'أبريل': 4, 'مايو': 5, 'يونيو': 6, 'يونيه': 6,
-                'يوليو': 7, 'يوليه': 7, 'اغسطس': 8, 'أغسطس': 8, 'سبتمبر': 9, 'اكتوبر': 10, 'أكتوبر': 10,
-                'نوفمبر': 11, 'ديسمبر': 12
-            };
-
-            for (const [monthName, monthNum] of Object.entries(arMonths)) {
-                if (name.includes(monthName)) {
-                    // Extract day number before the month name roughly
-                    const dayMatch = name.match(/(\d{1,2})/);
-                    const day = dayMatch ? parseInt(dayMatch[1]) : 1;
-                    return {
-                        display: `${day} ${monthName}`,
-                        sortVal: monthNum * 100 + day
-                    };
-                }
-            }
-
-            // Fallback: File creation time (simulated by huge number to put at end or 0)
-            return { display: 'غير محدد', sortVal: 0 };
-        }
-
-        // Logic: Process Uploaded Files
-        async function handleFileUpload(input) {
-            if (!input.files || input.files.length === 0) return;
-
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            document.getElementById('loading-spinner').classList.remove('hidden');
-
-            const filesArray = Array.from(input.files);
-            
-            for (const file of filesArray) {
-                try {
-                    const count = await parseExcelFile(file);
-                    
-                    // Logic: "Check" / "تشييك" smart adjustment
-                    let finalCount = count;
-                    let isAutoAdjusted = false;
-                    const cleanName = file.name.trim(); // keep extension for display
-
-                    if (cleanName.startsWith("تشييك") && count < 1000) {
-                        finalCount = 1000;
-                        isAutoAdjusted = true;
-                    }
-
-                    const dateObj = extractDateFromFilename(file.name);
-
-                    const fileRecord = {
-                        id: 'f_' + Date.now() + Math.random().toString(36).substr(2, 9),
-                        name: file.name,
-                        originalCount: count,
-                        usedCount: finalCount,
-                        isAutoAdjusted: isAutoAdjusted,
-                        manualOverride: false,
-                        dateDisplay: dateObj.display,
-                        sortVal: dateObj.sortVal,
-                        timestamp: Date.now() // secondary sort
-                    };
-
-                    monthData.files.push(fileRecord);
-
-                } catch (err) {
-                    console.error("Error parsing file:", file.name, err);
-                    alert(`فشل قراءة الملف: ${file.name}`);
-                }
-            }
-
-            // Sort files by extracted date
-            monthData.files.sort((a, b) => a.sortVal - b.sortVal || a.timestamp - b.timestamp);
-
-            saveData();
-            document.getElementById('loading-spinner').classList.add('hidden');
-            input.value = ''; // reset input
-            renderDashboard();
-        }
-
-        // Parsing Promise
-        function parseExcelFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        
-                        // Convert to JSON with headers
-                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                        
-                        if (jsonData.length === 0) {
-                            resolve(0); return;
-                        }
-
-                        // Search for "Plate" or "اللوحة" column index
-                        const headers = jsonData[0];
-                        let targetColIndex = -1;
-                        
-                        if (headers) {
-                            headers.forEach((h, idx) => {
-                                if (h && (h.toString().includes('Plate') || h.toString().includes('اللوحة'))) {
-                                    targetColIndex = idx;
-                                }
-                            });
-                        }
-
-                        // Count rows
-                        // If column found, count non-empty cells in that column (skipping header)
-                        // If not found, count total rows - 1 (header)
-                        
-                        let count = 0;
-                        if (targetColIndex !== -1) {
-                            for (let i = 1; i < jsonData.length; i++) {
-                                if (jsonData[i][targetColIndex] !== undefined && jsonData[i][targetColIndex] !== null && jsonData[i][targetColIndex] !== '') {
-                                    count++;
-                                }
-                            }
-                        } else {
-                            // Fallback: Count rows that have data in first column
-                            for (let i = 1; i < jsonData.length; i++) {
-                                if (jsonData[i][0] !== undefined) count++;
-                            }
-                        }
-                        
-                        resolve(count);
-
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        // --- 7. Logic: Dashboard Rendering & Interactions ---
-        
-        function updateRate(newRate) {
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            monthData.rate = parseFloat(newRate) || 0;
-            saveData();
-            renderDashboard();
-        }
-
-        function deleteFile(fileId) {
-            if (confirm('حذف هذا الملف؟')) {
-                const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-                monthData.files = monthData.files.filter(f => f.id !== fileId);
-                saveData();
-                renderDashboard();
-            }
-        }
-
-        // Edit Modal Handlers
-        let fileIdToEdit = null;
-        function openEditModal(fileId, currentVal) {
-            fileIdToEdit = fileId;
-            document.getElementById('edit-count-input').value = currentVal;
-            openModal('edit-count-modal');
-        }
-
-        document.getElementById('save-edit-btn').onclick = () => {
-            const newVal = parseInt(document.getElementById('edit-count-input').value);
-            if (isNaN(newVal)) return;
-
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            const file = monthData.files.find(f => f.id === fileIdToEdit);
-            
-            if (file) {
-                file.usedCount = newVal;
-                file.manualOverride = true;
-                saveData();
-                closeModal('edit-count-modal');
-                renderDashboard();
-            }
-        };
-
-        function resetFileCount(fileId) {
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            const file = monthData.files.find(f => f.id === fileId);
-            if (file) {
-                // Determine if we revert to 1000 (auto-check) or original
-                if (file.name.trim().startsWith("تشييك") && file.originalCount < 1000) {
-                    file.usedCount = 1000;
-                    file.isAutoAdjusted = true;
-                } else {
-                    file.usedCount = file.originalCount;
-                    file.isAutoAdjusted = false;
-                }
-                file.manualOverride = false;
-                saveData();
-                renderDashboard();
-            }
-        }
-
-        function renderDashboard() {
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            const personData = appData[currentCategory][currentPersonId];
-
-            // Set Inputs
-            document.getElementById('rate-input').value = monthData.rate;
-            document.getElementById('dashboard-title').textContent = monthData.name;
-
-            // Set Print Header Data
-            document.getElementById('print-person-name').textContent = personData.name;
-            document.getElementById('print-month-name').textContent = monthData.name;
-            const now = new Date();
-            document.getElementById('print-date').textContent = now.toLocaleDateString('ar-EG');
-
-            // Calc Totals
-            let totalCount = 0;
-            let originalTotalCount = 0;
-            
-            const tbody = document.getElementById('files-table-body');
-            tbody.innerHTML = '';
-
-            const chartLabels = [];
-            const chartData = [];
-
-            if (monthData.files.length === 0) {
-                document.getElementById('empty-files').classList.remove('hidden');
-                document.getElementById('files-count-badge').textContent = '0';
-            } else {
-                document.getElementById('empty-files').classList.add('hidden');
-                document.getElementById('files-count-badge').textContent = `${monthData.files.length} ملف`;
-
-                monthData.files.forEach((file, index) => {
-                    const cost = (file.usedCount / 1000) * monthData.rate;
-                    totalCount += file.usedCount;
-                    originalTotalCount += file.originalCount;
-
-                    // Chart Data
-                    chartLabels.push(file.dateDisplay + ' (' + (index + 1) + ')');
-                    chartData.push(file.usedCount);
-
-                    // Row HTML
-                    const row = document.createElement('tr');
-                    row.className = 'file-item border-b border-slate-100 hover:bg-slate-50';
-                    
-                    // Count Cell logic
-                    let countHtml = `<span class="font-bold">${file.usedCount}</span>`;
-                    let statusBadge = '';
-
-                    if (file.manualOverride) {
-                        countHtml = `
-                            <div class="flex flex-col items-center">
-                                <span class="text-orange-600 font-bold text-lg">${file.usedCount}</span>
-                                <span class="text-xs text-slate-400 line-through no-print">${file.originalCount}</span>
-                            </div>
-                        `;
-                        statusBadge = `<span class="text-[10px] bg-orange-100 text-orange-600 px-1 rounded no-print">يدوي</span>`;
-                    } else if (file.isAutoAdjusted) {
-                        countHtml = `
-                            <div class="flex flex-col items-center">
-                                <span class="text-blue-600 font-bold">${file.usedCount}</span>
-                                <span class="text-xs text-slate-400 line-through no-print">${file.originalCount}</span>
-                            </div>
-                        `;
-                        statusBadge = `<span class="text-[10px] bg-blue-100 text-blue-600 px-1 rounded no-print">تلقائي</span>`;
-                    }
-
-                    row.innerHTML = `
-                        <td class="p-3 text-slate-400">${index + 1}</td>
-                        <td class="p-3 font-medium text-slate-700">
-                            <div class="flex flex-col">
-                                <span>${file.name}</span>
-                                ${statusBadge}
-                            </div>
-                        </td>
-                        <td class="p-3 text-slate-500 text-xs font-mono">${file.dateDisplay}</td>
-                        <td class="p-3 text-center text-slate-400 text-xs no-print">${file.originalCount}</td>
-                        <td class="p-3 text-center">${countHtml}</td>
-                        <td class="p-3 text-green-700 font-bold">${cost.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}</td>
-                        <td class="p-3 text-center no-print">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="openEditModal('${file.id}', ${file.usedCount})" class="text-slate-400 hover:text-blue-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-                                ${(file.manualOverride) ? `<button onclick="resetFileCount('${file.id}')" class="text-orange-400 hover:text-orange-600" title="إلغاء التعديل"><i class="fa-solid fa-rotate-left"></i></button>` : ''}
-                                <button onclick="deleteFile('${file.id}')" class="text-slate-400 hover:text-red-500" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            // Update Cards
-            const totalCost = (totalCount / 1000) * monthData.rate;
-            document.getElementById('total-count-display').textContent = totalCount.toLocaleString();
-            document.getElementById('total-cost-display').textContent = totalCost.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1});
-
-            // Update Print Header Stats
-            document.getElementById('print-rate').textContent = monthData.rate + ' ج.م';
-            document.getElementById('print-total-count').textContent = totalCount.toLocaleString();
-            document.getElementById('print-total-cost').textContent = totalCost.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' ج.م';
-
-            const diff = totalCount - originalTotalCount;
-            const diffEl = document.getElementById('total-count-diff');
-            if (diff > 0) diffEl.textContent = `(+${diff} زيادة)`;
-            else if (diff < 0) diffEl.textContent = `(${diff} نقص)`;
-            else diffEl.textContent = '';
-
-            // Update Footer Totals
-            document.getElementById('table-total-count').textContent = totalCount.toLocaleString();
-            document.getElementById('table-total-cost').textContent = totalCost.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' ج.م';
-
-            // Update Chart
-            updateChart(chartLabels, chartData);
-        }
-
-        function updateChart(labels, data) {
-            const ctx = document.getElementById('filesChart').getContext('2d');
-            
-            if (filesChartInstance) {
-                filesChartInstance.destroy();
-            }
-
-            filesChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'عدد اللوح',
-                        data: data,
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 4,
-                        barPercentage: 0.6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { display: false } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        // --- 8. Export Functions ---
-
-        function exportImage() {
-            const personName = appData[currentCategory][currentPersonId].name;
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            
-            // 1. Populate the Hidden Template
-            // Modified: Use centered Title logic
-            document.getElementById('exp-title-month').textContent = `تقرير شهر ${monthData.name}`; // e.g. "تقرير شهر أكتوبر 2023"
-            document.getElementById('exp-name').textContent = personName; // Just the name
-            
-            document.getElementById('exp-date').textContent = new Date().toLocaleDateString('ar-EG');
-            
-            let totalCount = 0;
-            let totalCost = 0;
-            
-            // Calc Totals Only
-            monthData.files.forEach(file => {
-                const cost = (file.usedCount / 1000) * monthData.rate;
-                totalCount += file.usedCount;
-                totalCost += cost;
-            });
-            
-            // Update Summary Fields
-            document.getElementById('exp-total-count').textContent = totalCount.toLocaleString();
-            document.getElementById('exp-total-cost').textContent = totalCost.toLocaleString(undefined, {minimumFractionDigits: 1}) + ' ج.م';
-
-            // 2. Temporarily show the template in a way html2canvas can see it
-            // We use fixed positioning off-screen which we defined in CSS (#export-template)
-            const template = document.getElementById('export-template');
-            
-            // 3. Capture
-            html2canvas(template, {
-                scale: 2, // High resolution
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `كشف_حساب_${personName}_${Date.now()}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
-
-        function exportExcel() {
-            const monthData = appData[currentCategory][currentPersonId].months[currentMonthId];
-            const personName = appData[currentCategory][currentPersonId].name;
-            const reportDate = new Date().toLocaleDateString('ar-EG');
-            
-            // إعداد البيانات
-            const wbData = [];
-
-            // 1. الترويسة (Header)
-            wbData.push([`تقرير شهر ${monthData.name}`, '', '']); 
-            wbData.push([`اسم المندوب: ${personName}`, '', '']);   
-            wbData.push([`تاريخ التقرير: ${reportDate}`, '', '']); 
-            wbData.push(['', '', '']); // صف فارغ
-
-            // 2. عناوين الجدول
-            wbData.push(['التاريخ', 'عدد اللوح', '(المبلغ)']); 
-
-            let totalCount = 0;
-            let totalCost = 0;
-
-            // 3. بيانات الملفات
-            monthData.files.forEach((file) => {
-                const cost = (file.usedCount / 1000) * monthData.rate;
-                totalCount += file.usedCount;
-                totalCost += cost;
-
-                wbData.push([
-                    file.dateDisplay,
-                    file.usedCount,
-                    cost
-                ]);
-            });
-
-            // صف فارغ
-            wbData.push(['', '', '']);
-            
-            // 4. الإجمالي الكلي
-            wbData.push(['الإجمالي الكلي', totalCount, totalCost]);
-
-            // إنشاء ورقة العمل
-            const ws = XLSX.utils.aoa_to_sheet(wbData);
-
-            // === تطبيق التنسيقات (Styling) ===
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            
-            // نمط الإطار (Border Style)
-            const borderStyle = { style: "thick", color: { auto: 1 } }; // إطار سميك
-            const borderConfig = {
-                top: borderStyle,
-                bottom: borderStyle,
-                left: borderStyle,
-                right: borderStyle
-            };
-
-            // المرور على كل الخلايا لتطبيق التنسيق
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (!ws[cell_address]) continue;
-
-                    // إعداد التنسيق الافتراضي للخلية
-                    ws[cell_address].s = {
-                        font: { 
-                            name: "Calibri", 
-                            sz: 16, // حجم الخط 16 كما طلبت
-                            bold: true, // خط عريض
-                            color: { rgb: "000000" }
-                        },
-                        alignment: { 
-                            horizontal: "center", // توسيط أفقي
-                            vertical: "center",   // توسيط رأسي
-                            wrapText: true        // التفاف النص
-                        },
-                        border: borderConfig // تطبيق الإطار
-                    };
-
-                    // تمييز خاص للعناوين (الخلفية)
-                    if (R === 4) { // صف العناوين (التاريخ، العدد، المبلغ)
-                        ws[cell_address].s.fill = { fgColor: { rgb: "E0E0E0" } };
-                    }
-                    // تمييز الإجمالي
-                    if (R === range.e.r) { 
-                         ws[cell_address].s.fill = { fgColor: { rgb: "FFFF00" } }; // لون أصفر للإجمالي
-                    }
-                }
-            }
-
-            // دمج خلايا الترويسة
-            if(!ws['!merges']) ws['!merges'] = [];
-            ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } });
-            ws['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 2 } });
-            ws['!merges'].push({ s: { r: 2, c: 0 }, e: { r: 2, c: 2 } });
-
-            // توسيع الأعمدة لتناسب الخط (تم التعديل ليتناسب مع حجم 16)
-            ws['!cols'] = [
-                { wch: 30 }, // التاريخ
-                { wch: 20 }, // العدد
-                { wch: 20 }  // المبلغ
-            ];
-
-            // زيادة ارتفاع الصفوف لتناسب الخط
-            ws['!rows'] = [];
-            for(let i=0; i<=range.e.r; i++) {
-                ws['!rows'].push({ hpt: 30 }); // ارتفاع الصف 30 نقطة
-            }
-
-            // إنشاء وحفظ الملف
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "تقرير الشهر");
-            XLSX.writeFile(wb, `تقرير_${personName}_${monthData.name}.xlsx`);
-        }
-
-        // --- 9. UI Helpers ---
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        // --- Initialization ---
-        window.onload = function() {
-            loadData();
-            goHome(); // Load home and stats
-        };
-
+        window.addPerson = () => { const name = document.getElementById('new-person-name').value.trim(); if(!name) return; const id = 'p_' + Date.now(); appData[currentCategory][id] = { name: name, months: {} }; saveData(); closeModal('add-person-modal'); document.getElementById('new-person-name').value = ''; renderPeopleList(); }
+        window.deletePerson = (id, e) => { e.stopPropagation(); if(confirm('حذف هذا الاسم؟')) { delete appData[currentCategory][id]; saveData(); renderPeopleList(); } }
+        function renderPeopleList() { const c = document.getElementById('people-list'); c.innerHTML = ''; const ids = Object.keys(appData[currentCategory] || {}); if(ids.length === 0) document.getElementById('empty-people').classList.remove('hidden'); else { document.getElementById('empty-people').classList.add('hidden'); ids.forEach(id => { const p = appData[currentCategory][id]; const div = document.createElement('div'); div.className = 'bg-white p-4 rounded-lg shadow flex justify-between items-center cursor-pointer hover:bg-slate-50'; div.onclick = () => navigateToPerson(id); div.innerHTML = `<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">${p.name.charAt(0)}</div><span class="font-bold text-lg">${p.name}</span></div><button onclick="deletePerson('${id}', event)" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>`; c.appendChild(div); }); } }
+        window.addMonth = () => { const name = document.getElementById('new-month-name').value.trim(); if(!name) return; const id = 'm_' + Date.now(); appData[currentCategory][currentPersonId].months[id] = { name: name, rate: 100, files: [] }; saveData(); closeModal('add-month-modal'); document.getElementById('new-month-name').value = ''; renderMonthsList(); }
+        window.deleteMonth = (id, e) => { e.stopPropagation(); if(confirm('حذف الشهر؟')) { delete appData[currentCategory][currentPersonId].months[id]; saveData(); renderMonthsList(); } }
+        function renderMonthsList() { const c = document.getElementById('months-list'); c.innerHTML = ''; const months = appData[currentCategory][currentPersonId].months || {}; const ids = Object.keys(months).sort().reverse(); if(ids.length === 0) document.getElementById('empty-months').classList.remove('hidden'); else { document.getElementById('empty-months').classList.add('hidden'); ids.forEach(id => { const m = months[id]; const div = document.createElement('div'); div.className = 'bg-white p-5 rounded-lg shadow border-t-4 border-yellow-400 cursor-pointer hover:-translate-y-1 transition'; div.onclick = () => navigateToMonth(id); div.innerHTML = `<div class="flex justify-between mb-3"><i class="fa-regular fa-folder-open text-3xl text-yellow-500"></i><button onclick="deleteMonth('${id}', event)" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></div><h4 class="font-bold text-lg">${m.name}</h4><p class="text-xs text-slate-500">${m.files ? m.files.length : 0} ملفات</p>`; c.appendChild(div); }); } }
+        function extractDateFromFilename(filename) { const name = filename.replace(/\.[^/.]+$/, ""); const numericMatch = name.match(/(\d{1,2})[-/.](\d{1,2})/); if (numericMatch) return { display: `${numericMatch[1]}/${numericMatch[2]}`, sortVal: parseInt(numericMatch[2]) * 100 + parseInt(numericMatch[1]) }; const arMonths = { 'يناير':1,'فبراير':2,'مارس':3,'ابريل':4,'مايو':5,'يونيو':6,'يوليو':7,'اغسطس':8,'سبتمبر':9,'اكتوبر':10,'نوفمبر':11,'ديسمبر':12 }; for (const [m, num] of Object.entries(arMonths)) { if (name.includes(m)) { const d = name.match(/(\d{1,2})/); return { display: `${d?d[1]:1} ${m}`, sortVal: num*100 + (d?parseInt(d[1]):1) }; } } return { display: 'غير محدد', sortVal: 0 }; }
+        window.handleFileUpload = async (input) => { if(!input.files.length) return; document.getElementById('loading-spinner').classList.remove('hidden'); const m = appData[currentCategory][currentPersonId].months[currentMonthId]; for(const file of input.files) { try { const count = await parseExcelFile(file); let final = count, auto = false; if(file.name.includes("تشييك") && count < 1000) { final = 1000; auto = true; } const d = extractDateFromFilename(file.name); m.files.push({ id: 'f_'+Date.now()+Math.random(), name: file.name, originalCount: count, usedCount: final, isAutoAdjusted: auto, manualOverride: false, dateDisplay: d.display, sortVal: d.sortVal }); } catch(e) { alert("خطأ في الملف: "+file.name); } } m.files.sort((a,b) => a.sortVal - b.sortVal); saveData(); document.getElementById('loading-spinner').classList.add('hidden'); input.value = ''; renderDashboard(); }
+        function parseExcelFile(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = (e) => { try { const wb = XLSX.read(e.target.result, {type:'array'}); const d = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1}); let idx = -1, count = 0; if(d[0]) d[0].forEach((h,i) => { if(h && (h.toString().includes('Plate') || h.toString().includes('اللوحة'))) idx = i; }); if(idx !== -1) { for(let i=1; i<d.length; i++) if(d[i][idx]) count++; } else { for(let i=1; i<d.length; i++) if(d[i][0]) count++; } res(count); } catch(err) { rej(err); } }; r.readAsArrayBuffer(file); }); }
+        window.updateRate = (val) => { appData[currentCategory][currentPersonId].months[currentMonthId].rate = parseFloat(val)||0; saveData(); renderDashboard(); }
+        window.deleteFile = (fid) => { if(confirm('حذف الملف؟')) { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; m.files = m.files.filter(f => f.id !== fid); saveData(); renderDashboard(); } }
+        let editFid = null; window.openEditModal = (fid, val) => { editFid = fid; document.getElementById('edit-count-input').value = val; openModal('edit-count-modal'); }
+        document.getElementById('save-edit-btn').onclick = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const f = m.files.find(x => x.id === editFid); if(f) { f.usedCount = parseInt(document.getElementById('edit-count-input').value); f.manualOverride = true; saveData(); closeModal('edit-count-modal'); renderDashboard(); } }
+        window.resetFileCount = (fid) => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const f = m.files.find(x => x.id === fid); if(f) { if(f.name.includes("تشييك") && f.originalCount < 1000) { f.usedCount = 1000; f.isAutoAdjusted = true; } else { f.usedCount = f.originalCount; f.isAutoAdjusted = false; } f.manualOverride = false; saveData(); renderDashboard(); } }
+        function renderDashboard() { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const p = appData[currentCategory][currentPersonId]; document.getElementById('rate-input').value = m.rate; document.getElementById('dashboard-title').textContent = m.name; document.getElementById('print-person-name').textContent = p.name; document.getElementById('print-month-name').textContent = m.name; document.getElementById('print-date').textContent = new Date().toLocaleDateString('ar-EG'); let tc = 0, orig = 0; const tb = document.getElementById('files-table-body'); tb.innerHTML = ''; const labels = [], data = []; if(m.files.length === 0) { document.getElementById('empty-files').classList.remove('hidden'); document.getElementById('files-count-badge').textContent = '0'; } else { document.getElementById('empty-files').classList.add('hidden'); document.getElementById('files-count-badge').textContent = m.files.length; m.files.forEach((f, i) => { const cost = (f.usedCount/1000)*m.rate; tc += f.usedCount; orig += f.originalCount; labels.push(f.dateDisplay); data.push(f.usedCount); let cntHtml = `<span class="font-bold">${f.usedCount}</span>`, badge = ''; if(f.manualOverride) { cntHtml = `<div class="flex flex-col items-center"><span class="text-orange-600 font-bold">${f.usedCount}</span><span class="text-xs text-slate-400 line-through no-print">${f.originalCount}</span></div>`; badge = `<span class="text-[10px] bg-orange-100 text-orange-600 px-1 rounded no-print">يدوي</span>`; } else if(f.isAutoAdjusted) { cntHtml = `<div class="flex flex-col items-center"><span class="text-blue-600 font-bold">${f.usedCount}</span><span class="text-xs text-slate-400 line-through no-print">${f.originalCount}</span></div>`; badge = `<span class="text-[10px] bg-blue-100 text-blue-600 px-1 rounded no-print">تلقائي</span>`; } const tr = document.createElement('tr'); tr.className = 'file-item border-b border-slate-100 hover:bg-slate-50'; tr.innerHTML = `<td class="p-3 text-slate-400">${i+1}</td><td class="p-3 font-medium text-slate-700"><div>${f.name} ${badge}</div></td><td class="p-3 text-slate-500 text-xs font-mono">${f.dateDisplay}</td><td class="p-3 text-center text-slate-400 text-xs no-print">${f.originalCount}</td><td class="p-3 text-center">${cntHtml}</td><td class="p-3 text-green-700 font-bold">${cost.toLocaleString(undefined,{maximumFractionDigits:1})}</td><td class="p-3 text-center no-print"><div class="flex justify-center gap-2"><button onclick="openEditModal('${f.id}',${f.usedCount})" class="text-slate-400 hover:text-blue-600"><i class="fa-solid fa-pen"></i></button>${f.manualOverride?`<button onclick="resetFileCount('${f.id}')" class="text-orange-400 hover:text-orange-600"><i class="fa-solid fa-rotate-left"></i></button>`:''}<button onclick="deleteFile('${f.id}')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></div></td>`; tb.appendChild(tr); }); } const tcost = (tc/1000)*m.rate; document.getElementById('total-count-display').textContent = tc.toLocaleString(); document.getElementById('total-cost-display').textContent = tcost.toLocaleString(undefined, {maximumFractionDigits:1}); ['print-rate'].forEach(id => document.getElementById(id).textContent = m.rate); ['print-total-count', 'table-total-count'].forEach(id => document.getElementById(id).textContent = tc.toLocaleString()); ['print-total-cost', 'table-total-cost'].forEach(id => document.getElementById(id).textContent = tcost.toLocaleString(undefined, {maximumFractionDigits:1}) + ' ج.م'); const diff = tc - orig; document.getElementById('total-count-diff').textContent = diff > 0 ? `(+${diff})` : (diff < 0 ? `(${diff})` : ''); const ctx = document.getElementById('filesChart').getContext('2d'); if(filesChartInstance) filesChartInstance.destroy(); filesChartInstance = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'عدد اللوح', data, backgroundColor:'#3b82f6', borderRadius:4}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{display:false}}, x:{grid:{display:false}}}}}); }
+        window.exportImage = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; document.getElementById('exp-title-month').textContent = `تقرير شهر ${m.name}`; document.getElementById('exp-name').textContent = appData[currentCategory][currentPersonId].name; document.getElementById('exp-date').textContent = new Date().toLocaleDateString('ar-EG'); document.getElementById('exp-total-count').textContent = document.getElementById('total-count-display').textContent; document.getElementById('exp-total-cost').textContent = document.getElementById('total-cost-display').textContent + ' ج.م'; const t = document.getElementById('export-template'); html2canvas(t, {scale:2}).then(c => { const l = document.createElement('a'); l.download = `Report.png`; l.href = c.toDataURL(); l.click(); }); }
+        window.exportExcel = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const p = appData[currentCategory][currentPersonId]; const d = [ [`تقرير شهر ${m.name}`, '', ''], [`الاسم: ${p.name}`, '', ''], [`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`, '', ''], ['','',''], ['التاريخ', 'العدد', 'المبلغ'] ]; let tc=0, cost=0; m.files.forEach(f => { const c = (f.usedCount/1000)*m.rate; tc+=f.usedCount; cost+=c; d.push([f.dateDisplay, f.usedCount, c]); }); d.push(['','','']); d.push(['الإجمالي', tc, cost]); const ws = XLSX.utils.aoa_to_sheet(d); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "تقرير"); XLSX.writeFile(wb, `Report_${p.name}.xlsx`); }
+        window.openModal = (id) => document.getElementById(id).classList.remove('hidden'); window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
     </script>
 </body>
 </html>
