@@ -79,6 +79,30 @@
         <button onclick="document.getElementById('domain-alert').classList.add('hidden')" class="block mx-auto mt-2 text-xs underline">إغلاق</button>
     </div>
 
+    <!-- VERIFICATION OVERLAY (For unverified users) -->
+    <div id="verification-overlay" class="hidden fixed inset-0 z-[150] bg-gray-900 bg-opacity-90 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            <div class="mb-4 text-yellow-500 text-6xl">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">تفعيل الحساب مطلوب</h2>
+            <p class="text-gray-600 mb-6">
+                لم يتم تأكيد بريدك الإلكتروني بعد. يرجى مراجعة صندوق الوارد (أو الرسائل غير المرغوب فيها) والضغط على رابط التفعيل للدخول.
+            </p>
+            <div class="flex flex-col gap-3">
+                <button onclick="resendVerification()" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-bold">
+                    إعادة إرسال رابط التفعيل
+                </button>
+                <button onclick="location.reload()" class="bg-gray-100 text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-200 transition">
+                    لقد قمت بالتفعيل، تحديث الصفحة
+                </button>
+                <button onclick="logout()" class="text-red-500 text-sm hover:underline mt-2">
+                    تسجيل الخروج
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- LOGIN / REGISTER OVERLAY -->
     <div id="auth-overlay" class="fixed inset-0 z-[100] bg-gray-100 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
@@ -111,10 +135,6 @@
                     </div>
                     
                     <div id="login-error" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-200 hidden text-center"></div>
-                    <div id="verify-msg" class="bg-yellow-50 text-yellow-700 p-3 rounded-lg text-sm border border-yellow-200 hidden text-center">
-                        يرجى تفعيل حسابك أولاً. تم إرسال رابط التفعيل إلى بريدك الإلكتروني.
-                        <button onclick="resendVerification()" class="block w-full mt-2 text-blue-600 font-bold hover:underline">إعادة إرسال الرابط</button>
-                    </div>
 
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-md">دخول</button>
                     <div class="text-center mt-4">
@@ -138,7 +158,7 @@
                     </div>
                     <div id="reg-error" class="text-red-500 text-sm hidden"></div>
                     <div id="reg-success" class="text-green-600 text-sm hidden bg-green-50 p-3 rounded border border-green-200 text-center">
-                        تم إنشاء الحساب بنجاح! <br> يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل الدخول.
+                        تم إنشاء الحساب بنجاح! <br> تم إرسال رابط تفعيل إلى بريدك الإلكتروني. يرجى تفعيله قبل تسجيل الدخول.
                     </div>
                     <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-md">إنشاء حساب</button>
                     <div class="text-center mt-4">
@@ -202,7 +222,7 @@
                     </table>
                 </div>
                 <div class="mt-4 p-4 bg-blue-50 text-blue-800 rounded-lg text-sm">
-                    <i class="fa-solid fa-circle-info"></i> <strong>ملاحظة:</strong> عند الضغط على "عرض البيانات"، سيتم تحميل نظام إدارة اللوح الخاص بالمستخدم المحدد لترى ما قام برفعه.
+                    <i class="fa-solid fa-circle-info"></i> <strong>ملاحظة:</strong> عند الضغط على "عرض"، سيتم تحميل بيانات المستخدم للمشاهدة فقط.
                 </div>
             </div>
         </div>
@@ -404,7 +424,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ======================================================
         // إعدادات Firebase الخاصة بالمشروع
@@ -466,11 +486,13 @@
                     return;
                 }
 
-                // Check verification for normal users
+                // --- EMAIL VERIFICATION CHECK ---
                 if (!user.emailVerified) {
-                    document.getElementById('auth-overlay').classList.remove('hidden');
-                    document.getElementById('verify-msg').classList.remove('hidden');
-                    return;
+                    document.getElementById('auth-overlay').classList.add('hidden'); // Hide main auth, show verify overlay
+                    document.getElementById('verification-overlay').classList.remove('hidden');
+                    return; // Stop execution
+                } else {
+                    document.getElementById('verification-overlay').classList.add('hidden');
                 }
 
                 // Load User Data from Firestore
@@ -487,7 +509,8 @@
                     await finalizeLogin({ ...userData, id: user.email });
                 } else {
                     // New Google User - Create Doc
-                    if(user.providerData[0].providerId === 'google.com') {
+                    // Or if registering for first time via Google
+                    if(user.providerData.some(p => p.providerId === 'google.com')) {
                         const newUser = {
                             name: user.displayName || 'مستخدم جديد',
                             email: user.email,
@@ -504,14 +527,16 @@
                         await finalizeLogin({ ...newUser, id: user.email });
                     } else {
                         // Email user but no doc? Should not happen if registered correctly
+                        // But let's handle just in case by signing out
                         signOut(auth);
-                        alert("خطأ في بيانات الحساب");
+                        alert("خطأ في بيانات الحساب (User doc missing)");
                     }
                 }
             } else {
                 // No user
                 document.getElementById('auth-overlay').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
+                document.getElementById('verification-overlay').classList.add('hidden');
             }
         });
 
@@ -519,7 +544,6 @@
         window.toggleAuth = (mode) => {
             document.getElementById('login-error').classList.add('hidden');
             document.getElementById('reg-error').classList.add('hidden');
-            document.getElementById('verify-msg').classList.add('hidden');
             
             if(mode === 'register') {
                 document.getElementById('login-form').classList.add('hidden');
@@ -569,6 +593,8 @@
                 } else if(error.code === 'auth/unauthorized-domain') {
                     showDomainAlert();
                     errDiv.textContent = "النطاق غير مصرح به. راجع التنبيه في الأعلى.";
+                } else if(error.code === 'auth/user-disabled') {
+                    errDiv.textContent = "تم تعطيل هذا الحساب.";
                 } else {
                     errDiv.textContent = "حدث خطأ: " + error.message;
                 }
@@ -618,16 +644,21 @@
                 });
 
                 // 5. Sign Out immediately so they verify first
-                await signOut(auth);
-
+                // NO signOut here to let onAuthStateChanged handle the verification UI properly
+                // But we want to show the success message on the registration form
+                // So we can let them stay "signed in" but the overlay blocks them.
+                
                 successDiv.classList.remove('hidden');
-                setTimeout(() => toggleAuth('login'), 3000);
+                // Optional: Delay toggle to login
+                // setTimeout(() => toggleAuth('login'), 3000);
 
             } catch (error) {
                 console.error("Register Error:", error);
                 if(error.code === 'auth/unauthorized-domain') {
                     showDomainAlert();
                     errDiv.textContent = "النطاق غير مصرح به. راجع التنبيه في الأعلى.";
+                } else if(error.code === 'auth/email-already-in-use') {
+                    errDiv.textContent = "البريد الإلكتروني مستخدم بالفعل.";
                 } else {
                     errDiv.textContent = "خطأ: " + error.message;
                 }
@@ -647,6 +678,7 @@
             localStorage.setItem(`session_${appId}`, JSON.stringify(user)); // Backup
             
             document.getElementById('auth-overlay').classList.add('hidden');
+            document.getElementById('verification-overlay').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             document.getElementById('welcome-msg').textContent = `أهلاً، ${user.name}`;
 
@@ -672,6 +704,7 @@
             `;
             errDiv.classList.remove('hidden');
             document.getElementById('auth-overlay').classList.remove('hidden');
+            document.getElementById('verification-overlay').classList.add('hidden');
         }
 
         window.logout = () => {
@@ -755,6 +788,9 @@
                          <button onclick="toggleBan('${docSnap.id}', ${!isBanned})" class="${isBanned ? 'text-green-600 border border-green-600' : 'text-red-600 border border-red-600'} hover:bg-gray-50 px-2 py-1 rounded text-xs font-bold transition">
                             ${isBanned ? 'فك الحظر' : 'حظر'}
                          </button>
+                         <button onclick="deleteUserSystem('${docSnap.id}')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-red-700 transition" title="حذف نهائي">
+                            <i class="fa-solid fa-trash"></i>
+                         </button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -764,12 +800,30 @@
         window.toggleBan = async (email, newStatus) => {
             if(!confirm("هل أنت متأكد من تغيير حالة هذا المستخدم؟")) return;
             try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', email), { isBanned: newStatus });
+                // FORCE boolean status to avoid string/undefined issues
+                const statusBool = (newStatus === true);
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', email), { isBanned: statusBool });
                 alert("تم تحديث الحالة بنجاح");
                 showAdminPanel();
             } catch (error) {
                 console.error("Ban Error:", error);
                 alert("حدث خطأ أثناء تحديث الحالة.");
+            }
+        }
+
+        window.deleteUserSystem = async (targetEmail) => {
+            if(!confirm("تحذير: هل أنت متأكد من حذف هذا الحساب وجميع بياناته نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+            try {
+                // Delete Directory Entry
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', targetEmail));
+                // Delete Data Entry
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', targetEmail));
+                
+                alert("تم حذف المستخدم وبياناته بنجاح.");
+                showAdminPanel();
+            } catch (error) {
+                console.error("Delete Error:", error);
+                alert("حدث خطأ أثناء الحذف.");
             }
         }
 
