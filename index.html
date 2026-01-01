@@ -1046,7 +1046,92 @@
         window.resetFileCount = (fid) => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const f = m.files.find(x => x.id === fid); if(f) { if(f.name.includes("تشييك") && f.originalCount < 1000) { f.usedCount = 1000; f.isAutoAdjusted = true; } else { f.usedCount = f.originalCount; f.isAutoAdjusted = false; } f.manualOverride = false; saveData(); renderDashboard(); } }
         function renderDashboard() { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const p = appData[currentCategory][currentPersonId]; document.getElementById('rate-input').value = m.rate; document.getElementById('dashboard-title').textContent = m.name; document.getElementById('print-person-name').textContent = p.name; document.getElementById('print-month-name').textContent = m.name; document.getElementById('print-date').textContent = new Date().toLocaleDateString('ar-EG'); let tc = 0, orig = 0; const tb = document.getElementById('files-table-body'); tb.innerHTML = ''; const labels = [], data = []; if(m.files.length === 0) { document.getElementById('empty-files').classList.remove('hidden'); document.getElementById('files-count-badge').textContent = '0'; } else { document.getElementById('empty-files').classList.add('hidden'); document.getElementById('files-count-badge').textContent = m.files.length; m.files.forEach((f, i) => { const cost = (f.usedCount/1000)*m.rate; tc += f.usedCount; orig += f.originalCount; labels.push(f.dateDisplay); data.push(f.usedCount); let cntHtml = `<span class="font-bold">${f.usedCount}</span>`, badge = ''; if(f.manualOverride) { cntHtml = `<div class="flex flex-col items-center"><span class="text-orange-600 font-bold">${f.usedCount}</span><span class="text-xs text-slate-400 line-through no-print">${f.originalCount}</span></div>`; badge = `<span class="text-[10px] bg-orange-100 text-orange-600 px-1 rounded no-print">يدوي</span>`; } else if(f.isAutoAdjusted) { cntHtml = `<div class="flex flex-col items-center"><span class="text-blue-600 font-bold">${f.usedCount}</span><span class="text-xs text-slate-400 line-through no-print">${f.originalCount}</span></div>`; badge = `<span class="text-[10px] bg-blue-100 text-blue-600 px-1 rounded no-print">تلقائي</span>`; } const tr = document.createElement('tr'); tr.className = 'file-item border-b border-slate-100 hover:bg-slate-50'; tr.innerHTML = `<td class="p-3 text-slate-400">${i+1}</td><td class="p-3 font-medium text-slate-700"><div>${f.name} ${badge}</div></td><td class="p-3 text-slate-500 text-xs font-mono">${f.dateDisplay}</td><td class="p-3 text-center text-slate-400 text-xs no-print">${f.originalCount}</td><td class="p-3 text-center">${cntHtml}</td><td class="p-3 text-green-700 font-bold">${cost.toLocaleString(undefined,{maximumFractionDigits:1})}</td><td class="p-3 text-center no-print"><div class="flex justify-center gap-2"><button onclick="openEditModal('${f.id}',${f.usedCount})" class="text-slate-400 hover:text-blue-600"><i class="fa-solid fa-pen"></i></button>${f.manualOverride?`<button onclick="resetFileCount('${f.id}')" class="text-orange-400 hover:text-orange-600"><i class="fa-solid fa-rotate-left"></i></button>`:''}<button onclick="deleteFile('${f.id}')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></div></td>`; tb.appendChild(tr); }); } const tcost = (tc/1000)*m.rate; document.getElementById('total-count-display').textContent = tc.toLocaleString(); document.getElementById('total-cost-display').textContent = tcost.toLocaleString(undefined, {maximumFractionDigits:1}); ['print-rate'].forEach(id => document.getElementById(id).textContent = m.rate); ['print-total-count', 'table-total-count'].forEach(id => document.getElementById(id).textContent = tc.toLocaleString()); ['print-total-cost', 'table-total-cost'].forEach(id => document.getElementById(id).textContent = tcost.toLocaleString(undefined, {maximumFractionDigits:1}) + ' ج.م'); const diff = tc - orig; document.getElementById('total-count-diff').textContent = diff > 0 ? `(+${diff})` : (diff < 0 ? `(${diff})` : ''); const ctx = document.getElementById('filesChart').getContext('2d'); if(filesChartInstance) filesChartInstance.destroy(); filesChartInstance = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'عدد اللوح', data, backgroundColor:'#3b82f6', borderRadius:4}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{display:false}}, x:{grid:{display:false}}}}}); }
         window.exportImage = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; document.getElementById('exp-title-month').textContent = `تقرير شهر ${m.name}`; document.getElementById('exp-name').textContent = appData[currentCategory][currentPersonId].name; document.getElementById('exp-date').textContent = new Date().toLocaleDateString('ar-EG'); document.getElementById('exp-total-count').textContent = document.getElementById('total-count-display').textContent; document.getElementById('exp-total-cost').textContent = document.getElementById('total-cost-display').textContent + ' ج.م'; const t = document.getElementById('export-template'); html2canvas(t, {scale:2}).then(c => { const l = document.createElement('a'); l.download = `Report.png`; l.href = c.toDataURL(); l.click(); }); }
-        window.exportExcel = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const p = appData[currentCategory][currentPersonId]; const d = [ [`تقرير شهر ${m.name}`, '', ''], [`الاسم: ${p.name}`, '', ''], [`التاريخ: ${new Date().toLocaleDateString('ar-EG')}`, '', ''], ['','',''], ['التاريخ', 'العدد', 'المبلغ'] ]; let tc=0, cost=0; m.files.forEach(f => { const c = (f.usedCount/1000)*m.rate; tc+=f.usedCount; cost+=c; d.push([f.dateDisplay, f.usedCount, c]); }); d.push(['','','']); d.push(['الإجمالي', tc, cost]); const ws = XLSX.utils.aoa_to_sheet(d); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "تقرير"); XLSX.writeFile(wb, `Report_${p.name}.xlsx`); }
+        
+        // --- دالة التصدير للإكسل (محدثة لتطابق التنسيق المطلوب) ---
+        window.exportExcel = () => { 
+            const m = appData[currentCategory][currentPersonId].months[currentMonthId]; 
+            const p = appData[currentCategory][currentPersonId]; 
+            const reportDate = new Date().toLocaleDateString('ar-EG');
+
+            // 1. هيكل البيانات كما في الملف المرسل
+            const d = [ 
+                [`تقرير شهر ${m.name}`, '', ''], 
+                [`اسم المندوب: ${p.name}`, '', ''], 
+                [`تاريخ التقرير: ${reportDate}`, '', ''], 
+                ['', '', ''], // صف فارغ
+                ['التاريخ', 'عدد اللوح', '(المبلغ)'] // عناوين الجدول
+            ]; 
+            
+            let tc = 0, cost = 0; 
+            
+            // 2. إضافة البيانات
+            m.files.forEach(f => { 
+                const c = (f.usedCount/1000)*m.rate; 
+                tc += f.usedCount; 
+                cost += c; 
+                d.push([f.dateDisplay, f.usedCount, c]); 
+            }); 
+            
+            // 3. الإجمالي
+            d.push(['', '', '']); // فاصل
+            d.push(['الإجمالي الكلي', tc, cost]); 
+
+            // 4. إنشاء ورقة العمل
+            const ws = XLSX.utils.aoa_to_sheet(d); 
+
+            // 5. التنسيق (Styling)
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            const defaultBorder = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+            
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cell_address]) continue;
+                    
+                    // تنسيق عام
+                    if (!ws[cell_address].s) ws[cell_address].s = {};
+                    ws[cell_address].s.font = { name: "Arial", sz: 12 };
+                    ws[cell_address].s.alignment = { horizontal: "center", vertical: "center" };
+
+                    // تنسيق العناوين العلوية (أول 3 صفوف)
+                    if (R < 3) {
+                        ws[cell_address].s.font = { name: "Arial", sz: 14, bold: true };
+                        ws[cell_address].s.alignment = { horizontal: "right" };
+                    }
+                    // تنسيق رأس الجدول (الصف الخامس - index 4)
+                    else if (R === 4) {
+                        ws[cell_address].s.fill = { fgColor: { rgb: "4472C4" } }; // أزرق
+                        ws[cell_address].s.font = { name: "Arial", sz: 12, bold: true, color: { rgb: "FFFFFF" } }; // أبيض
+                        ws[cell_address].s.border = defaultBorder;
+                    }
+                    // تنسيق صف الإجمالي (الأخير)
+                    else if (R === range.e.r) {
+                        ws[cell_address].s.fill = { fgColor: { rgb: "FFFF00" } }; // أصفر
+                        ws[cell_address].s.font = { name: "Arial", sz: 12, bold: true };
+                        ws[cell_address].s.border = defaultBorder;
+                    }
+                    // تنسيق خلايا البيانات
+                    else if (R > 4 && R < range.e.r - 1) {
+                        ws[cell_address].s.border = defaultBorder;
+                    }
+                }
+            }
+
+            // دمج الخلايا للعناوين العلوية
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 2 } }
+            ];
+
+            // عرض الأعمدة
+            ws['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 20 }];
+
+            const wb = XLSX.utils.book_new(); 
+            XLSX.utils.book_append_sheet(wb, ws, "تقرير الشهر"); 
+            XLSX.writeFile(wb, `تقرير_${p.name}_${m.name}.xlsx`); 
+        }
+
         window.openModal = (id) => document.getElementById(id).classList.remove('hidden'); window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
     </script>
 </body>
