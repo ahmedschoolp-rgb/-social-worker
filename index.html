@@ -353,10 +353,6 @@
                     class="curr-btn bg-white/10 hover:bg-white/30 px-4 py-1.5 rounded-lg font-black text-sm transition"
                     data-curr="USD">USD</button>
                 </div>
-                <div id="fx-info" class="text-[11px] mt-2 opacity-90"></div>
-                <div class="text-[10px] mt-1 opacity-70">مصدر أسعار الصرف: <a class="underline"
-                    href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate
-                    API</a></div>
               </div>
             </div>
 
@@ -533,7 +529,7 @@
                   class="w-full text-2xl font-black bg-transparent outline-none text-amber-700 dark:text-amber-200 border-b-2 border-amber-100 dark:border-amber-800 focus:border-amber-400 transition">
                 <span class="text-sm font-black text-slate-400 rate-symbol">EGP</span>
               </div>
-              <div id=\"rate-converted-hint\" class=\"text-xs font-bold text-slate-500 dark:text-slate-300 mt-2\"></div>
+              <div id="rate-converted-hint" class="text-xs font-bold text-slate-500 dark:text-slate-300 mt-2"></div>
             </div>
           </div>
 
@@ -546,7 +542,8 @@
                 <p id="total-count-diff" class="text-xs text-amber-600 mt-1 h-4"></p>
               </div>
               <div class="glass rounded-2xl p-5 border-b-4 border-emerald-500">
-                <span class="text-xs font-black text-slate-400">إجمالي المبلغ (<span class="symbol"></span>)</span>
+                <span class="text-xs font-black text-slate-400">إجمالي المبلغ (<span
+                    class="rate-symbol">EGP</span>)</span>
                 <h3 id="total-cost-display" class="text-3xl font-black text-emerald-800 dark:text-emerald-200">0</h3>
               </div>
               <div class="glass rounded-2xl p-5 border-b-4 border-indigo-500">
@@ -671,7 +668,7 @@
               <div id="day-total-count" class="text-4xl font-black">0</div>
             </div>
             <div class="glass rounded-2xl p-6 text-center border-b-4 border-emerald-600"><span
-                class="text-sm font-black text-slate-400">مبالغ اليوم (<span class="symbol"></span>)</span>
+                class="text-sm font-black text-slate-400">مبالغ اليوم (<span class="rate-symbol">EGP</span>)</span>
               <div id="day-total-cost" class="text-4xl font-black text-emerald-800 dark:text-emerald-200">0</div>
             </div>
           </div>
@@ -722,9 +719,9 @@
         <div class="glass rounded-2xl p-8 border-t-8 border-yellow-500">
           <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
             <h2 class="text-2xl font-black flex items-center gap-3"><i
-                class="fa-solid fa-shield-halved text-yellow-500"></i> لوحة الإدارة والمراقبة</h2>
-            <div class="text-xs text-slate-500 dark:text-slate-300 font-bold">* owner (المالك): صلاحيات كاملة - admin:
-              إدارة المستخدمين - manager: عرض فقط</div>
+                class="fa-solid fa-shield-halved text-yellow-500"></i> لوحة الإدارة</h2>
+            <div class="text-xs text-slate-500 dark:text-slate-300 font-bold">* owner/admin: إدارة المستخدمين - manager:
+              عرض فقط</div>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-right text-sm">
@@ -751,34 +748,7 @@
             class="bg-white text-yellow-700 px-4 py-1.5 rounded-lg font-black text-xs">إغلاق</button>
         </div>
 
-        <div class="glass rounded-2xl p-8 border-t-8 border-indigo-500">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h3 class="text-xl font-black flex items-center gap-2"><i
-                class="fa-solid fa-clipboard-list text-indigo-600"></i> سجل التغييرات</h3>
-            <div class="flex items-center gap-3">
-              <input id="audit-search" oninput="filterAuditLogs(this.value)"
-                class="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-black outline-none w-72 max-w-full"
-                placeholder="بحث: اسم / بريد / نوع العملية...">
-              <button onclick="reloadAuditLogs()"
-                class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-black text-sm"><i
-                  class="fa-solid fa-rotate"></i> تحديث</button>
-            </div>
-          </div>
-          <div class="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
-            <table class="w-full text-right text-sm">
-              <thead class="bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-200">
-                <tr>
-                  <th class="p-4">الوقت</th>
-                  <th class="p-4">المستخدم</th>
-                  <th class="p-4">العملية</th>
-                  <th class="p-4">تفاصيل</th>
-                </tr>
-              </thead>
-              <tbody id="audit-logs-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
-            </table>
-          </div>
-          <p class="text-xs text-slate-400 mt-4">يتم تسجيل أهم العمليات تلقائياً.</p>
-        </div>
+
       </div>
 
     </main>
@@ -897,7 +867,6 @@
 
     // --- Roles ---
     const OWNER_EMAIL = 'userahmed@gmail.com';
-    const OWNER_PASSWORD = 'Std#050214';
 
     // --- STATE ---
     let currentUser = null;
@@ -915,88 +884,8 @@
 
     let activeCurrency = localStorage.getItem('app_curr') || 'EGP';
     // 1 SAR = 6.1 EGP, 1 USD = 30.9 EGP
-    let currencyRates = { EGP: 1, SAR: 13, USD: 50 }; // افتراضي (EGP لكل 1 عملة) وسيتم تحديثه تلقائياً
-    let fxMeta = { provider: 'manual', lastUpdateUtc: null, nextUpdateUtc: null };
+    let currencyRates = { EGP: 1, SAR: 6.1, USD: 30.9 };
 
-
-
-    // تحديث أسعار الصرف تلقائياً (EGP -> SAR/USD) من Open ExchangeRate-API (بدون API Key)
-    // ملاحظة: الـ API يحدث عادة مرة يومياً، والنتيجة تحتوي وقت التحديث القادم.
-    async function refreshLiveFXRates(force = false) {
-      try {
-        const cacheKey = 'fx_cache_v1';
-        const cached = localStorage.getItem(cacheKey);
-        if (!force && cached) {
-          const c = JSON.parse(cached);
-          // لو لسه قبل وقت التحديث القادم، استخدم الكاش
-          if (c?.nextUpdateUnix && Date.now() < (c.nextUpdateUnix * 1000)) {
-            currencyRates = { EGP: 1, SAR: c.egpPerSAR, USD: c.egpPerUSD };
-            fxMeta = { provider: c.provider || 'cache', lastUpdateUtc: c.lastUpdateUtc || null, nextUpdateUtc: c.nextUpdateUtc || null };
-            updateFXInfoUI();
-            return;
-          }
-        }
-
-        const url = 'https://open.er-api.com/v6/latest/EGP';
-        const resp = await fetch(url, { cache: 'no-store' });
-        const data = await resp.json();
-        if (data?.result !== 'success' || !data?.rates) throw new Error('bad fx response');
-
-        // data.rates: قيمتها = كم (عملة) مقابل 1 EGP
-        // نحتاج EGP لكل 1 عملة لكي نحول: amountEGP / (EGP per 1 currency)
-        const sarPerEgp = Number(data.rates.SAR);
-        const usdPerEgp = Number(data.rates.USD);
-        if (!sarPerEgp || !usdPerEgp) throw new Error('missing SAR/USD');
-
-        const egpPerSAR = 1 / sarPerEgp;
-        const egpPerUSD = 1 / usdPerEgp;
-
-        currencyRates = { EGP: 1, SAR: egpPerSAR, USD: egpPerUSD };
-        fxMeta = {
-          provider: data.provider || 'open.er-api.com',
-          lastUpdateUtc: data.time_last_update_utc || null,
-          nextUpdateUtc: data.time_next_update_utc || null
-        };
-
-        localStorage.setItem(cacheKey, JSON.stringify({
-          provider: fxMeta.provider,
-          lastUpdateUtc: fxMeta.lastUpdateUtc,
-          nextUpdateUtc: fxMeta.nextUpdateUtc,
-          nextUpdateUnix: data.time_next_update_unix || null,
-          egpPerSAR,
-          egpPerUSD
-        }));
-
-        updateFXInfoUI();
-      } catch (e) {
-        // fallback: لو فشل النت، نستخدم آخر قيمة موجودة أو الافتراضي
-        updateFXInfoUI(true);
-      }
-    }
-
-    function updateFXInfoUI(isError = false) {
-      const fxInfo = document.getElementById('fx-info');
-      if (fxInfo) {
-        const sar = Number(currencyRates.SAR || 0);
-        const usd = Number(currencyRates.USD || 0);
-        const sarTxt = sar ? `1 ريال = ${sar.toFixed(2)} جنيه` : 'SAR: -';
-        const usdTxt = usd ? `1 دولار = ${usd.toFixed(2)} جنيه` : 'USD: -';
-        const meta = fxMeta?.lastUpdateUtc ? ` | تحديث: ${fxMeta.lastUpdateUtc}` : '';
-        fxInfo.textContent = (isError ? '⚠️ تعذر تحديث أسعار الصرف. ' : '') + sarTxt + ' — ' + usdTxt + meta;
-      }
-
-      // تحديث تلميح سعر الألف لو موجود
-      const hintEl = document.getElementById('rate-converted-hint');
-      if (hintEl && currentMonthId) {
-        const m = appData[currentCategory]?.[currentPersonId]?.months?.[currentMonthId];
-        const rateEGP = Number(m?.rate || 0);
-        hintEl.textContent = (activeCurrency === 'EGP' || !rateEGP) ? '' : `يعادل تقريباً: ${formatRateFromEGP(rateEGP)} (لكل ألف)`;
-      }
-    }
-
-    // جدولة تحديث تلقائي (مرة كل 6 ساعات) + عند فتح الصفحة
-    setTimeout(() => refreshLiveFXRates(false), 1200);
-    setInterval(() => refreshLiveFXRates(false), 6 * 60 * 60 * 1000);
     let charts = {};
     let globalStatsFilter = 'all';
 
@@ -1075,7 +964,7 @@
       return converted.toLocaleString(undefined, { maximumFractionDigits: 1 }) + ' ' + activeCurrency;
     }
 
-    // تحويل (عرض فقط): قيمة بالجنيه إلى العملة المختارة (يستخدم سعر الصرف الحالي)
+    // تحويل (عرض فقط): سعر/قيمة بالجنيه إلى العملة المختارة
     function formatRateFromEGP(egpValue) {
       const converted = egpValue / (currencyRates[activeCurrency] || 1);
       return converted.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' + activeCurrency;
@@ -1095,7 +984,6 @@
       activeCurrency = curr;
       localStorage.setItem('app_curr', curr);
       updateCurrencyUI();
-      updateFXInfoUI();
       if (currentMonthId) renderDashboard();
       calculateGlobalStats();
       logEvent('currency_change', { currency: curr });
@@ -1439,6 +1327,39 @@
       });
     }
 
+    // توحيد صيغة التاريخ لأي شكل قديم/جديد: يرجع dd/mm (اسم داخلي لتفادي أي تعارض)
+    function __normalizeDateToDDMM(value) {
+      const s = String(value || '').trim();
+      if (!s) return '';
+
+      // ISO: yyyy-mm-dd
+      const iso = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[3]}/${iso[2]}`;
+
+      // dd/mm أو dd-mm أو dd.mm
+      const m1 = s.match(/(\d{1,2})\s*[\/\-\.]\s*(\d{1,2})/);
+      if (m1) {
+        const dd = String(m1[1]).padStart(2, '0');
+        const mm = String(m1[2]).padStart(2, '0');
+        return `${dd}/${mm}`;
+      }
+
+      // يوم + اسم شهر عربي (مثال: 25 يناير)
+      const map = {
+        'يناير': '01', 'فبراير': '02', 'مارس': '03', 'أبريل': '04', 'ابريل': '04',
+        'مايو': '05', 'يونيو': '06', 'يوليو': '07', 'أغسطس': '08', 'اغسطس': '08',
+        'سبتمبر': '09', 'أكتوبر': '10', 'اكتوبر': '10', 'نوفمبر': '11', 'ديسمبر': '12'
+      };
+      for (const k in map) {
+        if (s.includes(k)) {
+          const d = (s.match(/(\d{1,2})/) || [])[1] || '01';
+          return `${String(d).padStart(2, '0')}/${map[k]}`;
+        }
+      }
+
+      return s; // fallback
+    }
+
     function extractDateSmart(filename) {
       const base = filename.replace(/\.[^/.]+$/, '');
       const m1 = base.match(/(\d{1,2})\s*[-/.]\s*(\d{1,2})/);
@@ -1448,39 +1369,6 @@
         return { display: `${d}/${mo}`, sortVal: parseInt(mo) * 100 + parseInt(d) };
       }
 
-
-      // توحيد صيغة التاريخ لأي شكل قديم/جديد: يرجع dd/mm (اسم داخلي لتفادي أي تعارض)
-      function __normalizeDateToDDMM(value) {
-        const s = String(value || '').trim();
-        if (!s) return '';
-
-        // ISO: yyyy-mm-dd
-        const iso = s.match(/(\d{4})-(\d{2})-(\d{2})/);
-        if (iso) return `${iso[3]}/${iso[2]}`;
-
-        // dd/mm أو dd-mm أو dd.mm
-        const m1 = s.match(/(\d{1,2})\s*[\/\-\.]\s*(\d{1,2})/);
-        if (m1) {
-          const dd = String(m1[1]).padStart(2, '0');
-          const mm = String(m1[2]).padStart(2, '0');
-          return `${dd}/${mm}`;
-        }
-
-        // يوم + اسم شهر عربي (مثال: 25 يناير)
-        const map = {
-          'يناير': '01', 'فبراير': '02', 'مارس': '03', 'أبريل': '04', 'ابريل': '04',
-          'مايو': '05', 'يونيو': '06', 'يوليو': '07', 'أغسطس': '08', 'اغسطس': '08',
-          'سبتمبر': '09', 'أكتوبر': '10', 'اكتوبر': '10', 'نوفمبر': '11', 'ديسمبر': '12'
-        };
-        for (const k in map) {
-          if (s.includes(k)) {
-            const d = (s.match(/(\d{1,2})/) || [])[1] || '01';
-            return `${String(d).padStart(2, '0')}/${map[k]}`;
-          }
-        }
-
-        return s; // fallback
-      }
       const map = { 'يناير': 1, 'فبراير': 2, 'مارس': 3, 'أبريل': 4, 'ابريل': 4, 'مايو': 5, 'يونيو': 6, 'يوليو': 7, 'أغسطس': 8, 'اغسطس': 8, 'سبتمبر': 9, 'أكتوبر': 10, 'اكتوبر': 10, 'نوفمبر': 11, 'ديسمبر': 12 };
       for (const k in map) {
         if (base.includes(k)) {
@@ -1506,7 +1394,7 @@
       const hintEl = document.getElementById('rate-converted-hint');
       if (hintEl) {
         const rateEGP = Number(m.rate || 0);
-        hintEl.textContent = (activeCurrency === 'EGP' || !rateEGP) ? '' : `يعادل تقريباً: ${formatRateFromEGP(rateEGP)} (لكل ألف)`;
+        hintEl.textContent = (activeCurrency === 'EGP') ? '' : `يعادل تقريباً: ${formatRateFromEGP(rateEGP)} (لكل ألف)`;
       }
 
       document.getElementById('print-person-name').textContent = p.name;
@@ -1715,6 +1603,7 @@
       const m = appData[currentCategory][currentPersonId].months[currentMonthId];
       const p = appData[currentCategory][currentPersonId];
 
+      // ===== Layout (Report like the original) =====
       const today = new Date().toLocaleDateString('ar-EG');
       const title1 = `تقرير شهر ${m.name}`;
       const title2 = `الاسم: ${p.name}`;
@@ -1896,7 +1785,6 @@
       if (!canAccessAdmin()) return;
       showView('admin-dashboard');
       loadUsersList();
-      loadAuditLogs();
     };
 
     async function loadUsersList() {
@@ -1920,9 +1808,8 @@
 
           const actions = `<div class="flex justify-center gap-2 flex-wrap">
               <button onclick="viewUserAsAdmin('${email}','${esc(u.name || 'مستخدم')}')" class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 px-3 py-1 rounded text-xs font-black">مراقبة</button>
-              ${canManageUsers() && email !== OWNER_EMAIL ? `<button onclick="toggleBan('${email}', ${isBanned ? 'false' : 'true'})" class="${isBanned ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'} px-3 py-1 rounded text-xs font-black">${isBanned ? 'فك الحظر' : 'حظر'}</button>` : ''}
-              ${canManageUsers() && email !== OWNER_EMAIL ? `<button onclick="deleteUserSystem('${email}')" class="bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-100 px-3 py-1 rounded text-xs font-black">حذف</button>` : ''}
-              ${email === OWNER_EMAIL ? `<span class="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded text-xs font-black">🛡️ محمي</span>` : ''}
+              ${canManageUsers() ? `<button onclick="toggleBan('${email}', ${isBanned ? 'false' : 'true'})" class="${isBanned ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'} px-3 py-1 rounded text-xs font-black">${isBanned ? 'فك الحظر' : 'حظر'}</button>` : ''}
+              ${canManageUsers() ? `<button onclick="deleteUserSystem('${email}')" class="bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-100 px-3 py-1 rounded text-xs font-black">حذف</button>` : ''}
             </div>`;
 
           tbody.innerHTML += `<tr>
@@ -1955,25 +1842,21 @@
 
     window.toggleBan = async (email, newStatus) => {
       if (!canManageUsers()) return;
-      const key = userKey(email);
-      if (key === OWNER_EMAIL) { alert('⛔ لا يمكن حظر حساب المالك'); return; }
       if (!confirm('تغيير حالة المستخدم؟')) return;
       try {
-        await updateDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', key), { isBanned: !!newStatus });
-        logEvent('ban_toggle', { target: key, status: !!newStatus });
+        await updateDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', userKey(email)), { isBanned: !!newStatus });
+        logEvent('ban_toggle', { target: userKey(email), status: !!newStatus });
         loadUsersList();
       } catch (e) { console.error(e); alert('تعذر تغيير الحالة'); }
     };
 
     window.deleteUserSystem = async (email) => {
       if (!canManageUsers()) return;
-      const key = userKey(email);
-      if (key === OWNER_EMAIL) { alert('⛔ لا يمكن حذف حساب المالك'); return; }
       if (!confirm('تحذير: حذف نهائي للحساب وبياناته. متابعة؟')) return;
       try {
-        await deleteDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', key));
-        await deleteDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_data', key));
-        logEvent('user_delete', { target: key });
+        await deleteDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', userKey(email)));
+        await deleteDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_data', userKey(email)));
+        logEvent('user_delete', { target: userKey(email) });
         loadUsersList();
       } catch (e) { console.error(e); alert('تعذر الحذف'); }
     };
@@ -2002,24 +1885,9 @@
         initTheme();
         if (user) {
           const email = userKey(user.email);
-          // Owner - صلاحيات كاملة للمالك
+          // Owner
           if (email === OWNER_EMAIL) {
-            currentUser = { id: email, email, name: 'مالك المنصة - Ahmed', role: 'owner', isAdmin: true };
-            // تأكد من وجود سجل المالك في قاعدة البيانات
-            try {
-              const ownerRef = doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', email);
-              const ownerSnap = await getDoc(ownerRef);
-              if (!ownerSnap.exists()) {
-                await setDoc(ownerRef, {
-                  name: 'مالك المنصة - Ahmed',
-                  email: email,
-                  role: 'owner',
-                  isAdmin: true,
-                  isBanned: false,
-                  createdAt: new Date().toISOString()
-                });
-              }
-            } catch (e) { console.error('Owner setup error', e); }
+            currentUser = { id: email, email, name: 'المالك', role: 'owner', isAdmin: true };
             await finalizeLogin();
             return;
           }
