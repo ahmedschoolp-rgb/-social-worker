@@ -1,1154 +1,1895 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة اللوح - نسخة سحابية</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- SheetJS (Excel Parsing & Styling) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- html2canvas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام إدارة اللوح - Pro+</title>
 
-    <!-- Google Fonts (Cairo) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #f3f4f6;
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1e40af',
+            secondary: '#0ea5e9',
+            accent: '#f59e0b',
+          }
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      }
+    }
+  </script>
 
-        /* Print Styles */
-        @media print {
-            body { background-color: white; padding: 0; margin: 0; font-size: 12pt; }
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            #home-view, #category-view, #person-view, #top-performers-section, #admin-dashboard { display: none !important; }
-            #dashboard-view { padding: 0 !important; margin: 0 !important; }
-            .card { box-shadow: none !important; border: none !important; }
-            table { width: 100% !important; border-collapse: collapse !important; margin-top: 20px; }
-            th, td { border: 1px solid #000 !important; padding: 8px !important; text-align: center !important; }
-            #app-container { min-height: auto; margin: 0; padding: 20px; max-width: 100%; }
-        }
+  <!-- External Libs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
-        .file-item { transition: all 0.2s; }
-        .file-item:hover { transform: translateX(-4px); background-color: #f8fafc; }
-        
-        .footer-marquee {
-            width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box;
-            background: #1e293b; color: #fff; padding: 8px 0; position: fixed; bottom: 0; left: 0; z-index: 50;
-            display: flex; align-items: center;
-        }
-        .footer-marquee-content { display: inline-block; padding-left: 100%; animation: marquee 25s linear infinite; }
-        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(100%, 0); } }
-        
-        .loading-overlay { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); }
+  <style>
+    body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);min-height:100vh}
+    .glass{background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.45);box-shadow:0 10px 30px rgba(31,38,135,.08)}
+    .grad-text{background:linear-gradient(90deg,#1e40af,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .fade-in{animation:fadeIn .35s ease-out forwards}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+    @media print{.no-print{display:none!important}.print-only{display:block!important}body{background:#fff}.glass{border:none;box-shadow:none;backdrop-filter:none}}
 
-        /* Export Template */
-        #export-template { position: fixed; top: -9999px; left: -9999px; width: 800px; background: white; padding: 40px; color: black; font-family: 'Cairo', sans-serif; border: 1px solid #ddd; }
-        #export-template table { width: 100%; border-collapse: collapse; text-align: center; }
-        #export-template th, #export-template td { border: 1px solid #000; padding: 15px; }
-        #export-template thead th { background-color: #f3f4f6; font-weight: bold; font-size: 1.2rem; }
-    </style>
+    /* Dark mode */
+    .dark body{background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:#e5e7eb}
+    .dark .glass{background:rgba(15,23,42,.58);border:1px solid rgba(148,163,184,.18);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+
+    #error-logger{display:none;position:fixed;bottom:16px;left:16px;right:16px;background:#fee2e2;border:2px solid #ef4444;color:#b91c1c;padding:12px;border-radius:14px;z-index:9999;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;max-height:220px;overflow:auto}
+    #domain-alert{display:none;position:fixed;top:12px;left:12px;right:12px;z-index:9999}
+  </style>
 </head>
-<body class="text-slate-800 pb-16">
+<body class="text-slate-800 dark:text-slate-100 pb-20">
 
-    <!-- DOMAIN ALERT (If unauthorized) -->
-    <div id="domain-alert" class="hidden fixed top-0 left-0 right-0 bg-red-600 text-white p-4 z-[200] text-center shadow-lg">
-        <p class="font-bold mb-2">تنبيه: النطاق الحالي غير مصرح به في Firebase</p>
-        <p class="text-sm mb-2">يرجى نسخ النطاق التالي وإضافته في: Firebase Console -> Authentication -> Settings -> Authorized Domains</p>
-        <code id="current-domain" class="bg-red-800 px-2 py-1 rounded select-all"></code>
-        <button onclick="document.getElementById('domain-alert').classList.add('hidden')" class="block mx-auto mt-2 text-xs underline">إغلاق</button>
+  <!-- Error Logger -->
+  <div id="error-logger">
+    <strong>خطأ:</strong> <span id="error-text"></span>
+    <button onclick="this.parentElement.style.display='none'" class="float-left font-bold underline">إغلاق</button>
+  </div>
+
+  <!-- Domain Alert -->
+  <div id="domain-alert" class="glass rounded-2xl p-4 bg-red-50/80 border-2 border-red-200">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="font-black text-red-700">تنبيه: النطاق الحالي غير مصرح به في Firebase</p>
+        <p class="text-xs text-red-700/80 mt-1">أضف الدومين التالي داخل Firebase → Authentication → Authorized Domains</p>
+        <code id="current-domain" class="inline-block mt-2 bg-red-100 text-red-800 px-2 py-1 rounded select-all dir-ltr"></code>
+      </div>
+      <button onclick="document.getElementById('domain-alert').style.display='none'" class="text-red-700 font-bold">✕</button>
     </div>
+  </div>
 
-    <!-- VERIFICATION OVERLAY (For unverified users) -->
-    <div id="verification-overlay" class="hidden fixed inset-0 z-[150] bg-gray-900 bg-opacity-90 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-            <div class="mb-4 text-yellow-500 text-6xl">
-                <i class="fa-solid fa-envelope-circle-check"></i>
-            </div>
-            <h2 class="text-2xl font-bold mb-2 text-gray-800">تفعيل الحساب مطلوب</h2>
-            <p class="text-gray-600 mb-6 text-sm leading-relaxed">
-                تم إرسال رابط التفعيل إلى: <br>
-                <span id="verify-email-display" class="font-bold text-blue-600 dir-ltr block my-2"></span>
-                يرجى التحقق من البريد الوارد و <strong>الرسائل غير المرغوب فيها (Spam)</strong>.
-            </p>
-            <div class="flex flex-col gap-3">
-                <button onclick="resendVerification()" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-bold shadow-md">
-                    <i class="fa-solid fa-paper-plane ml-2"></i> إعادة إرسال الرابط
-                </button>
-                <button onclick="location.reload()" class="bg-gray-100 text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-200 transition border border-gray-300">
-                    <i class="fa-solid fa-rotate-right ml-2"></i> قمت بالتفعيل، تحديث
-                </button>
-                <button onclick="logout()" class="text-red-500 text-sm hover:underline mt-2">
-                    تسجيل الخروج (تغيير البريد)
-                </button>
-            </div>
-        </div>
-    </div>
+  <!-- AUTH OVERLAY -->
+  <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass rounded-3xl w-full max-w-md overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-800 to-blue-600 p-8 text-center text-white">
+        <i class="fa-solid fa-layer-group text-5xl mb-4 text-yellow-400"></i>
+        <h1 class="text-3xl font-black">مدير اللوح</h1>
+        <p class="text-blue-100 opacity-85 mt-2">سجل الدخول لبدء العمل</p>
+      </div>
+      <div class="p-8 bg-white/70 dark:bg-slate-900/40">
 
-    <!-- LOGIN / REGISTER OVERLAY -->
-    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-gray-100 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="bg-blue-900 p-6 text-center text-white shrink-0">
-                <h1 class="text-2xl font-bold mb-1">نظام إدارة اللوح</h1>
-                <p class="text-blue-200 text-sm">سجل الدخول للمتابعة</p>
-            </div>
-            
-            <div class="p-6 overflow-y-auto custom-scrollbar">
-                <!-- Google Sign In Button -->
-                <div id="google-btn-container">
-                    <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-50 transition mb-6 shadow-sm">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6" alt="Google">
-                        <span>تسجيل الدخول باستخدام جوجل</span>
-                    </button>
+        <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-black py-3 px-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/60 transition mb-6">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6" alt="Google" />
+          <span>الدخول عبر جوجل</span>
+        </button>
 
-                    <div class="relative mb-6 text-center">
-                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
-                        <div class="relative"><span class="bg-white px-4 text-gray-500 text-sm">أو باستخدام البريد الإلكتروني</span></div>
-                    </div>
-                </div>
-
-                <!-- Login Form -->
-                <form id="login-form" class="space-y-4">
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
-                        <input type="email" id="login-email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" placeholder="example@gmail.com" required>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
-                        <input type="password" id="login-pass" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" required>
-                        <div class="text-left mt-1">
-                            <a href="#" onclick="toggleAuth('reset')" class="text-xs text-blue-600 hover:underline">نسيت كلمة المرور؟</a>
-                        </div>
-                    </div>
-                    
-                    <div id="login-error" class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-200 hidden text-center"></div>
-
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition shadow-md">دخول</button>
-                    <div class="text-center mt-4">
-                        <a href="#" onclick="toggleAuth('register')" class="text-blue-600 text-sm hover:underline">إنشاء حساب جديد</a>
-                    </div>
-                </form>
-
-                <!-- Register Form -->
-                <form id="register-form" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">الاسم بالكامل</label>
-                        <input type="text" id="reg-name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" placeholder="أحمد مجدي" required>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
-                        <input type="email" id="reg-email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
-                        <input type="password" id="reg-pass" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" required>
-                    </div>
-                    <div id="reg-error" class="text-red-500 text-sm hidden"></div>
-                    <div id="reg-success" class="text-green-600 text-sm hidden bg-green-50 p-3 rounded border border-green-200 text-center">
-                        تم إنشاء الحساب بنجاح! <br> تم إرسال رابط تفعيل إلى بريدك الإلكتروني. يرجى تفعيله قبل تسجيل الدخول.
-                    </div>
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-md">إنشاء حساب</button>
-                    <div class="text-center mt-4">
-                        <a href="#" onclick="toggleAuth('login')" class="text-blue-600 text-sm hover:underline">لديك حساب بالفعل؟ تسجيل دخول</a>
-                    </div>
-                </form>
-
-                <!-- Password Reset Form -->
-                <form id="reset-password-form" class="space-y-4 hidden">
-                    <div class="text-center mb-4">
-                        <h3 class="text-lg font-bold text-gray-700">إعادة تعيين كلمة المرور</h3>
-                        <p class="text-sm text-gray-500">أدخل بريدك الإلكتروني لاستلام رابط إعادة التعيين</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
-                        <input type="email" id="reset-email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 outline-none" placeholder="example@gmail.com" required>
-                    </div>
-                    
-                    <div id="reset-msg" class="hidden p-3 rounded-lg text-sm border text-center"></div>
-
-                    <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition shadow-md">إرسال رابط إعادة التعيين</button>
-                    <div class="text-center mt-4">
-                        <a href="#" onclick="toggleAuth('login')" class="text-blue-600 text-sm hover:underline">عودة لتسجيل الدخول</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN APP WRAPPER (Hidden until login) -->
-    <div id="main-app" class="hidden">
-
-        <!-- Navigation -->
-        <nav class="bg-blue-900 text-white shadow-lg sticky top-0 z-40 no-print">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-layer-group text-2xl text-yellow-400"></i>
-                    <div>
-                        <h1 class="text-xl font-bold leading-tight">مدير اللوح</h1>
-                        <p class="text-xs text-blue-200" id="welcome-msg">أهلاً بك</p>
-                    </div>
-                </div>
-                
-                <div id="breadcrumb" class="hidden md:flex items-center text-sm bg-blue-800 px-3 py-1 rounded-full"></div>
-                
-                <div class="flex items-center gap-3">
-                    <button id="admin-btn" onclick="showAdminPanel()" class="hidden bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded text-sm font-bold">
-                        <i class="fa-solid fa-shield-halved"></i> الإدارة
-                    </button>
-                    <button onclick="goHome()" class="text-white hover:text-yellow-400 transition" title="الرئيسية">
-                        <i class="fa-solid fa-house text-xl"></i>
-                    </button>
-                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- ADMIN DASHBOARD (Hidden by default) -->
-        <div id="admin-dashboard" class="container mx-auto px-4 py-6 hidden no-print">
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-t-4 border-yellow-500">
-                <h2 class="text-2xl font-bold mb-6 text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-yellow-600"></i> لوحة تحكم المالك
-                </h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right text-sm">
-                        <thead class="bg-slate-100 text-slate-700">
-                            <tr>
-                                <th class="p-3">الاسم</th>
-                                <th class="p-3">البريد الإلكتروني</th>
-                                <th class="p-3">الحالة</th>
-                                <th class="p-3">تاريخ الانضمام</th>
-                                <th class="p-3">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-users-list" class="divide-y divide-gray-200">
-                            <!-- Users injected here -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-4 p-4 bg-blue-50 text-blue-800 rounded-lg text-sm">
-                    <i class="fa-solid fa-circle-info"></i> <strong>ملاحظة:</strong> عند الضغط على "عرض"، سيتم تحميل بيانات المستخدم للمشاهدة فقط.
-                </div>
-            </div>
+        <div class="relative mb-6 text-center">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200 dark:border-slate-700"></div></div>
+          <div class="relative"><span class="bg-white/70 dark:bg-slate-900/40 px-4 text-slate-400 text-sm italic">أو البريد الإلكتروني</span></div>
         </div>
 
-        <!-- Main Content Container -->
-        <main id="app-container" class="container mx-auto px-4 py-6 min-h-screen">
-            
-            <!-- Global Loading Spinner -->
-            <div id="global-loader" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center">
-                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
-                <p class="text-slate-600 font-bold">جاري تحميل البيانات...</p>
+        <!-- Login -->
+        <form id="login-form" class="space-y-4">
+          <input type="email" id="login-email" class="w-full px-4 py-3 rounded-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="البريد الإلكتروني" required>
+          <div>
+            <input type="password" id="login-pass" class="w-full px-4 py-3 rounded-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="كلمة المرور" required>
+            <div class="mt-2 text-left">
+              <a href="#" onclick="toggleAuth('reset')" class="text-xs text-blue-700 dark:text-blue-300 font-black hover:underline">نسيت كلمة المرور؟</a>
             </div>
+          </div>
+          <div id="login-error" class="hidden text-red-600 text-xs text-center"></div>
+          <button type="submit" class="w-full bg-blue-600 text-white font-black py-3 rounded-xl shadow-lg hover:bg-blue-700 transition">دخول</button>
+          <p class="text-center text-sm mt-4">ليس لديك حساب؟ <a href="#" onclick="toggleAuth('register')" class="text-blue-700 dark:text-blue-300 font-black">إنشاء حساب</a></p>
+        </form>
 
-            <!-- Header for user viewing (Admin Mode Indicator) -->
-            <div id="viewing-mode-banner" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center">
-                <span><strong class="font-bold">وضع المراقبة:</strong> أنت تشاهد بيانات المستخدم <span id="viewing-user-name"></span></span>
-                <button onclick="exitAdminView()" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">عودة لبياناتي</button>
-            </div>
+        <!-- Register -->
+        <form id="register-form" class="space-y-4 hidden">
+          <input type="text" id="reg-name" class="w-full px-4 py-3 rounded-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="الاسم الكامل" required>
+          <input type="email" id="reg-email" class="w-full px-4 py-3 rounded-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="البريد الإلكتروني" required>
+          <input type="password" id="reg-pass" class="w-full px-4 py-3 rounded-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="كلمة المرور" required>
+          <div id="reg-error" class="hidden text-red-600 text-xs text-center"></div>
+          <div id="reg-success" class="hidden text-emerald-700 text-xs text-center bg-emerald-50/80 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 p-3 rounded-xl">
+            تم إنشاء الحساب ✅<br>تم إرسال رابط تفعيل… فعّل ثم سجّل الدخول.
+          </div>
+          <button type="submit" class="w-full bg-emerald-600 text-white font-black py-3 rounded-xl shadow-lg hover:bg-emerald-700 transition">إنشاء الحساب</button>
+          <p class="text-center text-sm mt-4">لديك حساب؟ <a href="#" onclick="toggleAuth('login')" class="text-blue-700 dark:text-blue-300 font-black">تسجيل دخول</a></p>
+        </form>
 
-            <!-- PRINT ONLY HEADER -->
-            <div id="print-header" class="hidden print-only mb-6 border-b-2 border-slate-800 pb-4">
-                <div class="flex justify-between items-center">
-                    <div class="text-right">
-                        <h1 class="text-3xl font-bold mb-2">كشف حساب / تفريغ لوح</h1>
-                        <p class="text-lg"><strong>الاسم:</strong> <span id="print-person-name">--</span></p>
-                        <p class="text-lg"><strong>الشهر:</strong> <span id="print-month-name">--</span></p>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-sm text-slate-500 mb-1">تاريخ الطباعة</p>
-                        <p class="font-bold text-xl" id="print-date">--</p>
-                    </div>
-                </div>
-                <div class="mt-4 flex gap-8">
-                    <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                        <span class="block text-xs font-bold text-slate-500">سعر الألف</span>
-                        <span class="block text-xl font-bold" id="print-rate">0</span>
-                    </div>
-                    <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                        <span class="block text-xs font-bold text-slate-500">إجمالي العدد</span>
-                        <span class="block text-xl font-bold" id="print-total-count">0</span>
-                    </div>
-                    <div class="bg-slate-100 border border-slate-300 px-4 py-2 rounded">
-                        <span class="block text-xs font-bold text-slate-500">إجمالي المبلغ</span>
-                        <span class="block text-xl font-bold" id="print-total-cost">0</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Reset -->
+        <form id="reset-form" class="space-y-4 hidden">
+          <div class="text-center">
+            <h3 class="text-lg font-black">إعادة تعيين كلمة المرور</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-300 mt-1">أدخل بريدك لاستلام الرابط</p>
+          </div>
+          <input type="email" id="reset-email" class="w-full px-4 py-3 rounded-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="البريد الإلكتروني" required>
+          <div id="reset-msg" class="hidden text-xs text-center p-3 rounded-xl border"></div>
+          <button type="submit" class="w-full bg-amber-500 text-white font-black py-3 rounded-xl shadow-lg hover:bg-amber-600 transition">إرسال الرابط</button>
+          <p class="text-center text-sm mt-4"><a href="#" onclick="toggleAuth('login')" class="text-blue-700 dark:text-blue-300 font-black">عودة لتسجيل الدخول</a></p>
+        </form>
 
-            <!-- VIEW 1: Home -->
-            <div id="home-view" class="fade-in no-print">
-                <!-- Top Performers -->
-                <div id="top-performers-section" class="mb-10 hidden">
-                    <h2 class="text-xl font-bold mb-4 text-center text-slate-700 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-trophy text-yellow-500"></i> الأفضل أداءً
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                        <!-- Delegate -->
-                        <div class="bg-white rounded-xl shadow-lg border-2 border-yellow-400 p-6 relative overflow-hidden">
-                            <div class="absolute top-0 left-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-br-lg">أفضل مندوب</div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-16 h-16 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl font-bold shadow-inner"><i class="fa-solid fa-crown"></i></div>
-                                <div>
-                                    <h3 id="best-delegate-name" class="text-xl font-bold text-slate-800">--</h3>
-                                    <div class="flex gap-4 mt-2 text-sm">
-                                        <span class="text-slate-600"><i class="fa-solid fa-cubes-stacked text-blue-500"></i> <span id="best-delegate-count" class="font-bold">0</span></span>
-                                        <span class="text-slate-600"><i class="fa-solid fa-money-bill-wave text-green-500"></i> <span id="best-delegate-cost" class="font-bold">0</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Unloader -->
-                        <div class="bg-white rounded-xl shadow-lg border-2 border-emerald-400 p-6 relative overflow-hidden">
-                            <div class="absolute top-0 left-0 bg-emerald-400 text-emerald-900 text-xs font-bold px-3 py-1 rounded-br-lg">أفضل مفرغ</div>
-                            <div class="flex items-center gap-4">
-                                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold shadow-inner"><i class="fa-solid fa-crown"></i></div>
-                                <div>
-                                    <h3 id="best-unloader-name" class="text-xl font-bold text-slate-800">--</h3>
-                                    <div class="flex gap-4 mt-2 text-sm">
-                                        <span class="text-slate-600"><i class="fa-solid fa-cubes-stacked text-blue-500"></i> <span id="best-unloader-count" class="font-bold">0</span></span>
-                                        <span class="text-slate-600"><i class="fa-solid fa-money-bill-wave text-green-500"></i> <span id="best-unloader-cost" class="font-bold">0</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h2 class="text-2xl font-bold mb-6 text-center text-slate-700">اختر القسم للمتابعة</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                    <div onclick="navigateToCategory('delegates')" class="cursor-pointer bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition transform hover:-translate-y-1 border-r-4 border-blue-500 group">
-                        <div class="flex items-center justify-between">
-                            <div><h3 class="text-2xl font-bold text-slate-800 group-hover:text-blue-600">المناديب</h3><p class="text-slate-500 mt-2">إدارة حسابات المناديب</p></div>
-                            <div class="bg-blue-100 p-4 rounded-full text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition"><i class="fa-solid fa-truck-fast text-3xl"></i></div>
-                        </div>
-                    </div>
-                    <div onclick="navigateToCategory('unloaders')" class="cursor-pointer bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition transform hover:-translate-y-1 border-r-4 border-emerald-500 group">
-                        <div class="flex items-center justify-between">
-                            <div><h3 class="text-2xl font-bold text-slate-800 group-hover:text-emerald-600">المفرغين</h3><p class="text-slate-500 mt-2">إدارة حسابات المفرغين</p></div>
-                            <div class="bg-emerald-100 p-4 rounded-full text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition"><i class="fa-solid fa-dolly text-3xl"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW 2: List -->
-            <div id="category-view" class="hidden fade-in no-print">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 id="category-title" class="text-2xl font-bold text-slate-700">قائمة الأسماء</h2>
-                    <button onclick="openModal('add-person-modal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2"><i class="fa-solid fa-plus"></i> إضافة اسم</button>
-                </div>
-                <div id="people-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                <div id="empty-people" class="hidden text-center py-12 text-slate-400"><i class="fa-regular fa-folder-open text-5xl mb-3"></i><p>لا يوجد أسماء مضافة.</p></div>
-            </div>
-
-            <!-- VIEW 3: Months -->
-            <div id="person-view" class="hidden fade-in no-print">
-                <div class="flex justify-between items-center mb-6">
-                    <div><h2 id="person-name-title" class="text-2xl font-bold text-slate-700">--</h2><p class="text-sm text-slate-500">الملفات الشهرية</p></div>
-                    <button onclick="openModal('add-month-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2"><i class="fa-solid fa-calendar-plus"></i> إضافة شهر</button>
-                </div>
-                <div id="months-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
-                <div id="empty-months" class="hidden text-center py-12 text-slate-400"><i class="fa-regular fa-calendar-xmark text-5xl mb-3"></i><p>لا شهور مضافة.</p></div>
-            </div>
-
-            <!-- VIEW 4: Dashboard -->
-            <div id="dashboard-view" class="hidden fade-in relative">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 no-print">
-                    <div><h2 id="dashboard-title" class="text-2xl font-bold text-slate-800">--</h2><p class="text-sm text-slate-500">إدارة الملفات</p></div>
-                    <div class="flex gap-2 flex-wrap">
-                        <label for="file-upload" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow flex items-center gap-2 transition"><i class="fa-solid fa-cloud-arrow-up"></i> رفع ملفات</label>
-                        <input id="file-upload" type="file" multiple accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(this)">
-                        <button onclick="exportImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg shadow" title="صورة"><i class="fa-solid fa-camera"></i></button>
-                        <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg shadow" title="طباعة"><i class="fa-solid fa-print"></i></button>
-                        <button onclick="exportExcel()" class="bg-green-700 hover:bg-green-800 text-white px-3 py-2 rounded-lg shadow" title="Excel"><i class="fa-solid fa-file-excel"></i></button>
-                    </div>
-                </div>
-
-                <!-- Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 no-print">
-                    <div class="bg-white p-4 rounded-xl shadow border-r-4 border-indigo-500 card">
-                        <div class="flex justify-between items-center mb-2"><span class="text-slate-500 text-sm font-bold">سعر الـ 1000</span><i class="fa-solid fa-tags text-indigo-200 text-xl"></i></div>
-                        <div class="flex items-center gap-2"><input type="number" id="rate-input" value="100" onchange="updateRate(this.value)" class="w-24 text-2xl font-bold text-indigo-700 border-b-2 border-indigo-200 outline-none bg-transparent"><span class="text-sm text-slate-400">جنية</span></div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl shadow border-r-4 border-blue-500 card">
-                        <div class="flex justify-between items-center mb-2"><span class="text-slate-500 text-sm font-bold">العدد الإجمالي</span><i class="fa-solid fa-cubes-stacked text-blue-200 text-xl"></i></div>
-                        <h3 id="total-count-display" class="text-3xl font-bold text-blue-700">0</h3>
-                        <p id="total-count-diff" class="text-xs text-orange-500 mt-1 h-4"></p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl shadow border-r-4 border-green-500 card">
-                        <div class="flex justify-between items-center mb-2"><span class="text-slate-500 text-sm font-bold">التكلفة</span><i class="fa-solid fa-money-bill-wave text-green-200 text-xl"></i></div>
-                        <h3 id="total-cost-display" class="text-3xl font-bold text-green-700">0</h3><p class="text-xs text-slate-400 mt-1">EGP</p>
-                    </div>
-                </div>
-
-                <!-- Chart -->
-                <div class="bg-white p-4 rounded-xl shadow mb-6 card no-break no-print"><h3 class="text-lg font-bold text-slate-700 mb-4">تحليل البيان</h3><div class="relative h-64 w-full"><canvas id="filesChart"></canvas></div></div>
-
-                <!-- Files Table -->
-                <div class="bg-white rounded-xl shadow overflow-hidden card">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center no-print"><h3 class="font-bold text-slate-700">الملفات</h3><span id="files-count-badge" class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded-full">0</span></div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-right">
-                            <thead class="bg-slate-100 text-slate-600 font-medium"><tr><th class="p-3">#</th><th class="p-3">اسم الملف</th><th class="p-3">التاريخ</th><th class="p-3 text-center no-print">الفعلي</th><th class="p-3 text-center">المحسوب</th><th class="p-3">المبلغ</th><th class="p-3 text-center no-print">إجراء</th></tr></thead>
-                            <tbody id="files-table-body" class="divide-y divide-slate-100"></tbody>
-                            <tfoot class="bg-slate-50 font-bold text-slate-800"><tr><td colspan="3" class="p-3 text-left pl-6">الإجمالي:</td><td class="no-print"></td><td id="table-total-count" class="p-3 text-center">0</td><td id="table-total-cost" class="p-3">0 ج.م</td><td class="no-print"></td></tr></tfoot>
-                        </table>
-                    </div>
-                    <div id="empty-files" class="hidden text-center py-8 text-slate-400"><p>لا توجد ملفات.</p></div>
-                </div>
-
-                <!-- Print Footer -->
-                <div class="hidden print-only mt-12 grid grid-cols-2 gap-8 text-center"><div class="border-t border-black pt-2 w-2/3 mx-auto"><p class="font-bold">توقيع المستلم</p></div><div class="border-t border-black pt-2 w-2/3 mx-auto"><p class="font-bold">توقيع المسؤول</p></div></div>
-                
-                <!-- Spinner -->
-                <div id="loading-spinner" class="hidden absolute inset-0 loading-overlay flex flex-col justify-center items-center z-50 rounded-xl"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-3"></div><p class="text-blue-600 font-semibold">جاري المعالجة...</p></div>
-            </div>
-
-            <!-- Export Template (Hidden) -->
-            <div id="export-template"><div class="text-center mb-8 border-b-2 border-black pb-4"><h1 id="exp-title-month" class="text-3xl font-bold mb-2 text-slate-800">تقرير</h1><h2 id="exp-name" class="text-2xl font-bold text-blue-900 mb-4">--</h2><p class="text-sm text-slate-500">التاريخ: <span id="exp-date">--</span></p></div><div class="flex justify-center"><table class="w-2/3 text-center border-collapse text-xl"><thead class="bg-gray-200"><tr><th class="border border-black p-4">البيان</th><th class="border border-black p-4">القيمة</th></tr></thead><tbody><tr><td class="border border-black p-4 font-bold text-slate-700">العدد</td><td class="border border-black p-4 font-bold text-blue-600" id="exp-total-count">0</td></tr><tr><td class="border border-black p-4 font-bold text-slate-700">المبلغ</td><td class="border border-black p-4 font-bold text-green-600" id="exp-total-cost">0</td></tr></tbody></table></div><div class="mt-8 text-center text-xs text-gray-400">نظام إدارة اللوح</div></div>
-
-        </main>
-        
-        <!-- Marquee -->
-        <footer class="footer-marquee no-print"><div class="footer-marquee-content flex items-center gap-10"><span>&copy; 2024 نظام إدارة اللوح - أحمد مجدي</span><span>واتساب: 01140440601</span></div></footer>
-        
-        <!-- Fixed Social -->
-        <div class="fixed bottom-12 left-4 z-40 flex flex-col gap-3 no-print">
-            <a href="https://www.facebook.com/ahmedmagdy.yousef.7?rdid=AW0HJmOon98mbVMX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F17UbctBgsk%2F" target="_blank" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition"><i class="fa-brands fa-facebook-f text-xl"></i></a>
-            <a href="https://wa.me/201140440601" target="_blank" class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition"><i class="fa-brands fa-whatsapp text-2xl"></i></a>
-        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- MODALS -->
-    <div id="add-person-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">إضافة اسم</h3><input type="text" id="new-person-name" placeholder="الاسم" class="w-full border border-gray-300 rounded p-2 mb-4 outline-none"><div class="flex justify-end gap-2"><button onclick="closeModal('add-person-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button><button onclick="addPerson()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button></div></div></div>
-    <div id="add-month-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"><div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">إضافة شهر</h3><input type="text" id="new-month-name" placeholder="مثال: أكتوبر 2023" class="w-full border border-gray-300 rounded p-2 mb-4 outline-none"><div class="flex justify-end gap-2"><button onclick="closeModal('add-month-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button><button onclick="addMonth()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">حفظ</button></div></div></div>
-    <div id="edit-count-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 no-print"><div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6"><h3 class="text-lg font-bold mb-4">تعديل العدد</h3><div class="mb-4"><input type="number" id="edit-count-input" class="w-full border border-gray-300 rounded p-2 outline-none"></div><div class="flex justify-end gap-2"><button onclick="closeModal('edit-count-modal')" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">إلغاء</button><button id="save-edit-btn" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">تحديث</button></div></div></div>
+  <!-- VERIFICATION OVERLAY -->
+  <div id="verification-overlay" class="hidden fixed inset-0 z-[110] bg-slate-900/95 flex items-center justify-center p-4 text-center text-white">
+    <div class="max-w-sm">
+      <i class="fa-solid fa-envelope-open-text text-6xl text-blue-400 mb-6"></i>
+      <h2 class="text-2xl font-black mb-4">تفعيل البريد مطلوب</h2>
+      <p class="opacity-80">تم إرسال رابط تفعيل إلى:</p>
+      <p id="verify-email-display" class="font-black my-4 dir-ltr"></p>
+      <p class="opacity-70 mb-8">افتح Inbox و Spam ثم ارجع.</p>
+      <button onclick="resendVerification()" class="bg-white/10 border border-white/20 px-8 py-3 rounded-full font-black mb-3">إعادة إرسال الرابط</button>
+      <button onclick="location.reload()" class="bg-blue-600 px-8 py-3 rounded-full font-black">لقد قمت بالتفعيل</button>
+      <button onclick="logout()" class="block w-full mt-4 text-slate-400 underline">خروج</button>
+    </div>
+  </div>
 
-    <!-- FIREBASE & APP LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <!-- BANNED OVERLAY -->
+  <div id="banned-overlay" class="hidden fixed inset-0 z-[120] bg-slate-900/95 flex items-center justify-center p-4 text-center text-white">
+    <div class="max-w-sm">
+      <i class="fa-solid fa-ban text-6xl text-red-400 mb-6"></i>
+      <h2 class="text-2xl font-black mb-3">تم حظر الحساب</h2>
+      <p class="opacity-80 mb-6">ارجع لمسؤول المنصة لإعادة التفعيل.</p>
+      <a href="https://wa.me/201140440601" target="_blank" class="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full font-black hover:bg-green-600 transition">
+        <i class="fa-brands fa-whatsapp text-xl"></i> تواصل واتساب
+      </a>
+      <button onclick="logout()" class="block w-full mt-6 text-slate-400 underline">خروج</button>
+    </div>
+  </div>
 
-        // ======================================================
-        // إعدادات Firebase الخاصة بالمشروع
-        // ======================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOIAos9aILBtPbHmdACWCtSYMGZLA8v2Q",
-            authDomain: "plates-manager.firebaseapp.com",
-            projectId: "plates-manager",
-            storageBucket: "plates-manager.firebasestorage.app",
-            messagingSenderId: "379225353402",
-            appId: "1:379225353402:web:49a848b302aeb75fa7e683",
-            measurementId: "G-DVRMHRFQYM"
+  <!-- MAIN APP -->
+  <div id="main-app" class="hidden">
+
+    <!-- Navbar -->
+    <nav class="glass sticky top-0 z-50 no-print border-b border-white/40 dark:border-slate-700/40">
+      <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+          <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <span class="font-black text-lg hidden md:inline grad-text">نظام اللوح</span>
+        </div>
+
+        <div class="flex gap-6 text-sm font-black">
+          <button onclick="goHome()" class="nav-link active py-5">الرئيسية</button>
+          <button onclick="showDayReport()" class="nav-link py-5">تقرير اليوم</button>
+          <button onclick="showMonthlyBest()" class="nav-link py-5">الأفضل</button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="theme-toggle" onclick="toggleTheme()" class="bg-slate-100/80 dark:bg-slate-900/40 hover:bg-slate-200 dark:hover:bg-slate-900/60 text-slate-700 dark:text-slate-100 px-3 py-1.5 rounded-lg text-xs font-black border border-slate-200 dark:border-slate-700 flex items-center gap-2">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+            <span class="hidden sm:inline">الوضع</span>
+          </button>
+          <button id="admin-btn" onclick="showAdminPanel()" class="hidden bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-3 py-1.5 rounded-lg text-xs font-black border border-amber-200 dark:border-amber-800">
+            <i class="fa-solid fa-user-shield"></i> الإدارة
+          </button>
+          <div class="relative group">
+            <button class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm">
+              <i class="fa-solid fa-user text-slate-500"></i>
+            </button>
+            <div class="absolute left-0 mt-2 w-56 glass rounded-xl hidden group-hover:block p-2 text-xs">
+              <div class="p-2 border-b border-slate-100 dark:border-slate-700 font-black overflow-hidden text-ellipsis" id="user-display-email"></div>
+              <div class="p-2 text-slate-500 dark:text-slate-300 font-bold" id="user-role-badge"></div>
+              <button onclick="logout()" class="w-full text-right p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">خروج</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main id="app-container" class="container mx-auto px-4 py-6">
+
+      <!-- HOME -->
+      <div id="home-view" class="fade-in space-y-8">
+        <div class="bg-gradient-to-r from-blue-700 to-indigo-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+          <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h2 class="text-3xl font-black mb-2">أهلاً بك، <span id="welcome-name">...</span></h2>
+              <p class="text-blue-100 opacity-90 max-w-md italic">ملخص شامل + تقارير + صلاحيات + سجل تغييرات.</p>
+
+              <div class="mt-6 bg-white/20 backdrop-blur-md p-4 rounded-2xl inline-flex flex-col gap-2 border border-white/20">
+                <span class="text-xs font-black flex items-center gap-1"><i class="fa-solid fa-coins"></i> العملة الحالية</span>
+                <div class="flex gap-2">
+                  <button onclick="changeCurrency('EGP')" class="curr-btn bg-white text-blue-800 px-4 py-1.5 rounded-lg font-black text-sm shadow-sm" data-curr="EGP">EGP</button>
+                  <button onclick="changeCurrency('SAR')" class="curr-btn bg-white/10 hover:bg-white/30 px-4 py-1.5 rounded-lg font-black text-sm transition" data-curr="SAR">SAR</button>
+                  <button onclick="changeCurrency('USD')" class="curr-btn bg-white/10 hover:bg-white/30 px-4 py-1.5 rounded-lg font-black text-sm transition" data-curr="USD">USD</button>
+                </div>
+              <div id="fx-info" class="text-[11px] mt-2 opacity-90"></div>
+              <div class="text-[10px] mt-1 opacity-70">مصدر أسعار الصرف: <a class="underline" href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate API</a></div>
+              </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 w-full md:w-auto">
+              <div class="flex flex-col gap-3">
+                <span class="text-xs font-black"><i class="fa-solid fa-filter"></i> نطاق الإحصائيات</span>
+                <div class="flex bg-blue-900/40 p-1 rounded-xl">
+                  <button onclick="setStatsFilter('all')" id="filter-all" class="flex-1 px-4 py-2 rounded-lg text-xs font-black transition-all bg-blue-600 text-white shadow-sm">كل الوقت</button>
+                  <button onclick="setStatsFilter('month')" id="filter-month" class="flex-1 px-4 py-2 rounded-lg text-xs font-black transition-all text-blue-200">الشهر الحالي</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <i class="fa-solid fa-chart-line absolute -bottom-10 -left-10 text-[12rem] opacity-10 rotate-12"></i>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass p-5 rounded-2xl border-b-4 border-blue-500 text-center">
+            <i class="fa-solid fa-users text-blue-500 text-xl mb-2"></i>
+            <div class="text-xs font-black text-slate-400">إجمالي المناديب</div>
+            <div id="global-delegates-count" class="text-2xl font-black">0</div>
+          </div>
+          <div class="glass p-5 rounded-2xl border-b-4 border-emerald-500 text-center">
+            <i class="fa-solid fa-users-gear text-emerald-500 text-xl mb-2"></i>
+            <div class="text-xs font-black text-slate-400">إجمالي المفرغين</div>
+            <div id="global-unloaders-count" class="text-2xl font-black">0</div>
+          </div>
+          <div class="glass p-5 rounded-2xl border-b-4 border-indigo-500 text-center">
+            <i class="fa-solid fa-cubes text-indigo-500 text-xl mb-2"></i>
+            <div class="text-xs font-black text-slate-400">إجمالي اللوح</div>
+            <div id="global-plates-count" class="text-2xl font-black">0</div>
+          </div>
+          <div class="glass p-5 rounded-2xl border-b-4 border-amber-500 text-center">
+            <i class="fa-solid fa-sack-dollar text-amber-500 text-xl mb-2"></i>
+            <div class="text-xs font-black text-slate-400">إجمالي المبلغ</div>
+            <div id="global-cost-sum" class="text-xl font-black">0</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div onclick="navigateToCategory('delegates')" class="glass rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all border-r-8 border-blue-500 group">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-2xl font-black group-hover:text-blue-600 transition">المناديب</h3>
+                <p class="text-slate-500 dark:text-slate-300 mt-1">إدارة حسابات المناديب</p>
+              </div>
+              <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-3xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <i class="fa-solid fa-truck-fast"></i>
+              </div>
+            </div>
+          </div>
+          <div onclick="navigateToCategory('unloaders')" class="glass rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all border-r-8 border-emerald-500 group">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-2xl font-black group-hover:text-emerald-600 transition">المفرغين</h3>
+                <p class="text-slate-500 dark:text-slate-300 mt-1">إدارة ملفات المفرغين</p>
+              </div>
+              <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-3xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <i class="fa-solid fa-dolly"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORY -->
+      <div id="category-view" class="hidden fade-in">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h2 id="category-title" class="text-3xl font-black grad-text">قائمة الأسماء</h2>
+            <p class="text-slate-500 dark:text-slate-300">بحث + تعديل + حذف + إضافة</p>
+          </div>
+          <button onclick="openModal('add-person-modal')" class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 font-black">
+            <i class="fa-solid fa-plus-circle"></i> إضافة اسم جديد
+          </button>
+        </div>
+
+        <div class="glass rounded-2xl p-4 no-print mb-5">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+            <input id="people-search" oninput="setPeopleSearch(this.value)" class="w-full bg-transparent outline-none text-sm font-black" placeholder="بحث بالاسم..." />
+            <button onclick="clearPeopleSearch()" class="text-xs font-black text-blue-700 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 px-3 py-1 rounded-lg">مسح</button>
+          </div>
+        </div>
+
+        <div id="people-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="empty-people" class="hidden text-center py-20 opacity-40">
+          <i class="fa-regular fa-folder-open text-8xl mb-4"></i>
+          <p class="text-xl">لا توجد أسماء مضافة بعد</p>
+        </div>
+      </div>
+
+      <!-- PERSON -->
+      <div id="person-view" class="hidden fade-in">
+        <div class="mb-6">
+          <button onclick="goBackToCategory()" class="text-blue-700 dark:text-blue-300 font-black mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
+          </button>
+          <div class="flex justify-between items-end">
+            <div>
+              <h2 id="person-name-title" class="text-4xl font-black">--</h2>
+              <p class="text-slate-500 dark:text-slate-300">الأرشيف الشهري</p>
+            </div>
+            <button onclick="openModal('add-month-modal')" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl shadow-md font-black flex items-center gap-2">
+              <i class="fa-solid fa-calendar-plus"></i> إضافة شهر
+            </button>
+          </div>
+        </div>
+        <div id="months-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        <div id="empty-months" class="hidden text-center py-20 opacity-40">
+          <i class="fa-solid fa-calendar-xmark text-8xl mb-4"></i>
+          <p class="text-xl">لا توجد شهور لهذا الشخص</p>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard-view" class="hidden fade-in">
+        <div class="flex flex-col xl:flex-row gap-6">
+
+          <!-- Sidebar -->
+          <div class="xl:w-80 space-y-6 no-print">
+            <div class="glass rounded-2xl p-6">
+              <h4 id="dashboard-title" class="text-xl font-black mb-1">--</h4>
+              <p id="dashboard-subtitle" class="text-xs text-slate-500 dark:text-slate-300 mb-6">إدارة الملفات</p>
+              <div class="space-y-4">
+                <label for="file-upload" class="cursor-pointer block w-full bg-blue-600 text-white text-center py-3 rounded-xl font-black shadow-lg">
+                  <i class="fa-solid fa-cloud-arrow-up ml-2"></i> رفع ملفات
+                </label>
+                <input id="file-upload" type="file" multiple accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(this)">
+
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="exportImage()" class="bg-emerald-500 text-white py-2 rounded-lg font-black text-sm"><i class="fa-solid fa-image"></i> صورة</button>
+                  <button onclick="exportExcel()" class="bg-green-600 text-white py-2 rounded-lg font-black text-sm"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                </div>
+
+                <button onclick="window.print()" class="w-full bg-slate-700 text-white py-2 rounded-lg font-black text-sm"><i class="fa-solid fa-print"></i> طباعة كشف</button>
+
+                <!-- Backup / Restore -->
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="exportBackup()" class="bg-slate-900 text-white py-2 rounded-lg font-black text-sm"><i class="fa-solid fa-database"></i> نسخ</button>
+                  <button onclick="document.getElementById('backup-upload').click()" class="bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-100 py-2 rounded-lg font-black text-sm border border-slate-200 dark:border-slate-700"><i class="fa-solid fa-upload"></i> استعادة</button>
+                </div>
+                <input id="backup-upload" type="file" accept=".json" class="hidden" onchange="importBackup(this)">
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 border-t-4 border-amber-500">
+              <label class="block text-sm font-black text-slate-600 dark:text-slate-200 mb-2 italic">سعر الألف</label>
+              <div class="flex items-center gap-2">
+                <input type="number" id="rate-input" onchange="updateRate(this.value)" class="w-full text-2xl font-black bg-transparent outline-none text-amber-700 dark:text-amber-200 border-b-2 border-amber-100 dark:border-amber-800 focus:border-amber-400 transition">
+                <span class="text-sm font-black text-slate-400 rate-symbol">EGP</span>
+              </div>
+        <div id=\"rate-converted-hint\" class=\"text-xs font-bold text-slate-500 dark:text-slate-300 mt-2\"></div>
+            </div>
+          </div>
+
+          <!-- Main -->
+          <div class="flex-1 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="glass rounded-2xl p-5 border-b-4 border-blue-500">
+                <span class="text-xs font-black text-slate-400">لوح هذا الشهر</span>
+                <h3 id="total-count-display" class="text-3xl font-black text-blue-800 dark:text-blue-200">0</h3>
+                <p id="total-count-diff" class="text-xs text-amber-600 mt-1 h-4"></p>
+              </div>
+              <div class="glass rounded-2xl p-5 border-b-4 border-emerald-500">
+                <span class="text-xs font-black text-slate-400">إجمالي المبلغ (<span class="symbol"></span>)</span>
+                <h3 id="total-cost-display" class="text-3xl font-black text-emerald-800 dark:text-emerald-200">0</h3>
+              </div>
+              <div class="glass rounded-2xl p-5 border-b-4 border-indigo-500">
+                <span class="text-xs font-black text-slate-400">عدد الملفات</span>
+                <h3 id="files-count-badge" class="text-3xl font-black text-indigo-800 dark:text-indigo-200">0</h3>
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-4 no-print">
+              <div class="flex flex-col md:flex-row md:items-center gap-3">
+                <div class="flex items-center gap-3 flex-1">
+                  <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+                  <input id="files-search" oninput="setFilesSearch(this.value)" class="w-full bg-transparent outline-none text-sm font-black" placeholder="بحث باسم الملف أو التاريخ...">
+                  <button onclick="clearFilesSearch()" class="text-xs font-black text-blue-700 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 px-3 py-1 rounded-lg">مسح</button>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-black text-slate-500 dark:text-slate-300">ترتيب:</span>
+                  <button onclick="setFilesSort('date')" id="sort-date" class="text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white">التاريخ</button>
+                  <button onclick="setFilesSort('count')" id="sort-count" class="text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700">العدد</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 no-print"><div class="h-64"><canvas id="filesChart"></canvas></div></div>
+
+            <div class="glass rounded-2xl overflow-hidden">
+              <table class="w-full text-sm text-right">
+                <thead class="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-300">
+                  <tr>
+                    <th class="p-4">الملف</th>
+                    <th class="p-4 text-center">التاريخ</th>
+                    <th class="p-4 text-center no-print">الفعلي</th>
+                    <th class="p-4 text-center">المحسوب</th>
+                    <th class="p-4 text-center">المبلغ</th>
+                    <th class="p-4 text-center no-print">إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="files-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                <tfoot class="bg-slate-50/50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-200 font-black">
+                  <tr>
+                    <td class="p-4">الإجمالي</td>
+                    <td class="p-4"></td>
+                    <td class="p-4 no-print text-center" id="table-total-original">0</td>
+                    <td class="p-4 text-center" id="table-total-count">0</td>
+                    <td class="p-4 text-center" id="table-total-cost">0</td>
+                    <td class="p-4 no-print"></td>
+                  </tr>
+                </tfoot>
+              </table>
+              <div id="empty-files" class="hidden text-center py-10 opacity-40 italic">لا توجد ملفات</div>
+            </div>
+
+            <!-- Print Only Header -->
+            <div class="hidden print-only mt-6">
+              <div class="border-b-2 border-slate-800 pb-4 mb-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h1 class="text-3xl font-black">كشف حساب / تفريغ لوح</h1>
+                    <p class="mt-2"><span class="font-bold">الاسم:</span> <span id="print-person-name">--</span></p>
+                    <p><span class="font-bold">الشهر:</span> <span id="print-month-name">--</span></p>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm text-slate-500">تاريخ الطباعة</p>
+                    <p class="font-black" id="print-date">--</p>
+                  </div>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-4">
+                  <div class="bg-slate-100 border border-slate-200 p-3 rounded-xl"><div class="text-xs text-slate-500 font-black">سعر الألف</div><div class="font-black" id="print-rate">0</div></div>
+                  <div class="bg-slate-100 border border-slate-200 p-3 rounded-xl"><div class="text-xs text-slate-500 font-black">إجمالي العدد</div><div class="font-black" id="print-total-count">0</div></div>
+                  <div class="bg-slate-100 border border-slate-200 p-3 rounded-xl"><div class="text-xs text-slate-500 font-black">إجمالي المبلغ</div><div class="font-black" id="print-total-cost">0</div></div>
+                </div>
+              </div>
+              <div class="mt-10 grid grid-cols-2 gap-8 text-center">
+                <div class="border-t border-black pt-2 w-2/3 mx-auto"><p class="font-black">توقيع المستلم</p></div>
+                <div class="border-t border-black pt-2 w-2/3 mx-auto"><p class="font-black">توقيع المسؤول</p></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- DAY REPORT -->
+      <div id="day-view" class="hidden fade-in">
+        <div class="glass rounded-3xl p-8 mb-6">
+          <h2 class="text-3xl font-black mb-6 grad-text flex items-center gap-3"><i class="fa-solid fa-calendar-day"></i> تقرير يوم محدد</h2>
+          <div class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[220px]">
+              <label class="block text-xs font-black mb-2">اختر التاريخ:</label>
+              <input type="date" id="report-date-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 outline-none focus:ring-2 ring-blue-500">
+            </div>
+            <button onclick="generateDayReport()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black shadow-lg">عرض التقرير</button>
+          </div>
+        </div>
+        <div id="day-report-content" class="hidden space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass rounded-2xl p-6 text-center border-b-4 border-blue-600"><span class="text-sm font-black text-slate-400">لوح اليوم</span><div id="day-total-count" class="text-4xl font-black">0</div></div>
+            <div class="glass rounded-2xl p-6 text-center border-b-4 border-emerald-600"><span class="text-sm font-black text-slate-400">مبالغ اليوم (<span class="symbol"></span>)</span><div id="day-total-cost" class="text-4xl font-black text-emerald-800 dark:text-emerald-200">0</div></div>
+          </div>
+          <div class="glass rounded-2xl overflow-hidden">
+            <table class="w-full text-right text-sm">
+              <thead class="bg-slate-800 text-white"><tr><th class="p-4">الاسم</th><th class="p-4 text-center">الفئة</th><th class="p-4 text-center">العدد</th><th class="p-4 text-center">المبلغ</th></tr></thead>
+              <tbody id="day-report-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTHLY BEST -->
+      <div id="monthly-best-view" class="hidden fade-in">
+        <div class="glass rounded-3xl p-8 mb-8">
+          <h2 class="text-3xl font-black grad-text mb-2">أفضل أداء شهري</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <h4 class="font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2"><i class="fa-solid fa-trophy text-yellow-500"></i> الترتيب</h4>
+              <div class="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
+                <table class="w-full text-sm text-right">
+                  <thead class="bg-slate-50 dark:bg-slate-900/30"><tr><th class="p-3">الشهر</th><th class="p-3">الأفضل</th><th class="p-3 text-center">اللوح</th></tr></thead>
+                  <tbody id="monthly-performers-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="h-80"><canvas id="monthlyBestChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div id="admin-dashboard" class="hidden fade-in space-y-6">
+        <div class="glass rounded-2xl p-8 border-t-8 border-yellow-500">
+          <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
+            <h2 class="text-2xl font-black flex items-center gap-3"><i class="fa-solid fa-shield-halved text-yellow-500"></i> لوحة الإدارة</h2>
+            <div class="text-xs text-slate-500 dark:text-slate-300 font-bold">* owner/admin: إدارة المستخدمين - manager: عرض فقط</div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-right text-sm">
+              <thead class="bg-slate-100 dark:bg-slate-900/30">
+                <tr>
+                  <th class="p-4">المستخدم</th>
+                  <th class="p-4">البريد</th>
+                  <th class="p-4">الحالة</th>
+                  <th class="p-4">الدور</th>
+                  <th class="p-4">تاريخ الانضمام</th>
+                  <th class="p-4 text-center">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-list" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="viewing-mode-banner" class="hidden bg-yellow-400 p-4 rounded-xl flex justify-between items-center shadow-lg">
+          <span class="font-black text-yellow-900"><i class="fa-solid fa-eye"></i> مراقبة: <span id="viewing-user-name" class="underline"></span></span>
+          <button onclick="exitAdminView()" class="bg-white text-yellow-700 px-4 py-1.5 rounded-lg font-black text-xs">إغلاق</button>
+        </div>
+
+        <div class="glass rounded-2xl p-8 border-t-8 border-indigo-500">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h3 class="text-xl font-black flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-indigo-600"></i> سجل التغييرات</h3>
+            <div class="flex items-center gap-3">
+              <input id="audit-search" oninput="filterAuditLogs(this.value)" class="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-black outline-none w-72 max-w-full" placeholder="بحث: اسم / بريد / نوع العملية...">
+              <button onclick="reloadAuditLogs()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-black text-sm"><i class="fa-solid fa-rotate"></i> تحديث</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800">
+            <table class="w-full text-right text-sm">
+              <thead class="bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-200">
+                <tr>
+                  <th class="p-4">الوقت</th>
+                  <th class="p-4">المستخدم</th>
+                  <th class="p-4">العملية</th>
+                  <th class="p-4">تفاصيل</th>
+                </tr>
+              </thead>
+              <tbody id="audit-logs-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+            </table>
+          </div>
+          <p class="text-xs text-slate-400 mt-4">يتم تسجيل أهم العمليات تلقائياً.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div id="add-person-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass w-full max-w-sm rounded-3xl p-8">
+      <h3 class="text-xl font-black mb-6">إضافة اسم</h3>
+      <input type="text" id="new-person-name" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none" placeholder="الاسم الكامل">
+      <div class="flex gap-2">
+        <button onclick="closeModal('add-person-modal')" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
+        <button onclick="addPerson()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="add-month-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass w-full max-w-sm rounded-3xl p-8">
+      <h3 class="text-xl font-black mb-6">إضافة شهر</h3>
+      <input type="text" id="new-month-name" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none" placeholder="يناير 2026">
+      <div class="flex gap-2">
+        <button onclick="closeModal('add-month-modal')" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
+        <button onclick="addMonth()" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-black">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-count-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass w-full max-w-sm rounded-3xl p-8">
+      <h3 class="text-xl font-black mb-6">تعديل العدد</h3>
+      <input type="number" id="edit-count-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none text-center text-2xl font-black">
+      <div class="flex gap-2">
+        <button onclick="closeModal('edit-count-modal')" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
+        <button id="save-edit-btn" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-black">تحديث</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL LOADER -->
+  <div id="global-loader" class="hidden fixed inset-0 z-[300] bg-white/80 dark:bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center text-center p-6">
+    <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+    <p class="font-black text-blue-800 dark:text-blue-200">جاري الاتصال بالسحابة وتحديث البيانات...</p>
+  </div>
+
+  <!-- Firebase + App -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendEmailVerification,
+      sendPasswordResetEmail,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      getDoc,
+      getDocs,
+      updateDoc,
+      deleteDoc,
+      query,
+      orderBy,
+      limit,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global Error Handling
+    window.onerror = function(message, source, lineno) {
+      const logger = document.getElementById('error-logger');
+      const text = document.getElementById('error-text');
+      logger.style.display = 'block';
+      text.innerText = String(message) + " (Line: " + lineno + ")";
+      return false;
+    };
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOIAos9aILBtPbHmdACWCtSYMGZLA8v2Q",
+      authDomain: "plates-manager.firebaseapp.com",
+      projectId: "plates-manager",
+      storageBucket: "plates-manager.firebasestorage.app",
+      messagingSenderId: "379225353402",
+      appId: "1:379225353402:web:49a848b302aeb75fa7e683"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // --- DATABASE (Namespace Fix) ---
+    // مهم: النسخة القديمة كانت تستخدم namespace مختلف. هنا بنعمل fallback تلقائي حتى تظهر بياناتك.
+    const APP_NAMESPACES = ['my-plates-app', 'my-plates-app-v2'];
+    let appNamespace = localStorage.getItem('app_namespace') || 'my-plates-app';
+
+    // --- Roles ---
+    const OWNER_EMAIL = 'userahmed@gmail.com';
+
+    // --- STATE ---
+    let currentUser = null;
+    let isViewingUser = false;
+    let viewingUserId = null;
+    let appData = { delegates: {}, unloaders: {} };
+    let currentCategory = null;
+    let currentPersonId = null;
+    let currentMonthId = null;
+
+    // UI State
+    let peopleSearchQuery = '';
+    let filesSearchQuery = '';
+    let filesSortMode = 'date';
+
+    let activeCurrency = localStorage.getItem('app_curr') || 'EGP';
+    // 1 SAR = 6.1 EGP, 1 USD = 30.9 EGP
+    let currencyRates = { EGP: 1, SAR: 13, USD: 50 }; // افتراضي (EGP لكل 1 عملة) وسيتم تحديثه تلقائياً
+    let fxMeta = { provider: 'manual', lastUpdateUtc: null, nextUpdateUtc: null };
+
+
+
+    // تحديث أسعار الصرف تلقائياً (EGP -> SAR/USD) من Open ExchangeRate-API (بدون API Key)
+    // ملاحظة: الـ API يحدث عادة مرة يومياً، والنتيجة تحتوي وقت التحديث القادم.
+    async function refreshLiveFXRates(force=false){
+      try{
+        const cacheKey = 'fx_cache_v1';
+        const cached = localStorage.getItem(cacheKey);
+        if(!force && cached){
+          const c = JSON.parse(cached);
+          // لو لسه قبل وقت التحديث القادم، استخدم الكاش
+          if(c?.nextUpdateUnix && Date.now() < (c.nextUpdateUnix*1000)){
+            currencyRates = { EGP:1, SAR: c.egpPerSAR, USD: c.egpPerUSD };
+            fxMeta = { provider: c.provider||'cache', lastUpdateUtc: c.lastUpdateUtc||null, nextUpdateUtc: c.nextUpdateUtc||null };
+            updateFXInfoUI();
+            return;
+          }
+        }
+
+        const url = 'https://open.er-api.com/v6/latest/EGP';
+        const resp = await fetch(url, { cache: 'no-store' });
+        const data = await resp.json();
+        if(data?.result !== 'success' || !data?.rates) throw new Error('bad fx response');
+
+        // data.rates: قيمتها = كم (عملة) مقابل 1 EGP
+        // نحتاج EGP لكل 1 عملة لكي نحول: amountEGP / (EGP per 1 currency)
+        const sarPerEgp = Number(data.rates.SAR);
+        const usdPerEgp = Number(data.rates.USD);
+        if(!sarPerEgp || !usdPerEgp) throw new Error('missing SAR/USD');
+
+        const egpPerSAR = 1 / sarPerEgp;
+        const egpPerUSD = 1 / usdPerEgp;
+
+        currencyRates = { EGP:1, SAR: egpPerSAR, USD: egpPerUSD };
+        fxMeta = {
+          provider: data.provider || 'open.er-api.com',
+          lastUpdateUtc: data.time_last_update_utc || null,
+          nextUpdateUtc: data.time_next_update_utc || null
         };
-        // ======================================================
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
-        const appId = 'my-plates-app';
+        localStorage.setItem(cacheKey, JSON.stringify({
+          provider: fxMeta.provider,
+          lastUpdateUtc: fxMeta.lastUpdateUtc,
+          nextUpdateUtc: fxMeta.nextUpdateUtc,
+          nextUpdateUnix: data.time_next_update_unix || null,
+          egpPerSAR,
+          egpPerUSD
+        }));
 
-        // --- AUTH & STATE ---
-        let currentUser = null; 
-        let isAdminMode = false;
-        let isViewingUser = false; 
-        let viewingUserId = null; 
-        
-        const ADMIN_EMAIL = 'userahmed@gmail.com';
-        const ADMIN_PASS = 'Std#050214';
+        updateFXInfoUI();
+      }catch(e){
+        // fallback: لو فشل النت، نستخدم آخر قيمة موجودة أو الافتراضي
+        updateFXInfoUI(true);
+      }
+    }
 
-        // --- APP DATA ---
-        let appData = { delegates: {}, unloaders: {} };
-        let currentCategory = null;
-        let currentPersonId = null;
-        let currentMonthId = null;
-        let filesChartInstance = null;
+    function updateFXInfoUI(isError=false){
+      const fxInfo = document.getElementById('fx-info');
+      if(fxInfo){
+        const sar = Number(currencyRates.SAR||0);
+        const usd = Number(currencyRates.USD||0);
+        const sarTxt = sar ? `1 ريال = ${sar.toFixed(2)} جنيه` : 'SAR: -';
+        const usdTxt = usd ? `1 دولار = ${usd.toFixed(2)} جنيه` : 'USD: -';
+        const meta = fxMeta?.lastUpdateUtc ? ` | تحديث: ${fxMeta.lastUpdateUtc}` : '';
+        fxInfo.textContent = (isError ? '⚠️ تعذر تحديث أسعار الصرف. ' : '') + sarTxt + ' — ' + usdTxt + meta;
+      }
 
-        // AUTH INIT
-        let authReadyResolver;
-        const authReadyPromise = new Promise((resolve) => authReadyResolver = resolve);
+      // تحديث تلميح سعر الألف لو موجود
+      const hintEl = document.getElementById('rate-converted-hint');
+      if(hintEl && currentMonthId){
+        const m = appData[currentCategory]?.[currentPersonId]?.months?.[currentMonthId];
+        const rateEGP = Number(m?.rate||0);
+        hintEl.textContent = (activeCurrency==='EGP' || !rateEGP) ? '' : `يعادل تقريباً: ${formatRateFromEGP(rateEGP)} (لكل ألف)`;
+      }
+    }
 
-        // Show domain helper
-        const showDomainAlert = () => {
-            const domain = window.location.hostname;
-            document.getElementById('current-domain').textContent = domain;
-            document.getElementById('domain-alert').classList.remove('hidden');
+    // جدولة تحديث تلقائي (مرة كل 6 ساعات) + عند فتح الصفحة
+    setTimeout(()=>refreshLiveFXRates(false), 1200);
+    setInterval(()=>refreshLiveFXRates(false), 6*60*60*1000);
+    let charts = {};
+    let globalStatsFilter = 'all';
+
+    // Audit
+    let auditLogs = [];
+    let auditFilterQuery = '';
+
+    // --- Helpers ---
+    function userKey(email){ return String(email||'').trim().toLowerCase(); }
+
+    function showDomainAlert() {
+      document.getElementById('current-domain').textContent = window.location.hostname;
+      document.getElementById('domain-alert').style.display = 'block';
+    }
+
+    function toggleLoader(show){ document.getElementById('global-loader').classList.toggle('hidden', !show); }
+
+    function showAuth(){
+      document.getElementById('auth-overlay').classList.remove('hidden');
+      document.getElementById('main-app').classList.add('hidden');
+      document.getElementById('verification-overlay').classList.add('hidden');
+      document.getElementById('banned-overlay').classList.add('hidden');
+      toggleLoader(false);
+    }
+
+    function initTheme(){
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.classList.toggle('dark', saved === 'dark');
+      const icon = document.getElementById('theme-icon');
+      if(icon) icon.className = saved==='dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+
+    window.toggleTheme = () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      const icon = document.getElementById('theme-icon');
+      if(icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    };
+
+    window.openModal = (id)=>document.getElementById(id).classList.remove('hidden');
+    window.closeModal = (id)=>document.getElementById(id).classList.add('hidden');
+
+    window.toggleAuth = (mode)=>{
+      ['login-form','register-form','reset-form'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('reg-error').classList.add('hidden');
+      document.getElementById('reg-success').classList.add('hidden');
+      if(mode==='register') document.getElementById('register-form').classList.remove('hidden');
+      else if(mode==='reset') document.getElementById('reset-form').classList.remove('hidden');
+      else document.getElementById('login-form').classList.remove('hidden');
+    };
+
+    window.logout = ()=>signOut(auth).then(()=>location.reload());
+
+    window.loginWithGoogle = async ()=>{
+      try{ await signInWithPopup(auth, googleProvider); }
+      catch(err){
+        console.error(err);
+        if(err?.code==='auth/unauthorized-domain') showDomainAlert();
+        else alert('فشل تسجيل الدخول: '+(err?.message||err));
+      }
+    };
+
+    window.resendVerification = async ()=>{
+      if(!auth.currentUser) return;
+      try{ await sendEmailVerification(auth.currentUser); alert('✅ تم إرسال رابط التفعيل مرة أخرى'); }
+      catch(err){
+        console.error(err);
+        if(err?.code==='auth/too-many-requests') alert('⚠️ تم طلب الإرسال كثيراً. انتظر ثم أعد المحاولة');
+        else alert('تعذر الإرسال: '+(err?.message||err));
+      }
+    };
+
+    function formatMoney(egpAmount){
+      const converted = egpAmount / (currencyRates[activeCurrency] || 1);
+      return converted.toLocaleString(undefined,{maximumFractionDigits:1})+' '+activeCurrency;
+    }
+
+    // تحويل (عرض فقط): قيمة بالجنيه إلى العملة المختارة (يستخدم سعر الصرف الحالي)
+    function formatRateFromEGP(egpValue){
+      const converted = egpValue / (currencyRates[activeCurrency] || 1);
+      return converted.toLocaleString(undefined,{maximumFractionDigits:2}) + ' ' + activeCurrency;
+    }
+
+
+    function updateCurrencyUI(){
+      document.querySelectorAll('.curr-btn').forEach(b=>{
+        b.className = (b.dataset.curr===activeCurrency)
+          ? 'curr-btn bg-white text-blue-800 px-4 py-1.5 rounded-lg font-black text-sm shadow-sm'
+          : 'curr-btn bg-white/10 hover:bg-white/30 px-4 py-1.5 rounded-lg font-black text-sm transition';
+      });
+      document.querySelectorAll('.symbol').forEach(s=>s.textContent = activeCurrency);
+    }
+
+    window.changeCurrency = (curr)=>{
+      activeCurrency = curr;
+      localStorage.setItem('app_curr', curr);
+      updateCurrencyUI();
+      updateFXInfoUI();
+      if(currentMonthId) renderDashboard();
+      calculateGlobalStats();
+      logEvent('currency_change', { currency: curr });
+    };
+
+    // --- SEARCH ---
+    window.setPeopleSearch = (val)=>{ peopleSearchQuery=(val||'').trim().toLowerCase(); renderPeople(); };
+    window.clearPeopleSearch = ()=>{ peopleSearchQuery=''; const i=document.getElementById('people-search'); if(i) i.value=''; renderPeople(); };
+
+    window.setFilesSearch = (val)=>{ filesSearchQuery=(val||'').trim().toLowerCase(); if(currentMonthId) renderDashboard(); };
+    window.clearFilesSearch = ()=>{ filesSearchQuery=''; const i=document.getElementById('files-search'); if(i) i.value=''; if(currentMonthId) renderDashboard(); };
+
+    window.setFilesSort = (mode)=>{
+      filesSortMode = mode;
+      const bd = document.getElementById('sort-date');
+      const bc = document.getElementById('sort-count');
+      if(bd && bc){
+        bd.className = mode==='date' ? 'text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white' : 'text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700';
+        bc.className = mode==='count' ? 'text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white' : 'text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700';
+      }
+      if(currentMonthId) renderDashboard();
+    };
+
+    // --- Backup / Restore ---
+    window.exportBackup = ()=>{
+      const payload = { meta:{ namespace: appNamespace, exportedAt:new Date().toISOString(), user: currentUser?.email||null }, data: appData };
+      const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `backup_${(currentUser?.email||'user').replace(/[^a-z0-9]/gi,'_')}_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      logEvent('backup_export', {});
+    };
+
+    window.importBackup = async (input)=>{
+      if(!input.files?.length) return;
+      const file = input.files[0];
+      try{
+        const json = JSON.parse(await file.text());
+        if(!json?.data) throw new Error('صيغة الملف غير صحيحة');
+        if(!confirm('استعادة النسخة ستستبدل بياناتك الحالية. متابعة؟')) return;
+        appData = json.data;
+        await saveToCloud(true);
+        goHome();
+        alert('✅ تم الاستعادة');
+        logEvent('backup_import', { file: file.name });
+      }catch(e){
+        console.error(e);
+        alert('تعذر الاستعادة: '+(e.message||e));
+      }
+      input.value='';
+    };
+
+    // --- Audit Log ---
+    function esc(str){
+      return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[s]));
+    }
+
+    async function logEvent(action, payload={}){
+      if(isViewingUser || !auth.currentUser) return;
+      try{
+        await addDoc(collection(db,'artifacts',appNamespace,'public','data','audit_logs'),{
+          action,
+          payload,
+          userEmail: currentUser?.email || auth.currentUser?.email || null,
+          userName: currentUser?.name || null,
+          createdAt: serverTimestamp()
+        });
+      }catch(e){
+        console.error('audit error', e);
+      }
+    }
+
+    function renderAuditLogs(){
+      const tbody = document.getElementById('audit-logs-body');
+      if(!tbody) return;
+      tbody.innerHTML='';
+      const q = (auditFilterQuery||'').toLowerCase();
+      const rows = (auditLogs||[]).filter(l=>{
+        if(!q) return true;
+        const t = [l.action,l.userEmail,l.userName,JSON.stringify(l.payload||{})].join(' ').toLowerCase();
+        return t.includes(q);
+      });
+      if(!rows.length){
+        tbody.innerHTML = `<tr><td class="p-4 text-slate-400" colspan="4">لا توجد سجلات</td></tr>`;
+        return;
+      }
+      rows.forEach(l=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-4 text-xs text-slate-500">${l.createdAtText||'-'}</td>
+          <td class="p-4"><div class="font-black">${esc(l.userName||'-')}</div><div class="text-xs text-slate-400 dir-ltr">${esc(l.userEmail||'-')}</div></td>
+          <td class="p-4 font-black text-indigo-700 dark:text-indigo-200">${esc(l.action||'-')}</td>
+          <td class="p-4 text-xs text-slate-500">${esc(JSON.stringify(l.payload||{})).slice(0,240)}${JSON.stringify(l.payload||{}).length>240?'…':''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.filterAuditLogs = (val)=>{ auditFilterQuery = val||''; renderAuditLogs(); };
+
+    async function loadAuditLogs(){
+      const tbody = document.getElementById('audit-logs-body');
+      if(tbody) tbody.innerHTML = `<tr><td class="p-4" colspan="4">جاري التحميل...</td></tr>`;
+      try{
+        const q = query(collection(db,'artifacts',appNamespace,'public','data','audit_logs'), orderBy('createdAt','desc'), limit(200));
+        const snap = await getDocs(q);
+        auditLogs = [];
+        snap.forEach(d=>{
+          const v = d.data();
+          const ts = v.createdAt && v.createdAt.toDate ? v.createdAt.toDate() : null;
+          auditLogs.push({ id: d.id, ...v, createdAtText: ts ? ts.toLocaleString('ar-EG') : '-' });
+        });
+        renderAuditLogs();
+      }catch(e){
+        console.error(e);
+        if(tbody) tbody.innerHTML = `<tr><td class="p-4 text-red-600" colspan="4">تعذر تحميل السجل</td></tr>`;
+      }
+    }
+
+    window.reloadAuditLogs = ()=>loadAuditLogs();
+
+    // --- Namespace fallback loader ---
+    async function loadDataFromAnyNamespace(email){
+      const key = userKey(email);
+      for(const ns of APP_NAMESPACES){
+        try{
+          const snap = await getDoc(doc(db,'artifacts',ns,'public','data','users_data',key));
+          if(snap.exists() && snap.data().data){
+            appNamespace = ns;
+            localStorage.setItem('app_namespace', ns);
+            return JSON.parse(snap.data().data);
+          }
+        }catch(e){ console.error('namespace load', ns, e); }
+      }
+      return { delegates:{}, unloaders:{} };
+    }
+
+    // --- Save/Load ---
+    async function loadDataCloud(){
+      if(!auth.currentUser) return;
+      const target = isViewingUser ? viewingUserId : currentUser?.id;
+      const targetKey = userKey(target);
+      toggleLoader(true);
+      try{
+        // fallback to any namespace to fix "data not showing"
+        appData = await loadDataFromAnyNamespace(targetKey);
+        calculateGlobalStats();
+      }catch(e){ console.error('load cloud', e); }
+      toggleLoader(false);
+    }
+
+    async function saveToCloud(force=false){
+      if(!force && (isViewingUser || !auth.currentUser)) return;
+      const targetKey = userKey(currentUser?.id);
+      try{
+        await setDoc(doc(db,'artifacts',appNamespace,'public','data','users_data',targetKey),{
+          data: JSON.stringify(appData),
+          lastUpdated: new Date().toISOString()
+        },{merge:true});
+        calculateGlobalStats();
+      }catch(e){ console.error('save cloud', e); }
+    }
+
+    // --- Stats ---
+    const monthsAr = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
+    window.setStatsFilter = (filter)=>{
+      globalStatsFilter = filter;
+      document.getElementById('filter-all').className = filter==='all'
+        ? 'flex-1 px-4 py-2 rounded-lg text-xs font-black transition-all bg-blue-600 text-white shadow-sm'
+        : 'flex-1 px-4 py-2 rounded-lg text-xs font-black transition-all text-blue-200';
+      document.getElementById('filter-month').className = filter==='month'
+        ? 'flex-1 px-4 py-2 rounded-lg text-xs font-black transition-all bg-blue-600 text-white shadow-sm'
+        : 'flex-1 px-4 py-2 rounded-lg text-xs font-black transition-all text-blue-200';
+      calculateGlobalStats();
+    };
+
+    function calculateGlobalStats(){
+      const now = new Date();
+      const currentMonthName = monthsAr[now.getMonth()];
+      const delegatesCount = Object.keys(appData.delegates||{}).length;
+      const unloadersCount = Object.keys(appData.unloaders||{}).length;
+      let totalPlates=0,totalCost=0;
+      ['delegates','unloaders'].forEach(cat=>{
+        Object.values(appData[cat]||{}).forEach(person=>{
+          Object.values(person.months||{}).forEach(m=>{
+            const isThisMonth = (m.name||'').includes(currentMonthName);
+            if(globalStatsFilter==='all' || isThisMonth){
+              const monthPlates = (m.files||[]).reduce((s,f)=>s+(f.usedCount||0),0);
+              totalPlates += monthPlates;
+              totalCost += (monthPlates/1000)*(m.rate||100);
+            }
+          });
+        });
+      });
+      document.getElementById('global-delegates-count').textContent = delegatesCount;
+      document.getElementById('global-unloaders-count').textContent = unloadersCount;
+      document.getElementById('global-plates-count').textContent = totalPlates.toLocaleString();
+      document.getElementById('global-cost-sum').textContent = formatMoney(totalCost);
+    }
+
+    // --- Views ---
+    function showView(id){
+      ['home-view','category-view','person-view','dashboard-view','day-view','monthly-best-view','admin-dashboard'].forEach(v=>document.getElementById(v).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    window.goHome = ()=>{
+      currentCategory=null; currentPersonId=null; currentMonthId=null;
+      showView('home-view');
+      calculateGlobalStats();
+      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+      document.querySelectorAll('.nav-link')[0].classList.add('active');
+    };
+
+    window.navigateToCategory = (cat)=>{
+      currentCategory=cat;
+      document.getElementById('category-title').textContent = cat==='delegates' ? 'قائمة المناديب' : 'قائمة المفرغين';
+      renderPeople();
+      showView('category-view');
+    };
+
+    window.goBackToCategory = ()=>{ if(currentCategory) navigateToCategory(currentCategory); else goHome(); };
+
+    window.navigateToPerson = (pid)=>{
+      currentPersonId = pid;
+      document.getElementById('person-name-title').textContent = appData[currentCategory][pid].name;
+      renderMonths();
+      showView('person-view');
+    };
+
+    window.navigateToMonth = (mid)=>{
+      currentMonthId = mid;
+      setFilesSort(filesSortMode);
+      renderDashboard();
+      showView('dashboard-view');
+    };
+
+    // --- Rendering ---
+    function renderPeople(){
+      const list = document.getElementById('people-list');
+      list.innerHTML='';
+      const people = appData[currentCategory]||{};
+      let ids = Object.keys(people);
+      if(peopleSearchQuery) ids = ids.filter(id => (people[id]?.name||'').toLowerCase().includes(peopleSearchQuery));
+      document.getElementById('empty-people').classList.toggle('hidden', ids.length>0);
+      ids.forEach(id=>{
+        const p = people[id];
+        const card = document.createElement('div');
+        card.className = 'glass p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition-all flex justify-between items-center';
+        card.onclick = ()=>navigateToPerson(id);
+        card.innerHTML = `
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900/30 flex items-center justify-center font-black text-slate-500">${(p.name||'?').charAt(0)}</div>
+            <span class="font-black text-lg">${esc(p.name)}</span>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="editPerson('${id}', event)" class="text-slate-300 hover:text-blue-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="deletePerson('${id}', event)" class="text-slate-300 hover:text-red-500" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    window.editPerson = async (id,e)=>{
+      e.stopPropagation();
+      const current = appData[currentCategory][id].name;
+      const n = prompt('تعديل الاسم:', current);
+      if(!n||!n.trim()) return;
+      appData[currentCategory][id].name = n.trim();
+      await saveToCloud();
+      logEvent('person_edit', {category:currentCategory, personId:id, newName:n.trim()});
+      renderPeople();
+    };
+
+    window.deletePerson = async (id,e)=>{
+      e.stopPropagation();
+      if(!confirm('حذف الاسم؟')) return;
+      delete appData[currentCategory][id];
+      await saveToCloud();
+      logEvent('person_delete', {category:currentCategory, personId:id});
+      renderPeople();
+    };
+
+    function renderMonths(){
+      const list = document.getElementById('months-list');
+      list.innerHTML='';
+      const months = appData[currentCategory][currentPersonId].months||{};
+      const ids = Object.keys(months).sort().reverse();
+      document.getElementById('empty-months').classList.toggle('hidden', ids.length>0);
+      ids.forEach(id=>{
+        const m = months[id];
+        const card = document.createElement('div');
+        card.className = 'glass p-6 rounded-2xl cursor-pointer hover:shadow-lg transition-all border-t-4 border-indigo-400';
+        card.onclick = ()=>navigateToMonth(id);
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-4">
+            <i class="fa-regular fa-calendar text-3xl text-indigo-500"></i>
+            <div class="flex gap-3">
+              <button onclick="editMonth('${id}', event)" class="text-slate-300 hover:text-blue-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="deleteMonth('${id}', event)" class="text-slate-300 hover:text-red-500" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </div>
+          <h4 class="font-black text-xl">${esc(m.name)}</h4>
+          <p class="text-xs text-slate-400 mt-1">${(m.files||[]).length} ملفات</p>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    window.editMonth = async (id,e)=>{
+      e.stopPropagation();
+      const current = appData[currentCategory][currentPersonId].months[id].name;
+      const n = prompt('تعديل اسم الشهر:', current);
+      if(!n||!n.trim()) return;
+      appData[currentCategory][currentPersonId].months[id].name = n.trim();
+      await saveToCloud();
+      logEvent('month_edit', {category:currentCategory, personId:currentPersonId, monthId:id, newName:n.trim()});
+      renderMonths();
+    };
+
+    window.deleteMonth = async (id,e)=>{
+      e.stopPropagation();
+      if(!confirm('حذف الشهر؟')) return;
+      delete appData[currentCategory][currentPersonId].months[id];
+      await saveToCloud();
+      logEvent('month_delete', {category:currentCategory, personId:currentPersonId, monthId:id});
+      renderMonths();
+    };
+
+    function renderChart(canvasId, labels, data, label, type='bar'){
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      if(charts[canvasId]) charts[canvasId].destroy();
+      charts[canvasId] = new Chart(ctx, {
+        type,
+        data:{ labels, datasets:[{ label, data, backgroundColor:'#3b82f6', borderColor:'#1d4ed8', borderWidth:type==='line'?2:0, tension:0.35, fill:false, borderRadius:type==='bar'?8:0 }] },
+        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true}, x:{grid:{display:false}} } }
+      });
+    }
+
+    function extractDateSmart(filename){
+      const base = filename.replace(/\.[^/.]+$/, '');
+      const m1 = base.match(/(\d{1,2})\s*[-/.]\s*(\d{1,2})/);
+      if(m1){
+        const d = String(m1[1]).padStart(2,'0');
+        const mo = String(m1[2]).padStart(2,'0');
+        return { display:`${d}/${mo}`, sortVal: parseInt(mo)*100 + parseInt(d) };
+      }
+
+
+    // توحيد صيغة التاريخ لأي شكل قديم/جديد: يرجع dd/mm (اسم داخلي لتفادي أي تعارض)
+    function __normalizeDateToDDMM(value){
+      const s = String(value || '').trim();
+      if(!s) return '';
+
+      // ISO: yyyy-mm-dd
+      const iso = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if(iso) return `${iso[3]}/${iso[2]}`;
+
+      // dd/mm أو dd-mm أو dd.mm
+      const m1 = s.match(/(\d{1,2})\s*[\/\-\.]\s*(\d{1,2})/);
+      if(m1){
+        const dd = String(m1[1]).padStart(2,'0');
+        const mm = String(m1[2]).padStart(2,'0');
+        return `${dd}/${mm}`;
+      }
+
+      // يوم + اسم شهر عربي (مثال: 25 يناير)
+      const map = {
+        'يناير':'01','فبراير':'02','مارس':'03','أبريل':'04','ابريل':'04',
+        'مايو':'05','يونيو':'06','يوليو':'07','أغسطس':'08','اغسطس':'08',
+        'سبتمبر':'09','أكتوبر':'10','اكتوبر':'10','نوفمبر':'11','ديسمبر':'12'
+      };
+      for(const k in map){
+        if(s.includes(k)){
+          const d = (s.match(/(\d{1,2})/) || [])[1] || '01';
+          return `${String(d).padStart(2,'0')}/${map[k]}`;
+        }
+      }
+
+      return s; // fallback
+    }
+      const map = {'يناير':1,'فبراير':2,'مارس':3,'أبريل':4,'ابريل':4,'مايو':5,'يونيو':6,'يوليو':7,'أغسطس':8,'اغسطس':8,'سبتمبر':9,'أكتوبر':10,'اكتوبر':10,'نوفمبر':11,'ديسمبر':12};
+      for(const k in map){
+        if(base.includes(k)){
+          const dMatch = base.match(/(\d{1,2})/);
+          const d = String(dMatch?dMatch[1]:1).padStart(2,'0');
+          const mo = String(map[k]).padStart(2,'0');
+          return { display:`${d}/${mo}`, sortVal: map[k]*100 + parseInt(d) };
+        }
+      }
+      const now = new Date();
+      const d = String(now.getDate()).padStart(2,'0');
+      const mo = String(now.getMonth()+1).padStart(2,'0');
+      return { display:`${d}/${mo}`, sortVal: (now.getMonth()+1)*100 + now.getDate() };
+    }
+
+    function renderDashboard(){
+      const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+      const p = appData[currentCategory][currentPersonId];
+
+      document.getElementById('dashboard-title').textContent = p.name;
+      document.getElementById('dashboard-subtitle').textContent = `شهر: ${m.name}`;
+      document.getElementById('rate-input').value = m.rate || 100;
+      const hintEl = document.getElementById('rate-converted-hint');
+      if(hintEl){
+        const rateEGP = Number(m.rate||0);
+        hintEl.textContent = (activeCurrency==='EGP' || !rateEGP) ? '' : `يعادل تقريباً: ${formatRateFromEGP(rateEGP)} (لكل ألف)`;
+      }
+
+      document.getElementById('print-person-name').textContent = p.name;
+      document.getElementById('print-month-name').textContent = m.name;
+      document.getElementById('print-date').textContent = new Date().toLocaleDateString('ar-EG');
+
+      const tbody = document.getElementById('files-table-body');
+      tbody.innerHTML='';
+
+      let files = (m.files||[]);
+      if(filesSearchQuery) files = files.filter(f => ((f.name||'')+' '+(f.dateDisplay||'')).toLowerCase().includes(filesSearchQuery));
+
+      if(filesSortMode==='count') files.sort((a,b)=>(b.usedCount||0)-(a.usedCount||0));
+      else files.sort((a,b)=>(a.sortVal||0)-(b.sortVal||0));
+
+      let totalUsed=0,totalOriginal=0;
+      const labels=[], data=[];
+
+      if(!files.length){
+        document.getElementById('empty-files').classList.remove('hidden');
+      }else{
+        document.getElementById('empty-files').classList.add('hidden');
+        files.forEach(f=>{
+          const orig = f.originalCount||0;
+          const used = f.usedCount||0;
+          totalOriginal += orig;
+          totalUsed += used;
+          const cost = (used/1000)*(m.rate||100);
+          labels.push(f.dateDisplay||'');
+          data.push(used);
+
+          const badge = f.manualOverride
+            ? '<span class="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2 py-0.5 rounded-full ml-2">يدوي</span>'
+            : (f.isAutoAdjusted ? '<span class="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full ml-2">تلقائي</span>' : '');
+
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors';
+          tr.innerHTML = `
+            <td class="p-4 font-black">${badge}${esc(f.name)}</td>
+            <td class="p-4 text-center text-slate-400 text-xs">${esc(f.dateDisplay||'-')}</td>
+            <td class="p-4 text-center text-slate-400 text-xs no-print">${orig.toLocaleString()}</td>
+            <td class="p-4 text-center font-black text-blue-700 dark:text-blue-200">${used.toLocaleString()}</td>
+            <td class="p-4 text-center font-black text-emerald-700 dark:text-emerald-200">${formatMoney(cost)}</td>
+            <td class="p-4 text-center no-print">
+              <div class="flex justify-center gap-3">
+                <button onclick="openEditModal('${f.id}', ${used})" class="text-slate-300 hover:text-amber-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
+                ${f.manualOverride ? `<button onclick="resetFileCount('${f.id}')" class="text-slate-300 hover:text-orange-600" title="إرجاع"><i class="fa-solid fa-rotate-left"></i></button>` : ''}
+                <button onclick="deleteFile('${f.id}')" class="text-slate-300 hover:text-red-600" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('total-count-display').textContent = totalUsed.toLocaleString();
+      const totalCost = (totalUsed/1000)*(m.rate||100);
+      document.getElementById('total-cost-display').textContent = formatMoney(totalCost);
+      document.getElementById('files-count-badge').textContent = (m.files||[]).length;
+
+      document.getElementById('table-total-original').textContent = totalOriginal.toLocaleString();
+      document.getElementById('table-total-count').textContent = totalUsed.toLocaleString();
+      document.getElementById('table-total-cost').textContent = formatMoney(totalCost);
+
+      const _rateEGP = Number(m.rate||0);
+      document.getElementById('print-rate').textContent = (activeCurrency==='EGP') ? `${_rateEGP} EGP` : `${_rateEGP} EGP (≈ ${formatRateFromEGP(_rateEGP)})`;
+      document.getElementById('print-total-count').textContent = totalUsed.toLocaleString();
+      document.getElementById('print-total-cost').textContent = formatMoney(totalCost);
+
+      const diff = totalUsed - totalOriginal;
+      document.getElementById('total-count-diff').textContent = diff ? `(${diff>0?'+':''}${diff.toLocaleString()})` : '';
+
+      renderChart('filesChart', labels, data, 'عدد اللوح');
+    }
+
+    // --- Actions ---
+    window.addPerson = async ()=>{
+      const n = document.getElementById('new-person-name').value.trim();
+      if(!n) return;
+      const id = 'p_'+Date.now();
+      appData[currentCategory][id] = { name:n, months:{} };
+      await saveToCloud();
+      logEvent('person_add', {category:currentCategory, name:n});
+      renderPeople();
+      closeModal('add-person-modal');
+      document.getElementById('new-person-name').value='';
+    };
+
+    window.addMonth = async ()=>{
+      const n = document.getElementById('new-month-name').value.trim();
+      if(!n) return;
+      const id = 'm_'+Date.now();
+      appData[currentCategory][currentPersonId].months[id] = { name:n, rate:100, files:[] };
+      await saveToCloud();
+      logEvent('month_add', {category:currentCategory, personId:currentPersonId, monthName:n});
+      renderMonths();
+      closeModal('add-month-modal');
+      document.getElementById('new-month-name').value='';
+    };
+
+    window.updateRate = async (val)=>{
+      appData[currentCategory][currentPersonId].months[currentMonthId].rate = parseFloat(val)||0;
+      await saveToCloud();
+      logEvent('rate_update', {category:currentCategory, personId:currentPersonId, monthId:currentMonthId, rate: parseFloat(val)||0});
+      renderDashboard();
+    };
+
+    function parseExcel(file){
+      return new Promise((res, rej)=>{
+        const r = new FileReader();
+        r.onload = (e)=>{
+          try{
+            const wb = XLSX.read(e.target.result, {type:'array'});
+            const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
+            let idx = -1;
+            if(rows[0]) rows[0].forEach((h,i)=>{
+              const s = (h||'').toString();
+              if(s.includes('Plate') || s.includes('اللوحة') || s.includes('لوحة')) idx=i;
+            });
+            if(idx===-1) idx=0;
+            let count=0;
+            for(let i=1;i<rows.length;i++) if(rows[i] && rows[i][idx]) count++;
+            res(count);
+          }catch(err){ rej(err); }
         };
+        r.onerror = ()=>rej(new Error('FileReader error'));
+        r.readAsArrayBuffer(file);
+      });
+    }
 
-        // Listen for auth state
-        onAuthStateChanged(auth, async (user) => {
-            authReadyResolver(true);
-            if (user) {
-                // If user is logged in
-                console.log("User logged in:", user.email);
-                
-                // If special admin
-                if(user.email === ADMIN_EMAIL) {
-                    await finalizeLogin({ name: "المالك (Admin)", email: ADMIN_EMAIL, isAdmin: true, id: 'admin_master' });
-                    return;
-                }
+    window.handleFileUpload = async (input)=>{
+      if(!input.files?.length) return;
+      toggleLoader(true);
+      const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+      if(!m.files) m.files=[];
+      for(const file of input.files){
+        try{
+          const count = await parseExcel(file);
+          let final=count, auto=false;
+          if(file.name.includes('تشييك') && count<1000){ final=1000; auto=true; }
+          const d = extractDateSmart(file.name);
+          m.files.push({
+            id:'f_'+Date.now()+Math.random(),
+            name:file.name,
+            originalCount:count,
+            usedCount:final,
+            isAutoAdjusted:auto,
+            manualOverride:false,
+            dateDisplay:d.display,
+            sortVal:d.sortVal
+          });
+        }catch(e){ console.error(e); alert('تعذر قراءة الملف: '+file.name); }
+      }
+      // default sort by date
+      m.files.sort((a,b)=>(a.sortVal||0)-(b.sortVal||0));
+      await saveToCloud();
+      logEvent('files_upload', {category:currentCategory, personId:currentPersonId, monthId:currentMonthId, filesCount: input.files.length});
+      renderDashboard();
+      toggleLoader(false);
+      input.value='';
+    };
 
-                // --- EMAIL VERIFICATION CHECK ---
-                if (!user.emailVerified) {
-                    document.getElementById('auth-overlay').classList.add('hidden'); // Hide main auth, show verify overlay
-                    document.getElementById('verification-overlay').classList.remove('hidden');
-                    // Show current email to user
-                    document.getElementById('verify-email-display').textContent = user.email;
-                    return; // Stop execution
-                } else {
-                    document.getElementById('verification-overlay').classList.add('hidden');
-                }
+    window.deleteFile = async (fid)=>{
+      if(!confirm('حذف الملف؟')) return;
+      const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+      m.files = (m.files||[]).filter(f=>f.id!==fid);
+      await saveToCloud();
+      logEvent('file_delete', {category:currentCategory, personId:currentPersonId, monthId:currentMonthId, fileId: fid});
+      renderDashboard();
+    };
 
-                // Load User Data from Firestore
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', user.email);
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    // Check Ban
-                    if (userData.isBanned) {
-                        showBanMessage();
-                        return;
-                    }
-                    await finalizeLogin({ ...userData, id: user.email });
-                } else {
-                    // New Google User - Create Doc
-                    // Or if registering for first time via Google
-                    if(user.providerData.some(p => p.providerId === 'google.com')) {
-                        const newUser = {
-                            name: user.displayName || 'مستخدم جديد',
-                            email: user.email,
-                            isBanned: false,
-                            isAdmin: false,
-                            createdAt: new Date().toISOString()
-                        };
-                        await setDoc(docRef, newUser);
-                        // Empty Data Doc
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', user.email), {
-                            data: JSON.stringify({ delegates: {}, unloaders: {} }),
-                            owner: newUser.name
-                        });
-                        await finalizeLogin({ ...newUser, id: user.email });
-                    } else {
-                        // Email user but no doc? Should not happen if registered correctly
-                        // But let's handle just in case by signing out
-                        signOut(auth);
-                        alert("خطأ في بيانات الحساب (User doc missing)");
-                    }
-                }
-            } else {
-                // No user
-                document.getElementById('auth-overlay').classList.remove('hidden');
-                document.getElementById('main-app').classList.add('hidden');
-                document.getElementById('verification-overlay').classList.add('hidden');
-            }
-        });
+    let activeEditFid = null;
+    window.openEditModal = (fid, val)=>{
+      activeEditFid = fid;
+      document.getElementById('edit-count-input').value = val;
+      openModal('edit-count-modal');
+    };
 
-        // --- AUTH UI HANDLERS ---
-        window.toggleAuth = (mode) => {
-            document.getElementById('login-error').classList.add('hidden');
-            document.getElementById('reg-error').classList.add('hidden');
-            document.getElementById('reset-msg').classList.add('hidden');
-            
-            // Toggle forms
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('reset-password-form').classList.add('hidden');
-            document.getElementById('google-btn-container').classList.add('hidden'); // Hide google btn on reset/register forms for cleaner UI? Or keep it. Let's keep it only for login/register main views.
-            
-            if(mode === 'register') {
-                document.getElementById('register-form').classList.remove('hidden');
-                document.getElementById('google-btn-container').classList.remove('hidden');
-            } else if (mode === 'reset') {
-                document.getElementById('reset-password-form').classList.remove('hidden');
-                // Hide google button for reset view
-            } else {
-                // login
-                document.getElementById('login-form').classList.remove('hidden');
-                document.getElementById('google-btn-container').classList.remove('hidden');
-            }
+    document.getElementById('save-edit-btn').onclick = async ()=>{
+      const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+      const f = (m.files||[]).find(x=>x.id===activeEditFid);
+      if(f){
+        f.usedCount = parseInt(document.getElementById('edit-count-input').value)||0;
+        f.manualOverride = true;
+      }
+      await saveToCloud();
+      logEvent('file_count_edit', {category:currentCategory, personId:currentPersonId, monthId:currentMonthId, fileId: activeEditFid, usedCount: parseInt(document.getElementById('edit-count-input').value)||0});
+      closeModal('edit-count-modal');
+      renderDashboard();
+    };
+
+    window.resetFileCount = async (fid)=>{
+      const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+      const f = (m.files||[]).find(x=>x.id===fid);
+      if(!f) return;
+      if(f.name.includes('تشييك') && (f.originalCount||0)<1000){ f.usedCount=1000; f.isAutoAdjusted=true; }
+      else { f.usedCount=f.originalCount||0; f.isAutoAdjusted=false; }
+      f.manualOverride=false;
+      await saveToCloud();
+      logEvent('file_count_reset', {category:currentCategory, personId:currentPersonId, monthId:currentMonthId, fileId: fid});
+      renderDashboard();
+    };
+
+    // --- Export ---
+    window.exportExcel = ()=>{
+      const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+      const p = appData[currentCategory][currentPersonId];
+
+      const today = new Date().toLocaleDateString('ar-EG');
+      const title1 = `تقرير شهر ${m.name}`;
+      const title2 = `الاسم: ${p.name}`;
+      const title3 = `تاريخ استخراج التقرير: ${today}`;
+
+      const data = [
+        [title1,'',''],
+        [title2,'',''],
+        [title3,'',''],
+        ['التاريخ','عدد اللوح',`المبلغ (${activeCurrency})`]
+      ];
+
+      let totalCount = 0;
+      let totalMoney = 0;
+
+      const files = (m.files||[]).slice().sort((a,b)=>(a.sortVal||0)-(b.sortVal||0));
+      files.forEach(f=>{
+        const used = Number(f.usedCount||0);
+        const costEg = (used/1000) * Number(m.rate||100); // EGP base
+        const costCurr = costEg / Number(currencyRates[activeCurrency]||1);
+        totalCount += used;
+        totalMoney += costCurr;
+        data.push([f.dateDisplay||'', used, costCurr]);
+      });
+
+      data.push(['الإجمالي', totalCount, totalMoney]);
+
+      const ws = XLSX.utils.aoa_to_sheet(data);
+
+      ws['!merges'] = [
+        { s:{r:0,c:0}, e:{r:0,c:2} },
+        { s:{r:1,c:0}, e:{r:1,c:2} },
+        { s:{r:2,c:0}, e:{r:2,c:2} }
+      ];
+
+      ws['!cols'] = [ { wch: 25 }, { wch: 15 }, { wch: 18 } ];
+
+      const borderThick = {
+        top: { style: 'thick', color: { rgb: '000000' } },
+        bottom: { style: 'thick', color: { rgb: '000000' } },
+        left: { style: 'thick', color: { rgb: '000000' } },
+        right: { style: 'thick', color: { rgb: '000000' } }
+      };
+
+      const baseStyle = {
+        font: { name: 'Calibri', sz: 14, bold: true },
+        alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+        border: borderThick
+      };
+
+      const titleStyle = { ...baseStyle, font: { name: 'Calibri', sz: 16, bold: true } };
+      const headerStyle = { ...baseStyle, fill: { patternType: 'solid', fgColor: { rgb: 'D9D9D9' } } };
+      const totalStyle  = { ...baseStyle, fill: { patternType: 'solid', fgColor: { rgb: 'FFFF00' } } };
+      const normalStyle = baseStyle;
+
+      function setCellStyle(r, c, style){
+        const addr = XLSX.utils.encode_cell({ r, c });
+        if(!ws[addr]) ws[addr] = { t:'s', v:'' };
+        ws[addr].s = style;
+      }
+
+      const lastRow = data.length - 1;
+      for(let r=0; r<=lastRow; r++){
+        for(let c=0; c<3; c++){
+          if(r<=2) setCellStyle(r,c,titleStyle);
+          else if(r===3) setCellStyle(r,c,headerStyle);
+          else if(r===lastRow) setCellStyle(r,c,totalStyle);
+          else setCellStyle(r,c,normalStyle);
         }
+      }
 
-        // --- GOOGLE LOGIN ---
-        window.loginWithGoogle = async () => {
-            try {
-                await signInWithPopup(auth, googleProvider);
-                // logic handled in onAuthStateChanged
-            } catch (error) {
-                console.error(error);
-                if (error.code === 'auth/unauthorized-domain') {
-                    showDomainAlert();
-                } else {
-                    alert("فشل تسجيل الدخول بجوجل: " + error.message);
-                }
-            }
-        }
+      for(let r=4; r<=lastRow; r++){
+        const addrCount = XLSX.utils.encode_cell({r, c:1});
+        const addrMoney = XLSX.utils.encode_cell({r, c:2});
+        if(ws[addrCount]) ws[addrCount].z = '#,##0';
+        if(ws[addrMoney]) ws[addrMoney].z = '#,##0.0';
+      }
 
-        // --- EMAIL LOGIN ---
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value.trim().toLowerCase();
-            const pass = document.getElementById('login-pass').value;
-            const errDiv = document.getElementById('login-error');
-            errDiv.classList.add('hidden');
+      ws['!freeze'] = { xSplit: 0, ySplit: 4 };
 
-            // Admin Bypass
-            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                await finalizeLogin({ name: "المالك (Admin)", email: email, isAdmin: true, id: 'admin_master' });
-                return;
-            }
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
 
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                // Logic continues in onAuthStateChanged
-            } catch (error) {
-                console.error("Login Error:", error);
-                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                    errDiv.textContent = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
-                } else if(error.code === 'auth/unauthorized-domain') {
-                    showDomainAlert();
-                    errDiv.textContent = "النطاق غير مصرح به. راجع التنبيه في الأعلى.";
-                } else if(error.code === 'auth/user-disabled') {
-                    errDiv.textContent = "تم تعطيل هذا الحساب.";
-                } else {
-                    errDiv.textContent = "حدث خطأ: " + error.message;
-                }
-                errDiv.classList.remove('hidden');
-            }
+      const safe = (p.name+'_'+m.name).replace(/[^؀-ۿa-z0-9 _-]/gi,'_');
+      XLSX.writeFile(wb, `تقرير_${safe}.xlsx`);
+      logEvent('export_excel', {category:currentCategory, personId:currentPersonId, monthId:currentMonthId});
+    };
+
+    window.exportImage = ()=>{
+      html2canvas(document.getElementById('app-container')).then(canvas=>{
+        const link = document.createElement('a');
+        link.download = 'Summary.png';
+        link.href = canvas.toDataURL();
+        link.click();
+        logEvent('export_image', {});
+      });
+    };
+
+    // --- Reports ---
+    window.showDayReport = ()=>{
+      showView('day-view');
+      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+      document.querySelectorAll('.nav-link')[1].classList.add('active');
+    };
+
+    window.showMonthlyBest = ()=>{
+      showView('monthly-best-view');
+      document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+      document.querySelectorAll('.nav-link')[2].classList.add('active');
+      renderMonthlyBest();
+    };
+
+    window.generateDayReport = ()=>{
+      const dateStr = document.getElementById('report-date-input').value;
+      if(!dateStr) return;
+      const dt = new Date(dateStr);
+      const dd = String(dt.getDate()).padStart(2,'0');
+      const mm = String(dt.getMonth()+1).padStart(2,'0');
+      const target = `${dd}/${mm}`;
+
+      const tbody = document.getElementById('day-report-table');
+      tbody.innerHTML='';
+      let totalP=0,totalC=0;
+      const catLabel = (cat)=> cat==='delegates' ? 'مناديب' : 'مفرغين';
+
+      ['delegates','unloaders'].forEach(cat=>{
+        Object.values(appData[cat]||{}).forEach(person=>{
+          Object.values(person.months||{}).forEach(month=>{
+            (month.files||[]).forEach(file=>{
+              if(__normalizeDateToDDMM(file.dateDisplay)===target){
+                const cost = (file.usedCount/1000)*(month.rate||100);
+                totalP += file.usedCount||0;
+                totalC += cost;
+                tbody.innerHTML += `<tr>
+                  <td class="p-4 font-black">${esc(person.name)}</td>
+                  <td class="p-4 text-center">${catLabel(cat)}</td>
+                  <td class="p-4 text-center font-black">${(file.usedCount||0).toLocaleString()}</td>
+                  <td class="p-4 text-center font-black text-emerald-600">${formatMoney(cost)}</td>
+                </tr>`;
+              }
+            });
+          });
         });
+      });
 
-        // --- EMAIL REGISTER ---
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim().toLowerCase();
-            const pass = document.getElementById('reg-pass').value;
-            const errDiv = document.getElementById('reg-error');
-            const successDiv = document.getElementById('reg-success');
-            errDiv.classList.add('hidden');
-            successDiv.classList.add('hidden');
+      document.getElementById('day-total-count').textContent = totalP.toLocaleString();
+      document.getElementById('day-total-cost').textContent = formatMoney(totalC);
+      document.getElementById('day-report-content').classList.remove('hidden');
+    };
 
-            if (email === ADMIN_EMAIL) {
-                errDiv.textContent = "لا يمكن استخدام هذا البريد.";
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                // 1. Create Auth User
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                const user = userCredential.user;
-
-                // 2. Send Verification Email
-                await sendEmailVerification(user);
-
-                // 3. Create Firestore Doc
-                const newUser = {
-                    name: name,
-                    email: email,
-                    isBanned: false,
-                    isAdmin: false,
-                    createdAt: new Date().toISOString()
-                };
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', email), newUser);
-                
-                // 4. Create Data Doc
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', email), {
-                    data: JSON.stringify({ delegates: {}, unloaders: {} }),
-                    owner: name
-                });
-
-                // 5. Sign Out immediately so they verify first
-                // NO signOut here to let onAuthStateChanged handle the verification UI properly
-                // But we want to show the success message on the registration form
-                // So we can let them stay "signed in" but the overlay blocks them.
-                
-                successDiv.classList.remove('hidden');
-                // Optional: Delay toggle to login
-                // setTimeout(() => toggleAuth('login'), 3000);
-
-            } catch (error) {
-                console.error("Register Error:", error);
-                if(error.code === 'auth/unauthorized-domain') {
-                    showDomainAlert();
-                    errDiv.textContent = "النطاق غير مصرح به. راجع التنبيه في الأعلى.";
-                } else if(error.code === 'auth/email-already-in-use') {
-                    errDiv.textContent = "البريد الإلكتروني مستخدم بالفعل.";
-                } else {
-                    errDiv.textContent = "خطأ: " + error.message;
-                }
-                errDiv.classList.remove('hidden');
-            }
+    function renderMonthlyBest(){
+      const performers = {};
+      ['delegates','unloaders'].forEach(cat=>{
+        Object.values(appData[cat]||{}).forEach(person=>{
+          Object.values(person.months||{}).forEach(m=>{
+            const idx = monthsAr.findIndex(name => (m.name||'').includes(name));
+            if(idx===-1) return;
+            const total = (m.files||[]).reduce((a,f)=>a+(f.usedCount||0),0);
+            if(!performers[idx] || total>performers[idx].count){ performers[idx]={ name: person.name, count: total }; }
+          });
         });
+      });
+      const tbody = document.getElementById('monthly-performers-table');
+      tbody.innerHTML='';
+      const labels=[], data=[];
+      monthsAr.forEach((mName,i)=>{
+        const best = performers[i] || {name:'-', count:0};
+        tbody.innerHTML += `<tr><td class="p-3 font-black">${mName}</td><td class="p-3">${esc(best.name)}</td><td class="p-3 text-center font-black">${best.count.toLocaleString()}</td></tr>`;
+        labels.push(mName); data.push(best.count);
+      });
+      renderChart('monthlyBestChart', labels, data, 'أعلى إنتاجية', 'line');
+    }
 
-        // --- PASSWORD RESET ---
-        document.getElementById('reset-password-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('reset-email').value.trim();
-            const msgDiv = document.getElementById('reset-msg');
-            
-            msgDiv.classList.add('hidden');
-            msgDiv.className = "hidden p-3 rounded-lg text-sm border text-center"; // reset classes
+    // --- Admin Panel (multi-role) ---
+    const canAccessAdmin = ()=> ['owner','admin','manager'].includes(currentUser?.role||'user');
+    const canManageUsers = ()=> ['owner','admin'].includes(currentUser?.role||'user');
 
-            if(!email) return;
+    window.showAdminPanel = ()=>{
+      if(!canAccessAdmin()) return;
+      showView('admin-dashboard');
+      loadUsersList();
+      loadAuditLogs();
+    };
 
-            try {
-                await sendPasswordResetEmail(auth, email);
-                msgDiv.textContent = "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني. تحقق من صندوق الوارد والرسائل غير المرغوب فيها.";
-                msgDiv.classList.add('bg-green-100', 'text-green-700', 'border-green-200');
-                msgDiv.classList.remove('hidden');
-            } catch (error) {
-                console.error(error);
-                let errorMsg = "حدث خطأ أثناء الإرسال.";
-                if(error.code === 'auth/user-not-found') errorMsg = "هذا البريد الإلكتروني غير مسجل.";
-                if(error.code === 'auth/invalid-email') errorMsg = "البريد الإلكتروني غير صالح.";
-                
-                msgDiv.textContent = errorMsg;
-                msgDiv.classList.add('bg-red-100', 'text-red-700', 'border-red-200');
-                msgDiv.classList.remove('hidden');
-            }
+    async function loadUsersList(){
+      const tbody = document.getElementById('admin-users-list');
+      tbody.innerHTML = `<tr><td class="p-4" colspan="6">جاري تحميل المستخدمين...</td></tr>`;
+      try{
+        const snap = await getDocs(collection(db,'artifacts',appNamespace,'public','data','users_directory'));
+        tbody.innerHTML='';
+        snap.forEach(d=>{
+          const u = d.data();
+          const email = userKey(u.email || d.id);
+          const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString('ar-EG') : '-';
+          const role = u.role || (u.isAdmin ? 'admin' : 'user');
+          const isBanned = !!u.isBanned;
+
+          const roleSelect = canManageUsers() && email !== OWNER_EMAIL
+            ? `<select onchange="changeUserRole('${email}', this.value)" class="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-black">
+                 ${['user','manager','admin'].map(r=>`<option value="${r}" ${role===r?'selected':''}>${r}</option>`).join('')}
+               </select>`
+            : `<span class="font-black">${role}</span>`;
+
+          const actions = `<div class="flex justify-center gap-2 flex-wrap">
+              <button onclick="viewUserAsAdmin('${email}','${esc(u.name||'مستخدم')}')" class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 px-3 py-1 rounded text-xs font-black">مراقبة</button>
+              ${canManageUsers() ? `<button onclick="toggleBan('${email}', ${isBanned?'false':'true'})" class="${isBanned ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'} px-3 py-1 rounded text-xs font-black">${isBanned?'فك الحظر':'حظر'}</button>` : ''}
+              ${canManageUsers() ? `<button onclick="deleteUserSystem('${email}')" class="bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-100 px-3 py-1 rounded text-xs font-black">حذف</button>` : ''}
+            </div>`;
+
+          tbody.innerHTML += `<tr>
+            <td class="p-4 font-black">${esc(u.name||'-')}</td>
+            <td class="p-4 text-slate-500 dark:text-slate-300 dir-ltr">${esc(email)}</td>
+            <td class="p-4">${isBanned ? '<span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 px-2 py-1 rounded text-xs font-black">محظور</span>' : '<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-200 px-2 py-1 rounded text-xs font-black">نشط</span>'}</td>
+            <td class="p-4">${roleSelect}</td>
+            <td class="p-4 text-xs text-slate-400">${created}</td>
+            <td class="p-4 text-center">${actions}</td>
+          </tr>`;
         });
+        if(!tbody.innerHTML.trim()) tbody.innerHTML = `<tr><td class="p-4" colspan="6">لا يوجد مستخدمين</td></tr>`;
+      }catch(e){
+        console.error(e);
+        tbody.innerHTML = `<tr><td class="p-4 text-red-600" colspan="6">فشل تحميل المستخدمين</td></tr>`;
+      }
+    }
 
-        window.resendVerification = async () => {
-            if (auth.currentUser) {
-                try {
-                    await sendEmailVerification(auth.currentUser);
-                    alert("✅ تم إرسال رابط التفعيل مرة أخرى بنجاح.\n\nيرجى البحث في صندوق الرسائل (Inbox) ومجلد الرسائل المزعجة (Spam) عن رسالة من 'noreply@plates-manager...'.");
-                } catch (error) {
-                    console.error("Resend Error:", error);
-                    if (error.code === 'auth/too-many-requests') {
-                        alert("⚠️ لقد قمت بطلب إعادة الإرسال عدة مرات في وقت قصير. يرجى الانتظار دقيقة قبل المحاولة مجدداً.");
-                    } else {
-                        alert("حدث خطأ أثناء الإرسال: " + error.message);
-                    }
-                }
-            }
-        }
+    window.changeUserRole = async (email, role)=>{
+      if(!canManageUsers()) return;
+      const key = userKey(email);
+      if(key===OWNER_EMAIL){ alert('لا يمكن تغيير دور المالك'); return; }
+      if(!confirm(`تغيير الدور إلى ${role} ؟`)) return;
+      try{
+        await updateDoc(doc(db,'artifacts',appNamespace,'public','data','users_directory',key),{ role, isAdmin: ['admin','owner','manager'].includes(role) });
+        logEvent('role_change', {target:key, role});
+        loadUsersList();
+      }catch(e){ console.error(e); alert('تعذر تغيير الدور'); }
+    };
 
-        async function finalizeLogin(user) {
-            currentUser = user;
-            localStorage.setItem(`session_${appId}`, JSON.stringify(user)); // Backup
-            
+    window.toggleBan = async (email, newStatus)=>{
+      if(!canManageUsers()) return;
+      if(!confirm('تغيير حالة المستخدم؟')) return;
+      try{
+        await updateDoc(doc(db,'artifacts',appNamespace,'public','data','users_directory',userKey(email)),{ isBanned: !!newStatus });
+        logEvent('ban_toggle', {target:userKey(email), status:!!newStatus});
+        loadUsersList();
+      }catch(e){ console.error(e); alert('تعذر تغيير الحالة'); }
+    };
+
+    window.deleteUserSystem = async (email)=>{
+      if(!canManageUsers()) return;
+      if(!confirm('تحذير: حذف نهائي للحساب وبياناته. متابعة؟')) return;
+      try{
+        await deleteDoc(doc(db,'artifacts',appNamespace,'public','data','users_directory',userKey(email)));
+        await deleteDoc(doc(db,'artifacts',appNamespace,'public','data','users_data',userKey(email)));
+        logEvent('user_delete', {target:userKey(email)});
+        loadUsersList();
+      }catch(e){ console.error(e); alert('تعذر الحذف'); }
+    };
+
+    window.viewUserAsAdmin = async (uid, name)=>{
+      if(!canAccessAdmin()) return;
+      isViewingUser = true;
+      viewingUserId = userKey(uid);
+      document.getElementById('viewing-user-name').textContent = name;
+      document.getElementById('viewing-mode-banner').classList.remove('hidden');
+      await loadDataCloud();
+      logEvent('admin_view_user', {target: viewingUserId});
+      goHome();
+    };
+
+    window.exitAdminView = ()=>{
+      isViewingUser = false;
+      viewingUserId = null;
+      document.getElementById('viewing-mode-banner').classList.add('hidden');
+      location.reload();
+    };
+
+    // --- AUTH OBSERVER ---
+    onAuthStateChanged(auth, async (user)=>{
+      try{
+        initTheme();
+        if(user){
+          const email = userKey(user.email);
+          // Owner
+          if(email === OWNER_EMAIL){
+            currentUser = { id: email, email, name: 'المالك', role: 'owner', isAdmin: true };
+            await finalizeLogin();
+            return;
+          }
+
+          if(!user.emailVerified){
+            document.getElementById('verify-email-display').textContent = user.email;
+            document.getElementById('verification-overlay').classList.remove('hidden');
             document.getElementById('auth-overlay').classList.add('hidden');
-            document.getElementById('verification-overlay').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('welcome-msg').textContent = `أهلاً، ${user.name}`;
+            return;
+          }
 
-            if (user.isAdmin) {
-                document.getElementById('admin-btn').classList.remove('hidden');
-                showAdminPanel();
-            } else {
-                isAdminMode = false;
-                loadDataFromCloud();
+          // Load directory from current namespace first, if not exist create.
+          const ref = doc(db,'artifacts',appNamespace,'public','data','users_directory',email);
+          const snap = await getDoc(ref);
+          if(snap.exists()){
+            const u = snap.data();
+            if(u.isBanned){
+              document.getElementById('banned-overlay').classList.remove('hidden');
+              document.getElementById('auth-overlay').classList.add('hidden');
+              return;
             }
+            const role = u.role || (u.isAdmin ? 'admin' : 'user');
+            const isAdmin = ['owner','admin','manager'].includes(role);
+            currentUser = { ...u, id: email, email, role, isAdmin };
+            await finalizeLogin();
+          }else{
+            // create user docs in current namespace
+            const newUser = { name: user.displayName || 'مستخدم جديد', email, role: 'user', isAdmin: false, isBanned: false, createdAt: new Date().toISOString() };
+            await setDoc(ref, newUser);
+            await setDoc(doc(db,'artifacts',appNamespace,'public','data','users_data',email), { data: JSON.stringify({delegates:{}, unloaders:{}}), owner: newUser.name });
+            currentUser = { ...newUser, id: email };
+            await finalizeLogin();
+          }
+        }else{
+          showAuth();
         }
+      }catch(err){
+        console.error('Auth error', err);
+        if(err?.code==='auth/unauthorized-domain') showDomainAlert();
+        showAuth();
+      }
+    });
 
-        function showBanMessage() {
-            signOut(auth);
-            const errDiv = document.getElementById('login-error');
-            errDiv.innerHTML = `
-                <div>لقد تم حظر حسابك ارجع لمسئول المنصه</div>
-                <div class="mt-2">
-                    <a href="https://wa.me/201140440601" target="_blank" class="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-full font-bold hover:bg-green-600 transition">
-                        <i class="fa-brands fa-whatsapp text-xl"></i> تواصل واتساب
-                    </a>
-                </div>
-            `;
-            errDiv.classList.remove('hidden');
-            document.getElementById('auth-overlay').classList.remove('hidden');
-            document.getElementById('verification-overlay').classList.add('hidden');
-        }
+    async function finalizeLogin(){
+      document.getElementById('auth-overlay').classList.add('hidden');
+      document.getElementById('verification-overlay').classList.add('hidden');
+      document.getElementById('banned-overlay').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
 
-        window.logout = () => {
-            signOut(auth).then(() => {
-                localStorage.removeItem(`session_${appId}`);
-                location.reload();
-            });
-        }
+      document.getElementById('welcome-name').textContent = currentUser.name;
+      document.getElementById('user-display-email').textContent = currentUser.email;
+      document.getElementById('user-role-badge').textContent = 'Role: ' + (currentUser.role || 'user') + ' | DB: ' + appNamespace;
 
-        // --- CLOUD DATA SYNC ---
-        async function loadDataFromCloud() {
-            const targetId = isViewingUser ? viewingUserId : currentUser.id;
-            if(!targetId || targetId === 'admin_master') return;
+      if(canAccessAdmin()) document.getElementById('admin-btn').classList.remove('hidden');
 
-            document.getElementById('global-loader').classList.remove('hidden');
-            
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'users_data', targetId);
-                const snap = await getDoc(docRef);
-                if (snap.exists() && snap.data().data) {
-                    appData = JSON.parse(snap.data().data);
-                } else {
-                    appData = { delegates: {}, unloaders: {} };
-                }
-                goHome();
-            } catch (e) {
-                console.error("Load Error", e);
-            } finally {
-                document.getElementById('global-loader').classList.add('hidden');
-            }
-        }
+      updateCurrencyUI();
+      // IMPORTANT: load from any namespace so your old data appears
+      await loadDataCloud();
+      goHome();
+    }
 
-        async function saveDataToCloud() {
-            const targetId = isViewingUser ? viewingUserId : currentUser.id;
-            if(currentUser.isAdmin && !isViewingUser) return; 
-            if(targetId === 'admin_master') return;
+    // --- Forms ---
+    document.getElementById('login-form').onsubmit = async (e)=>{
+      e.preventDefault();
+      const err = document.getElementById('login-error');
+      err.classList.add('hidden');
+      try{
+        await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-pass').value);
+      }catch(er){
+        console.error(er);
+        if(er?.code==='auth/unauthorized-domain') showDomainAlert();
+        err.textContent = 'خطأ: ' + (er?.message || er);
+        err.classList.remove('hidden');
+      }
+    };
 
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', targetId), {
-                    data: JSON.stringify(appData),
-                    owner: isViewingUser ? document.getElementById('viewing-user-name').innerText : currentUser.name,
-                    lastUpdated: new Date().toISOString()
-                }, { merge: true });
-            } catch (e) {
-                console.error("Save Error", e);
-            }
-        }
+    document.getElementById('register-form').onsubmit = async (e)=>{
+      e.preventDefault();
+      const err = document.getElementById('reg-error');
+      const ok = document.getElementById('reg-success');
+      err.classList.add('hidden');
+      ok.classList.add('hidden');
 
-        // --- ADMIN FUNCTIONS ---
-        window.showAdminPanel = async () => {
-            if(!currentUser.isAdmin) return;
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('home-view').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.remove('hidden');
-            
-            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users_directory');
-            const snapshot = await getDocs(usersRef);
-            const tbody = document.getElementById('admin-users-list');
-            tbody.innerHTML = '';
-            
-            snapshot.docs.forEach(docSnap => {
-                const u = docSnap.data();
-                if(u.email === ADMIN_EMAIL) return;
+      try{
+        const cred = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-pass').value);
+        await sendEmailVerification(cred.user);
 
-                const isBanned = u.isBanned;
-                const dateJoin = u.createdAt ? new Date(u.createdAt).toLocaleDateString('ar-EG') : '-';
-                
-                const row = document.createElement('tr');
-                row.className = 'border-b hover:bg-gray-50';
-                row.innerHTML = `
-                    <td class="p-3 font-bold">${u.name}</td>
-                    <td class="p-3 text-gray-500">${u.email}</td>
-                    <td class="p-3">
-                        ${isBanned ? '<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">محظور</span>' : '<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">نشط</span>'}
-                    </td>
-                    <td class="p-3 text-xs text-gray-400">${dateJoin}</td>
-                    <td class="p-3 flex gap-2 justify-end">
-                        <button onclick="viewUserAsAdmin('${docSnap.id}', '${u.name}')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-xs font-bold transition">
-                           <i class="fa-solid fa-eye"></i> عرض
-                        </button>
-                         <button onclick="toggleBan('${docSnap.id}', ${!isBanned})" class="${isBanned ? 'text-green-600 border border-green-600' : 'text-red-600 border border-red-600'} hover:bg-gray-50 px-2 py-1 rounded text-xs font-bold transition">
-                            ${isBanned ? 'فك الحظر' : 'حظر'}
-                         </button>
-                         <button onclick="deleteUserSystem('${docSnap.id}')" class="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold hover:bg-red-700 transition" title="حذف نهائي">
-                            <i class="fa-solid fa-trash"></i>
-                         </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+        const email = userKey(cred.user.email);
+        const name = document.getElementById('reg-name').value.trim() || 'مستخدم جديد';
 
-        window.toggleBan = async (email, newStatus) => {
-            if(!confirm("هل أنت متأكد من تغيير حالة هذا المستخدم؟")) return;
-            try {
-                // FORCE boolean status to avoid string/undefined issues
-                const statusBool = (newStatus === true);
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', email), { isBanned: statusBool });
-                alert("تم تحديث الحالة بنجاح");
-                showAdminPanel();
-            } catch (error) {
-                console.error("Ban Error:", error);
-                alert("حدث خطأ أثناء تحديث الحالة.");
-            }
-        }
+        await setDoc(doc(db,'artifacts',appNamespace,'public','data','users_directory',email),{ name, email, role:'user', isAdmin:false, isBanned:false, createdAt:new Date().toISOString() });
+        await setDoc(doc(db,'artifacts',appNamespace,'public','data','users_data',email),{ data: JSON.stringify({delegates:{}, unloaders:{}}), owner: name });
 
-        window.deleteUserSystem = async (targetEmail) => {
-            if(!confirm("تحذير: هل أنت متأكد من حذف هذا الحساب وجميع بياناته نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")) return;
-            try {
-                // Delete Directory Entry
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_directory', targetEmail));
-                // Delete Data Entry
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users_data', targetEmail));
-                
-                alert("تم حذف المستخدم وبياناته بنجاح.");
-                showAdminPanel();
-            } catch (error) {
-                console.error("Delete Error:", error);
-                alert("حدث خطأ أثناء الحذف.");
-            }
-        }
+        ok.classList.remove('hidden');
+      }catch(er){
+        console.error(er);
+        if(er?.code==='auth/unauthorized-domain') showDomainAlert();
+        err.textContent = 'خطأ: ' + (er?.message || er);
+        err.classList.remove('hidden');
+      }
+    };
 
-        window.viewUserAsAdmin = async (userId, userName) => {
-            isViewingUser = true;
-            viewingUserId = userId;
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('viewing-mode-banner').classList.remove('hidden');
-            document.getElementById('viewing-user-name').textContent = userName;
-            await loadDataFromCloud();
-        }
+    document.getElementById('reset-form').onsubmit = async (e)=>{
+      e.preventDefault();
+      const msg = document.getElementById('reset-msg');
+      msg.classList.add('hidden');
+      msg.className = 'hidden text-xs text-center p-3 rounded-xl border';
+      try{
+        await sendPasswordResetEmail(auth, document.getElementById('reset-email').value);
+        msg.textContent = 'تم إرسال الرابط. تحقق من Inbox و Spam.';
+        msg.classList.remove('hidden');
+        msg.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');
+      }catch(er){
+        console.error(er);
+        if(er?.code==='auth/unauthorized-domain') showDomainAlert();
+        msg.textContent = 'تعذر الإرسال: '+(er?.message||er);
+        msg.classList.remove('hidden');
+        msg.classList.add('bg-red-50','border-red-200','text-red-700');
+      }
+    };
 
-        window.exitAdminView = () => {
-            isViewingUser = false;
-            viewingUserId = null;
-            document.getElementById('viewing-mode-banner').classList.add('hidden');
-            showAdminPanel();
-        }
-
-        // ==========================================
-        // ORIGINAL APP LOGIC (UNCHANGED)
-        // ==========================================
-        window.loadData = () => { };
-        window.saveData = () => { saveDataToCloud(); };
-        window.goHome = () => {
-            currentCategory = null; currentPersonId = null; currentMonthId = null;
-            renderTopPerformers(); showView('home-view');
-        }
-        function showView(viewId) {
-            ['home-view', 'category-view', 'person-view', 'dashboard-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-            updateBreadcrumb();
-        }
-        window.navigateToCategory = (cat) => { currentCategory = cat; renderPeopleList(); document.getElementById('category-title').textContent = cat === 'delegates' ? 'قائمة المناديب' : 'قائمة المفرغين'; showView('category-view'); }
-        window.navigateToPerson = (id) => { currentPersonId = id; renderMonthsList(); document.getElementById('person-name-title').textContent = appData[currentCategory][id].name; showView('person-view'); }
-        window.navigateToMonth = (id) => { currentMonthId = id; renderDashboard(); showView('dashboard-view'); }
-        function updateBreadcrumb() {
-             const el = document.getElementById('breadcrumb'); let html = '';
-             if (currentCategory) html += `<span class="cursor-pointer hover:text-yellow-300" onclick="navigateToCategory('${currentCategory}')">${currentCategory === 'delegates' ? 'المناديب' : 'المفرغين'}</span>`;
-             if (currentPersonId) html += ` <i class="fa-solid fa-chevron-left mx-2 text-xs opacity-50"></i> <span class="cursor-pointer hover:text-yellow-300" onclick="navigateToPerson('${currentPersonId}')">${appData[currentCategory][currentPersonId].name}</span>`;
-             if (currentMonthId) html += ` <i class="fa-solid fa-chevron-left mx-2 text-xs opacity-50"></i> <span>${appData[currentCategory][currentPersonId].months[currentMonthId].name}</span>`;
-             el.innerHTML = html; if(!html) el.classList.add('hidden'); else el.classList.remove('hidden');
-        }
-        function getPersonTotals(cat, pid) { const p = appData[cat][pid]; let tp = 0, tm = 0; if(p.months) Object.values(p.months).forEach(m => { if(m.files) m.files.forEach(f => { tp += f.usedCount; tm += (f.usedCount/1000)*m.rate; }); }); return { name: p.name, plates: tp, money: tm }; }
-        function renderTopPerformers() {
-            let bd = { name: '--', plates: 0, money: 0 }, bu = { name: '--', plates: 0, money: 0 };
-            if(appData.delegates) Object.keys(appData.delegates).forEach(id => { const s = getPersonTotals('delegates', id); if(s.plates > bd.plates) bd = s; });
-            if(appData.unloaders) Object.keys(appData.unloaders).forEach(id => { const s = getPersonTotals('unloaders', id); if(s.plates > bu.plates) bu = s; });
-            if(bd.plates > 0 || bu.plates > 0) { document.getElementById('top-performers-section').classList.remove('hidden'); document.getElementById('best-delegate-name').textContent = bd.name; document.getElementById('best-delegate-count').textContent = bd.plates.toLocaleString(); document.getElementById('best-delegate-cost').textContent = bd.money.toLocaleString(undefined, {minimumFractionDigits: 1}); document.getElementById('best-unloader-name').textContent = bu.name; document.getElementById('best-unloader-count').textContent = bu.plates.toLocaleString(); document.getElementById('best-unloader-cost').textContent = bu.money.toLocaleString(undefined, {minimumFractionDigits: 1}); } else { document.getElementById('top-performers-section').classList.add('hidden'); }
-        }
-        
-        // --- ADDED: EDIT FUNCTIONS (AS REQUESTED) ---
-        window.editPersonName = (id, e) => {
-            e.stopPropagation();
-            const currentName = appData[currentCategory][id].name;
-            const newName = prompt("تعديل الاسم:", currentName);
-            if (newName && newName.trim()) {
-                appData[currentCategory][id].name = newName.trim();
-                saveData();
-                renderPeopleList();
-            }
-        }
-        
-        window.editMonthName = (id, e) => {
-            e.stopPropagation();
-            const currentName = appData[currentCategory][currentPersonId].months[id].name;
-            const newName = prompt("تعديل اسم الشهر:", currentName);
-            if (newName && newName.trim()) {
-                appData[currentCategory][currentPersonId].months[id].name = newName.trim();
-                saveData();
-                renderMonthsList();
-            }
-        }
-
-        window.addPerson = () => { const name = document.getElementById('new-person-name').value.trim(); if(!name) return; const id = 'p_' + Date.now(); appData[currentCategory][id] = { name: name, months: {} }; saveData(); closeModal('add-person-modal'); document.getElementById('new-person-name').value = ''; renderPeopleList(); }
-        window.deletePerson = (id, e) => { e.stopPropagation(); if(confirm('حذف هذا الاسم؟')) { delete appData[currentCategory][id]; saveData(); renderPeopleList(); } }
-        
-        function renderPeopleList() { 
-            const c = document.getElementById('people-list'); c.innerHTML = ''; 
-            const ids = Object.keys(appData[currentCategory] || {}); 
-            if(ids.length === 0) document.getElementById('empty-people').classList.remove('hidden'); 
-            else { 
-                document.getElementById('empty-people').classList.add('hidden'); 
-                ids.forEach(id => { 
-                    const p = appData[currentCategory][id]; 
-                    const div = document.createElement('div'); 
-                    div.className = 'bg-white p-4 rounded-lg shadow flex justify-between items-center cursor-pointer hover:bg-slate-50'; 
-                    div.onclick = () => navigateToPerson(id); 
-                    // Added Edit Button
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">${p.name.charAt(0)}</div>
-                            <span class="font-bold text-lg">${p.name}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="editPersonName('${id}', event)" class="text-slate-300 hover:text-blue-500 transition" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deletePerson('${id}', event)" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>`; 
-                    c.appendChild(div); 
-                }); 
-            } 
-        }
-
-        window.addMonth = () => { const name = document.getElementById('new-month-name').value.trim(); if(!name) return; const id = 'm_' + Date.now(); appData[currentCategory][currentPersonId].months[id] = { name: name, rate: 100, files: [] }; saveData(); closeModal('add-month-modal'); document.getElementById('new-month-name').value = ''; renderMonthsList(); }
-        window.deleteMonth = (id, e) => { e.stopPropagation(); if(confirm('حذف الشهر؟')) { delete appData[currentCategory][currentPersonId].months[id]; saveData(); renderMonthsList(); } }
-        
-        function renderMonthsList() { 
-            const c = document.getElementById('months-list'); c.innerHTML = ''; 
-            const months = appData[currentCategory][currentPersonId].months || {}; 
-            const ids = Object.keys(months).sort().reverse(); 
-            if(ids.length === 0) document.getElementById('empty-months').classList.remove('hidden'); 
-            else { 
-                document.getElementById('empty-months').classList.add('hidden'); 
-                ids.forEach(id => { 
-                    const m = months[id]; 
-                    const div = document.createElement('div'); 
-                    div.className = 'bg-white p-5 rounded-lg shadow border-t-4 border-yellow-400 cursor-pointer hover:-translate-y-1 transition'; 
-                    div.onclick = () => navigateToMonth(id); 
-                    // Added Edit Button
-                    div.innerHTML = `
-                        <div class="flex justify-between mb-3">
-                            <i class="fa-regular fa-folder-open text-3xl text-yellow-500"></i>
-                            <div class="flex gap-2">
-                                <button onclick="editMonthName('${id}', event)" class="text-slate-300 hover:text-blue-500 transition" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteMonth('${id}', event)" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>
-                        <h4 class="font-bold text-lg">${m.name}</h4>
-                        <p class="text-xs text-slate-500">${m.files ? m.files.length : 0} ملفات</p>`; 
-                    c.appendChild(div); 
-                }); 
-            } 
-        }
-
-        function extractDateFromFilename(filename) { const name = filename.replace(/\.[^/.]+$/, ""); const numericMatch = name.match(/(\d{1,2})[-/.](\d{1,2})/); if (numericMatch) return { display: `${numericMatch[1]}/${numericMatch[2]}`, sortVal: parseInt(numericMatch[2]) * 100 + parseInt(numericMatch[1]) }; const arMonths = { 'يناير':1,'فبراير':2,'مارس':3,'ابريل':4,'مايو':5,'يونيو':6,'يوليو':7,'اغسطس':8,'سبتمبر':9,'اكتوبر':10,'نوفمبر':11,'ديسمبر':12 }; for (const [m, num] of Object.entries(arMonths)) { if (name.includes(m)) { const d = name.match(/(\d{1,2})/); return { display: `${d?d[1]:1} ${m}`, sortVal: num*100 + (d?parseInt(d[1]):1) }; } } return { display: 'غير محدد', sortVal: 0 }; }
-        window.handleFileUpload = async (input) => { if(!input.files.length) return; document.getElementById('loading-spinner').classList.remove('hidden'); const m = appData[currentCategory][currentPersonId].months[currentMonthId]; for(const file of input.files) { try { const count = await parseExcelFile(file); let final = count, auto = false; if(file.name.includes("تشييك") && count < 1000) { final = 1000; auto = true; } const d = extractDateFromFilename(file.name); m.files.push({ id: 'f_'+Date.now()+Math.random(), name: file.name, originalCount: count, usedCount: final, isAutoAdjusted: auto, manualOverride: false, dateDisplay: d.display, sortVal: d.sortVal }); } catch(e) { alert("خطأ في الملف: "+file.name); } } m.files.sort((a,b) => a.sortVal - b.sortVal); saveData(); document.getElementById('loading-spinner').classList.add('hidden'); input.value = ''; renderDashboard(); }
-        function parseExcelFile(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = (e) => { try { const wb = XLSX.read(e.target.result, {type:'array'}); const d = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1}); let idx = -1, count = 0; if(d[0]) d[0].forEach((h,i) => { if(h && (h.toString().includes('Plate') || h.toString().includes('اللوحة'))) idx = i; }); if(idx !== -1) { for(let i=1; i<d.length; i++) if(d[i][idx]) count++; } else { for(let i=1; i<d.length; i++) if(d[i][0]) count++; } res(count); } catch(err) { rej(err); } }; r.readAsArrayBuffer(file); }); }
-        window.updateRate = (val) => { appData[currentCategory][currentPersonId].months[currentMonthId].rate = parseFloat(val)||0; saveData(); renderDashboard(); }
-        window.deleteFile = (fid) => { if(confirm('حذف الملف؟')) { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; m.files = m.files.filter(f => f.id !== fid); saveData(); renderDashboard(); } }
-        let editFid = null; window.openEditModal = (fid, val) => { editFid = fid; document.getElementById('edit-count-input').value = val; openModal('edit-count-modal'); }
-        document.getElementById('save-edit-btn').onclick = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const f = m.files.find(x => x.id === editFid); if(f) { f.usedCount = parseInt(document.getElementById('edit-count-input').value); f.manualOverride = true; saveData(); closeModal('edit-count-modal'); renderDashboard(); } }
-        window.resetFileCount = (fid) => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const f = m.files.find(x => x.id === fid); if(f) { if(f.name.includes("تشييك") && f.originalCount < 1000) { f.usedCount = 1000; f.isAutoAdjusted = true; } else { f.usedCount = f.originalCount; f.isAutoAdjusted = false; } f.manualOverride = false; saveData(); renderDashboard(); } }
-        function renderDashboard() { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; const p = appData[currentCategory][currentPersonId]; document.getElementById('rate-input').value = m.rate; document.getElementById('dashboard-title').textContent = m.name; document.getElementById('print-person-name').textContent = p.name; document.getElementById('print-month-name').textContent = m.name; document.getElementById('print-date').textContent = new Date().toLocaleDateString('ar-EG'); let tc = 0, orig = 0; const tb = document.getElementById('files-table-body'); tb.innerHTML = ''; const labels = [], data = []; if(m.files.length === 0) { document.getElementById('empty-files').classList.remove('hidden'); document.getElementById('files-count-badge').textContent = '0'; } else { document.getElementById('empty-files').classList.add('hidden'); document.getElementById('files-count-badge').textContent = m.files.length; m.files.forEach((f, i) => { const cost = (f.usedCount/1000)*m.rate; tc += f.usedCount; orig += f.originalCount; labels.push(f.dateDisplay); data.push(f.usedCount); let cntHtml = `<span class="font-bold">${f.usedCount}</span>`, badge = ''; if(f.manualOverride) { cntHtml = `<div class="flex flex-col items-center"><span class="text-orange-600 font-bold">${f.usedCount}</span><span class="text-xs text-slate-400 line-through no-print">${f.originalCount}</span></div>`; badge = `<span class="text-[10px] bg-orange-100 text-orange-600 px-1 rounded no-print">يدوي</span>`; } else if(f.isAutoAdjusted) { cntHtml = `<div class="flex flex-col items-center"><span class="text-blue-600 font-bold">${f.usedCount}</span><span class="text-xs text-slate-400 line-through no-print">${f.originalCount}</span></div>`; badge = `<span class="text-[10px] bg-blue-100 text-blue-600 px-1 rounded no-print">تلقائي</span>`; } const tr = document.createElement('tr'); tr.className = 'file-item border-b border-slate-100 hover:bg-slate-50'; tr.innerHTML = `<td class="p-3 text-slate-400">${i+1}</td><td class="p-3 font-medium text-slate-700"><div>${f.name} ${badge}</div></td><td class="p-3 text-slate-500 text-xs font-mono">${f.dateDisplay}</td><td class="p-3 text-center text-slate-400 text-xs no-print">${f.originalCount}</td><td class="p-3 text-center">${cntHtml}</td><td class="p-3 text-green-700 font-bold">${cost.toLocaleString(undefined,{maximumFractionDigits:1})}</td><td class="p-3 text-center no-print"><div class="flex justify-center gap-2"><button onclick="openEditModal('${f.id}',${f.usedCount})" class="text-slate-400 hover:text-blue-600"><i class="fa-solid fa-pen"></i></button>${f.manualOverride?`<button onclick="resetFileCount('${f.id}')" class="text-orange-400 hover:text-orange-600"><i class="fa-solid fa-rotate-left"></i></button>`:''}<button onclick="deleteFile('${f.id}')" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></div></td>`; tb.appendChild(tr); }); } const tcost = (tc/1000)*m.rate; document.getElementById('total-count-display').textContent = tc.toLocaleString(); document.getElementById('total-cost-display').textContent = tcost.toLocaleString(undefined, {maximumFractionDigits:1}); ['print-rate'].forEach(id => document.getElementById(id).textContent = m.rate); ['print-total-count', 'table-total-count'].forEach(id => document.getElementById(id).textContent = tc.toLocaleString()); ['print-total-cost', 'table-total-cost'].forEach(id => document.getElementById(id).textContent = tcost.toLocaleString(undefined, {maximumFractionDigits:1}) + ' ج.م'); const diff = tc - orig; document.getElementById('total-count-diff').textContent = diff > 0 ? `(+${diff})` : (diff < 0 ? `(${diff})` : ''); const ctx = document.getElementById('filesChart').getContext('2d'); if(filesChartInstance) filesChartInstance.destroy(); filesChartInstance = new Chart(ctx, { type:'bar', data:{labels, datasets:[{label:'عدد اللوح', data, backgroundColor:'#3b82f6', borderRadius:4}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{display:false}}, x:{grid:{display:false}}}}}); }
-        window.exportImage = () => { const m = appData[currentCategory][currentPersonId].months[currentMonthId]; document.getElementById('exp-title-month').textContent = `تقرير شهر ${m.name}`; document.getElementById('exp-name').textContent = appData[currentCategory][currentPersonId].name; document.getElementById('exp-date').textContent = new Date().toLocaleDateString('ar-EG'); document.getElementById('exp-total-count').textContent = document.getElementById('total-count-display').textContent; document.getElementById('exp-total-cost').textContent = document.getElementById('total-cost-display').textContent + ' ج.م'; const t = document.getElementById('export-template'); html2canvas(t, {scale:2}).then(c => { const l = document.createElement('a'); l.download = `Report.png`; l.href = c.toDataURL(); l.click(); }); }
-        
-        // --- دالة التصدير للإكسل (تم التعديل لتوسيط العناوين العلوية وتطبيق الحدود السميكة عليها) ---
-        window.exportExcel = () => { 
-            const m = appData[currentCategory][currentPersonId].months[currentMonthId]; 
-            const p = appData[currentCategory][currentPersonId]; 
-            const reportDate = new Date().toLocaleDateString('ar-EG');
-
-            // 1. هيكل البيانات
-            const d = [ 
-                [`تقرير شهر ${m.name}`, '', ''], 
-                [`اسم المندوب: ${p.name}`, '', ''], 
-                [`تاريخ التقرير: ${reportDate}`, '', ''], 
-                ['', '', ''], // صف فارغ
-                ['التاريخ', 'عدد اللوح', '(المبلغ)'] // عناوين الجدول (الصف 5 / index 4)
-            ]; 
-            
-            let tc = 0, cost = 0; 
-            
-            // 2. إضافة البيانات
-            m.files.forEach(f => { 
-                const c = (f.usedCount/1000)*m.rate; 
-                tc += f.usedCount; 
-                cost += c; 
-                d.push([f.dateDisplay, f.usedCount, c]); 
-            }); 
-            
-            // 3. الإجمالي
-            d.push(['', '', '']); // صف فارغ
-            d.push(['الإجمالي الكلي', tc, cost]); 
-
-            // 4. إنشاء ورقة العمل
-            const ws = XLSX.utils.aoa_to_sheet(d); 
-
-            // 5. التنسيق (Styling)
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            
-            // تعريف الإطار السميك
-            const borderStyle = { style: "thick", color: { auto: 1 } };
-            const thickBorder = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
-            
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
-                    
-                    // إنشاء الخلايا الفارغة لتطبيق الحدود
-                    if (!ws[cell_address]) {
-                        ws[cell_address] = { t: 's', v: '' };
-                    }
-                    
-                    if (!ws[cell_address].s) ws[cell_address].s = {};
-                    
-                    // تنسيق موحد للجميع (خط سميك 16، توسيط، إطار سميك)
-                    ws[cell_address].s.font = { 
-                        name: "Calibri", 
-                        sz: 16, 
-                        bold: true,
-                        color: { rgb: "000000" }
-                    };
-                    
-                    // توسيط المحتوى أفقياً وعمودياً للجميع
-                    ws[cell_address].s.alignment = { horizontal: "center", vertical: "center", wrapText: true };
-                    
-                    // إطار سميك للجميع
-                    ws[cell_address].s.border = thickBorder;
-
-                    // تخصيصات إضافية حسب الصف
-                    
-                    // 1. العناوين العلوية (أول 3 صفوف)
-                    // (تم توحيد التنسيق أعلاه ليصبح center و border thick كما طلبت)
-                    
-                    // 2. منطقة الجدول
-                    if (R === 4) {
-                        // صف العناوين (رصاصي)
-                        ws[cell_address].s.fill = { fgColor: { rgb: "D9D9D9" } }; 
-                    } 
-                    else if (R === range.e.r) {
-                        // صف الإجمالي (أصفر)
-                        ws[cell_address].s.fill = { fgColor: { rgb: "FFFF00" } }; 
-                    }
-                }
-            }
-
-            // دمج الخلايا للعناوين العلوية
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 2 } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 2 } }
-            ];
-
-            // عرض الأعمدة
-            ws['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 20 }];
-            
-            // ارتفاع الصفوف
-            ws['!rows'] = [];
-            for(let i=0; i<=range.e.r; i++) {
-                ws['!rows'].push({hpt: 35}); // ارتفاع الصفوف 35
-            }
-
-            const wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "تقرير الشهر"); 
-            XLSX.writeFile(wb, `تقرير_${p.name}_${m.name}.xlsx`); 
-        }
-
-        window.openModal = (id) => document.getElementById(id).classList.remove('hidden'); window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-    </script>
+  </script>
 </body>
 </html>
