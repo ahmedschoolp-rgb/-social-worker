@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ar" dir="rtl"><head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>نظام إدارة اللوح - Pro+</title>
 
 <!-- Meta Tags -->
@@ -9,14 +9,34 @@
 <meta property="og:url" content="https://www.onspace.ai"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="OnSpace.AI"/>
-<meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg784.jpg"/>
+<meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg7dz.jpg"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="نظام إدارة اللوح - Pro+"/>
 <meta name="twitter:description" content="نظام متكامل لإدارة ومتابعة المناديب والمفرغين مع تقارير شاملة"/>
-<meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg784.jpg"/>
+<meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg7dz.jpg"/>
 <meta name="twitter:url" content="https://www.onspace.ai"/>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json"/>
+
+<!-- PWA - Android / Chrome -->
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="application-name" content="إدارة اللوح"/>
+<meta name="theme-color" content="#1e3a8a"/>
+
+<!-- PWA - Apple iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="إدارة اللوح"/>
+<link rel="apple-touch-icon" href="/icons/icon-180.png"/>
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png"/>
+<link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png"/>
+
+<!-- Splash screen colors for iOS -->
+<meta name="msapplication-TileColor" content="#1e3a8a"/>
+<meta name="msapplication-TileImage" content="/icons/icon-144.png"/>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -43,9 +63,17 @@ accent: '#f59e0b',
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
 
 <style>
+/* ===== Base ===== */
+* { box-sizing: border-box; }
+
 body {
 font-family: 'Cairo', sans-serif;
 background: #f3f4f6;
+padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
+-webkit-tap-highlight-color: transparent;
+-webkit-touch-callout: none;
+overscroll-behavior: none;
 }
 
 .sidebar-gradient {
@@ -56,13 +84,13 @@ background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
 background: rgba(255, 255, 255, .95);
 backdrop-filter: blur(12px);
 border: 1px solid rgba(255, 255, 255, .45);
-box-shadow: 0 10px 30px rgba(31, 38, 135, .08);
+box-shadow: 0 4px 20px rgba(31, 38, 135, .08);
 }
 
 .dark .glass {
 background: rgba(15, 23, 42, .58);
 border: 1px solid rgba(148, 163, 184, .18);
-box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+box-shadow: 0 4px 20px rgba(0, 0, 0, .35);
 }
 
 .stat-card {
@@ -70,8 +98,8 @@ transition: all 0.3s ease;
 }
 
 .stat-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+transform: translateY(-3px);
+box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
 .fade-in {
@@ -79,14 +107,8 @@ animation: fadeIn .35s ease-out forwards;
 }
 
 @keyframes fadeIn {
-from {
-opacity: 0;
-transform: translateY(8px);
-}
-to {
-opacity: 1;
-transform: translateY(0);
-}
+from { opacity: 0; transform: translateY(8px); }
+to   { opacity: 1; transform: translateY(0); }
 }
 
 .sidebar-link {
@@ -103,41 +125,24 @@ background: rgba(255, 255, 255, 0.15);
 border-right: 4px solid #fbbf24;
 }
 
-::-webkit-scrollbar {
-width: 6px;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-::-webkit-scrollbar-thumb {
-background: #cbd5e1;
-border-radius: 10px;
-}
-
+/* ===== Print ===== */
 @media print {
-.no-print {
-display: none !important;
-}
-.print-only {
-display: block !important;
-}
-body {
-background: #fff;
-}
-.glass {
-border: none;
-box-shadow: none;
-backdrop-filter: none;
-}
+.no-print { display: none !important; }
+.print-only { display: block !important; }
+body { background: #fff; }
+.glass { border: none; box-shadow: none; backdrop-filter: none; }
 }
 
-.dark body {
-background: #0f172a;
-color: #e5e7eb;
-}
+.dark body { background: #0f172a; color: #e5e7eb; }
 
+/* ===== Error / Alerts ===== */
 #error-logger {
 display: none;
 position: fixed;
-bottom: 16px;
+bottom: 80px;
 left: 16px;
 right: 16px;
 background: #fee2e2;
@@ -161,14 +166,119 @@ right: 12px;
 z-index: 9999;
 }
 
-/* Mobile Sidebar */
-@media (max-width: 1024px) {
+/* ===== Sidebar ===== */
 .sidebar {
 transform: translateX(100%);
 transition: transform 0.3s ease;
 }
 .sidebar.active {
 transform: translateX(0);
+}
+
+.profile-img {
+width: 48px;
+height: 48px;
+object-fit: cover;
+}
+
+/* ===== Bottom Navigation ===== */
+#bottom-nav {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+z-index: 50;
+background: #ffffff;
+border-top: 1px solid #e2e8f0;
+display: flex;
+align-items: stretch;
+padding-bottom: env(safe-area-inset-bottom, 0px);
+box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+
+.dark #bottom-nav {
+background: #0f172a;
+border-top: 1px solid #1e293b;
+}
+
+.bottom-nav-btn {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 3px;
+padding: 8px 4px;
+color: #94a3b8;
+font-size: 10px;
+font-weight: 700;
+font-family: 'Cairo', sans-serif;
+background: none;
+border: none;
+cursor: pointer;
+transition: all 0.2s ease;
+-webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-btn i {
+font-size: 18px;
+transition: all 0.2s ease;
+}
+
+.bottom-nav-btn.active {
+color: #2563eb;
+}
+
+.bottom-nav-btn.active i {
+transform: translateY(-1px);
+}
+
+.bottom-nav-btn:active {
+transform: scale(0.92);
+}
+
+/* ===== PWA Install Bar ===== */
+#pwa-install-bar {
+display: none;
+position: fixed;
+bottom: 64px;
+left: 12px;
+right: 12px;
+z-index: 49;
+background: #1e3a8a;
+color: white;
+border-radius: 16px;
+padding: 12px 16px;
+box-shadow: 0 8px 24px rgba(30,58,138,0.35);
+}
+
+/* ===== Main content padding for mobile ===== */
+#app-container {
+padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===== Mobile Menu Button ===== */
+#mobile-menu-btn {
+display: flex;
+}
+
+/* ===== Compact cards on mobile ===== */
+@media (max-width: 639px) {
+.stat-card-mobile {
+padding: 14px !important;
+}
+.stat-icon-mobile {
+width: 40px !important;
+height: 40px !important;
+}
+.stat-icon-mobile i {
+font-size: 16px !important;
+}
+.stat-num-mobile {
+font-size: 22px !important;
+}
+.stat-label-mobile {
+font-size: 11px !important;
 }
 }
 </style>
@@ -278,7 +388,7 @@ transform: translateX(0);
 <div class="max-w-sm">
 <i class="fa-solid fa-ban text-6xl text-red-400 mb-6"></i>
 <h2 class="text-2xl font-black mb-3">تم حظر الحساب</h2>
-<p class="opacity-80 mb-6">ارجع لمسؤول المنظمة لإعادة التفعيل.</p>
+<p class="opacity-80 mb-6">ارجع لمسؤول المنصة لإعادة التفعيل.</p>
 <a href="https://wa.me/201140440601" target="_blank" class="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full font-black hover:bg-green-600 transition">
 <i class="fa-brands fa-whatsapp text-xl"></i> تواصل واتساب
 </a>
@@ -289,57 +399,71 @@ transform: translateX(0);
 <!-- MAIN APP -->
 <div id="main-app" class="hidden">
 
-<!-- Mobile Menu Toggle -->
-<button id="mobile-menu-btn" onclick="toggleSidebar()" class="lg:hidden fixed top-4 right-4 z-50 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center no-print">
-<i class="fa-solid fa-bars text-xl"></i>
+<!-- Menu Toggle Button -->
+<button id="mobile-menu-btn" onclick="toggleSidebar()" class="fixed top-4 right-4 z-50 bg-blue-600 text-white w-11 h-11 rounded-full shadow-lg flex items-center justify-center no-print hover:bg-blue-700 transition" style="top: calc(env(safe-area-inset-top, 0px) + 12px);">
+<i class="fa-solid fa-bars text-lg"></i>
 </button>
 
+<!-- Sidebar Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden" onclick="toggleSidebar()"></div>
+
 <!-- Sidebar -->
-<aside id="sidebar" class="sidebar fixed top-0 right-0 h-full w-80 sidebar-gradient text-white shadow-2xl z-40 flex flex-col lg:translate-x-0">
+<aside id="sidebar" class="sidebar fixed top-0 right-0 h-full w-72 sidebar-gradient text-white shadow-2xl z-40 flex flex-col">
 <!-- Header -->
-<div class="p-6 border-b border-white/10">
+<div class="p-5 border-b border-white/10">
 <div class="flex items-center gap-3 mb-4">
-<div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-<i class="fa-solid fa-layer-group text-2xl text-yellow-400"></i>
+<div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+<i class="fa-solid fa-layer-group text-xl text-yellow-400"></i>
 </div>
 <div>
-<h1 class="text-xl font-black">نظام إدارة اللوح</h1>
+<h1 class="text-lg font-black">نظام إدارة اللوح</h1>
 <p class="text-xs text-blue-200">Pro+ Edition</p>
 </div>
 </div>
-<div class="bg-white/10 p-3 rounded-xl">
-<p class="text-xs opacity-80 mb-1">مرحباً،</p>
-<p id="sidebar-username" class="font-black truncate">...</p>
+<div class="bg-white/10 p-3 rounded-xl cursor-pointer hover:bg-white/20 transition" onclick="openModal(&#39;profile-modal&#39;)" title="تعديل الملف الشخصي">
+<div class="flex items-center gap-3">
+<img id="sidebar-profile-img" src="" alt="Profile" class="profile-img rounded-full bg-white/20 hidden"/>
+<div id="sidebar-profile-initials" class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-black text-lg">؟</div>
+<div class="flex-1">
+<p class="text-xs opacity-80 mb-0.5">مرحباً،</p>
+<p id="sidebar-username" class="font-black truncate text-sm">...</p>
+</div>
+<i class="fa-solid fa-pen text-xs opacity-60"></i>
+</div>
 </div>
 </div>
 
 <!-- Navigation -->
-<nav class="flex-1 overflow-y-auto p-4 space-y-2">
-<button onclick="goHome()" class="sidebar-link active w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
-<i class="fa-solid fa-home text-lg w-6"></i>
+<nav class="flex-1 overflow-y-auto p-3 space-y-1">
+<button onclick="goHome()" class="sidebar-link active w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+<i class="fa-solid fa-home text-base w-5"></i>
 <span>الصفحة الرئيسية</span>
 </button>
-<button onclick="showDayReport()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
-<i class="fa-solid fa-calendar-day text-lg w-6"></i>
+<button onclick="showDayReport()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+<i class="fa-solid fa-calendar-day text-base w-5"></i>
 <span>تقرير اليوم</span>
 </button>
-<button onclick="showMonthlyBest()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
-<i class="fa-solid fa-trophy text-lg w-6"></i>
+<button onclick="showMonthlyBest()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+<i class="fa-solid fa-trophy text-base w-5"></i>
 <span>الأفضل</span>
 </button>
-<button id="admin-nav-btn" onclick="showAdminPanel()" class="sidebar-link hidden w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
-<i class="fa-solid fa-user-shield text-lg w-6"></i>
+<button id="admin-nav-btn" onclick="showAdminPanel()" class="sidebar-link hidden w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+<i class="fa-solid fa-user-shield text-base w-5"></i>
 <span>لوحة الإدارة</span>
 </button>
 
 <!-- Settings -->
-<div class="pt-4 border-t border-white/10 mt-4">
-<button id="theme-toggle-sidebar" onclick="toggleTheme()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
-<i id="theme-icon-sidebar" class="fa-solid fa-moon text-lg w-6"></i>
+<div class="pt-3 border-t border-white/10 mt-3">
+<button onclick="openModal(&#39;profile-modal&#39;)" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+<i class="fa-solid fa-user-pen text-base w-5"></i>
+<span>تعديل الملف الشخصي</span>
+</button>
+<button id="theme-toggle-sidebar" onclick="toggleTheme()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+<i id="theme-icon-sidebar" class="fa-solid fa-moon text-base w-5"></i>
 <span>الوضع الليلي</span>
 </button>
-<button onclick="logout()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-red-300 hover:bg-red-500/20">
-<i class="fa-solid fa-right-from-bracket text-lg w-6"></i>
+<button onclick="logout()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm text-red-300 hover:bg-red-500/20">
+<i class="fa-solid fa-right-from-bracket text-base w-5"></i>
 <span>تسجيل الخروج</span>
 </button>
 </div>
@@ -347,7 +471,7 @@ transform: translateX(0);
 
 <!-- Footer - Developer Info -->
 <div class="p-4 border-t border-white/20 bg-white/5">
-<p class="text-xs text-center text-blue-200 mb-2">تم الإنشاء بواسطة</p>
+<p class="text-xs text-center text-blue-200 mb-1">تم الإنشاء بواسطة</p>
 <p class="text-sm font-black text-center mb-3">أحمد مجدي محمد</p>
 <div class="flex gap-2 justify-center">
 <a href="https://wa.me/201140440601" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition">
@@ -363,164 +487,129 @@ transform: translateX(0);
 </aside>
 
 <!-- Main Content -->
-<main id="app-container" class="lg:mr-80 min-h-screen p-3 md:p-8">
+<main id="app-container" class="min-h-screen px-3 pt-16 pb-20 md:px-6 md:pt-6 lg:px-8">
 
 <!-- HOME VIEW -->
 <div id="home-view" class="fade-in space-y-4">
 
-  <!-- ===== MOBILE HEADER (visible on mobile only) ===== -->
-  <div class="lg:hidden pt-16 pb-2">
-    <!-- Greeting row -->
-    <div class="flex items-start justify-between gap-2 mb-3">
-      <!-- Currency buttons on the LEFT (start) -->
-      <div class="flex gap-1.5 mt-1">
-        <button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-2.5 py-1 rounded-lg font-black text-xs" data-curr="EGP">EGP</button>
-        <button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-1 rounded-lg font-black text-xs" data-curr="SAR">SAR</button>
-        <button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-1 rounded-lg font-black text-xs" data-curr="USD">USD</button>
+  <!-- Header Card — mobile-compact -->
+  <div class="glass rounded-2xl p-4 md:p-6">
+    <div class="flex items-start justify-between gap-3">
+      <!-- Welcome Text -->
+      <div class="flex-1 min-w-0">
+        <h2 class="text-xl md:text-3xl font-black leading-tight">مرحباً بك، <span id="welcome-name" class="text-blue-600">...</span></h2>
+        <p class="text-slate-500 dark:text-slate-300 text-xs md:text-sm mt-0.5">نظرة سريعة على الإحصائيات</p>
       </div>
-      <!-- Greeting text on the RIGHT (end) -->
-      <div class="text-right">
-        <h2 class="text-xl font-black leading-tight">مرحباً بك، <span id="mobile-greeting-name" class="text-blue-600">...</span></h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400">نظرة سريعة على الإحصائيات</p>
+      <!-- Currency Buttons — compact column on mobile -->
+      <div class="flex flex-col gap-1 shrink-0">
+        <span class="text-[10px] font-black text-slate-400 text-center">العملة</span>
+        <div class="flex gap-1">
+          <button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-2 py-1 rounded-lg font-black text-[11px]" data-curr="EGP">EGP</button>
+          <button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]" data-curr="SAR">SAR</button>
+          <button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]" data-curr="USD">USD</button>
+        </div>
       </div>
     </div>
-    <!-- Filter buttons -->
-    <div class="flex gap-2">
-      <button onclick="setStatsFilter(&#39;month&#39;)" id="mobile-filter-month" class="flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 shadow-sm">الشهر الحالي</button>
-      <button onclick="setStatsFilter(&#39;all&#39;)" id="mobile-filter-all" class="flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md">كل الوقت</button>
+
+    <!-- Filter -->
+    <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl flex items-center gap-2 mt-3">
+      <i class="fa-solid fa-filter text-slate-400 text-xs"></i>
+      <div class="flex gap-1.5 flex-1">
+        <button onclick="setStatsFilter(&#39;all&#39;)" id="filter-all" class="flex-1 px-3 py-2 rounded-lg text-xs font-black bg-blue-600 text-white">كل الوقت</button>
+        <button onclick="setStatsFilter(&#39;month&#39;)" id="filter-month" class="flex-1 px-3 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200">الشهر الحالي</button>
+      </div>
     </div>
   </div>
 
-  <!-- ===== DESKTOP HEADER (hidden on mobile) ===== -->
-  <div class="hidden lg:block">
-    <div class="glass rounded-3xl p-6 md:p-8">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+  <!-- Stats Cards — 2 columns on mobile, 4 on desktop -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+
+    <!-- Card 1: المناديب -->
+    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-blue-500">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-3">
+        <i class="fa-solid fa-truck-fast text-blue-600 text-base md:text-xl"></i>
+      </div>
+      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المناديب</p>
+      <h3 id="global-delegates-count" class="text-2xl md:text-3xl font-black text-blue-600">0</h3>
+    </div>
+
+    <!-- Card 2: المبلغ -->
+    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-amber-500">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mb-3">
+        <i class="fa-solid fa-sack-dollar text-amber-600 text-base md:text-xl"></i>
+      </div>
+      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المبلغ</p>
+      <h3 id="global-cost-sum" class="text-lg md:text-2xl font-black text-amber-600">0</h3>
+    </div>
+
+    <!-- Card 3: اللوح -->
+    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-indigo-500">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center mb-3">
+        <i class="fa-solid fa-cubes text-indigo-600 text-base md:text-xl"></i>
+      </div>
+      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي اللوح</p>
+      <h3 id="global-plates-count" class="text-2xl md:text-3xl font-black text-indigo-600">0</h3>
+    </div>
+
+    <!-- Card 4: المفرغين -->
+    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-emerald-500">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-3">
+        <i class="fa-solid fa-dolly text-emerald-600 text-base md:text-xl"></i>
+      </div>
+      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المفرغين</p>
+      <h3 id="global-unloaders-count" class="text-2xl md:text-3xl font-black text-emerald-600">0</h3>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="grid grid-cols-1 gap-3">
+    <div onclick="navigateToCategory(&#39;unloaders&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
+      <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-2xl md:text-3xl font-black mb-2">لوحة التحكم الرئيسية</h2>
-          <p class="text-slate-500 dark:text-slate-300">نظرة شاملة على البيانات والإحصائيات</p>
+          <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-emerald-600 transition">المفرغين</h3>
+          <p class="text-slate-500 dark:text-slate-300 text-sm">إدارة الملفات والإنتاجية</p>
         </div>
-        <div class="flex gap-3">
-          <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl">
-            <span class="text-xs font-black text-blue-600 dark:text-blue-200 block mb-1">العملة</span>
-            <div class="flex gap-2">
-              <button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-3 py-1 rounded-lg font-black text-xs" data-curr="EGP">EGP</button>
-              <button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs" data-curr="SAR">SAR</button>
-              <button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs" data-curr="USD">USD</button>
-            </div>
-          </div>
+        <div class="w-14 h-14 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-3xl md:text-4xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+          <i class="fa-solid fa-dolly"></i>
         </div>
       </div>
-      <!-- Desktop Filter -->
-      <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl flex items-center gap-3 mt-4">
-        <i class="fa-solid fa-filter text-slate-400"></i>
-        <span class="text-sm font-bold">نطاق الإحصائيات:</span>
-        <div class="flex gap-2 flex-1">
-          <button onclick="setStatsFilter(&#39;all&#39;)" id="filter-all" class="flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white">كل الوقت</button>
-          <button onclick="setStatsFilter(&#39;month&#39;)" id="filter-month" class="flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700">الشهر الحالي</button>
+    </div>
+
+    <div onclick="navigateToCategory(&#39;delegates&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-blue-600 transition">المناديب</h3>
+          <p class="text-slate-500 dark:text-slate-300 text-sm">إدارة حسابات المناديب</p>
+        </div>
+        <div class="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-3xl md:text-4xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+          <i class="fa-solid fa-truck-fast"></i>
         </div>
       </div>
     </div>
   </div>
-
-<!-- Stats Cards — 2 columns on mobile, 4 on desktop -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-
-  <!-- Card: إجمالي اللوح -->
-  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-indigo-400">
-    <div class="flex justify-center mb-3">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
-        <i class="fa-solid fa-cubes text-indigo-500 text-lg md:text-xl"></i>
-      </div>
-    </div>
-    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي اللوح</p>
-    <h3 id="global-plates-count" class="text-2xl md:text-3xl font-black text-indigo-600 text-center">0</h3>
-  </div>
-
-  <!-- Card: إجمالي المبلغ -->
-  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-amber-400">
-    <div class="flex justify-center mb-3">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-        <i class="fa-solid fa-sack-dollar text-amber-500 text-lg md:text-xl"></i>
-      </div>
-    </div>
-    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي المبلغ</p>
-    <h3 id="global-cost-sum" class="text-lg md:text-2xl font-black text-amber-600 text-center">0</h3>
-  </div>
-
-  <!-- Card: إجمالي المفرغين -->
-  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-emerald-400">
-    <div class="flex justify-center mb-3">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-        <i class="fa-solid fa-users-gear text-emerald-500 text-lg md:text-xl"></i>
-      </div>
-    </div>
-    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي المفرغين</p>
-    <h3 id="global-unloaders-count" class="text-2xl md:text-3xl font-black text-emerald-600 text-center">0</h3>
-  </div>
-
-  <!-- Card: إجمالي المناديب -->
-  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-blue-400">
-    <div class="flex justify-center mb-3">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-        <i class="fa-solid fa-users text-blue-500 text-lg md:text-xl"></i>
-      </div>
-    </div>
-    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي المناديب</p>
-    <h3 id="global-delegates-count" class="text-2xl md:text-3xl font-black text-blue-600 text-center">0</h3>
-  </div>
-
-</div>
-
-<!-- Categories -->
-<div class="grid grid-cols-1 gap-3 md:gap-6">
-  <div onclick="navigateToCategory(&#39;unloaders&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
-    <div class="flex justify-between items-center">
-      <div>
-        <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-emerald-600 transition">المفرغين</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-300">إدارة الملفات والإنتاجية</p>
-      </div>
-      <div class="w-14 h-14 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-3xl md:text-4xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-        <i class="fa-solid fa-dolly"></i>
-      </div>
-    </div>
-  </div>
-
-  <div onclick="navigateToCategory(&#39;delegates&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
-    <div class="flex justify-between items-center">
-      <div>
-        <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-blue-600 transition">المناديب</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-300">إدارة حسابات المناديب</p>
-      </div>
-      <div class="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-3xl md:text-4xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-        <i class="fa-solid fa-truck-fast"></i>
-      </div>
-    </div>
-  </div>
-</div>
-
 </div>
 
 <!-- CATEGORY VIEW -->
 <div id="category-view" class="hidden fade-in">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 pt-16 lg:pt-0">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-5 gap-3">
 <div>
-<h2 id="category-title" class="text-3xl font-black">قائمة الأسماء</h2>
-<p class="text-slate-500 dark:text-slate-300">بحث + تعديل + حذف + إضافة</p>
+<h2 id="category-title" class="text-2xl md:text-3xl font-black">قائمة الأسماء</h2>
+<p class="text-slate-500 dark:text-slate-300 text-sm">بحث + تعديل + حذف + إضافة</p>
 </div>
-<button onclick="openModal(&#39;add-person-modal&#39;)" class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 font-black hover:bg-blue-700 transition">
+<button onclick="openModal(&#39;add-person-modal&#39;)" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow-lg flex items-center gap-2 font-black hover:bg-blue-700 transition text-sm">
 <i class="fa-solid fa-plus-circle"></i> إضافة اسم جديد
 </button>
 </div>
 
-<div class="glass rounded-2xl p-4 no-print mb-5">
-<div class="flex items-center gap-3">
-<i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+<div class="glass rounded-2xl p-3 no-print mb-4">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
 <input id="people-search" oninput="setPeopleSearch(this.value)" class="w-full bg-transparent outline-none text-sm font-black" placeholder="بحث بالاسم..."/>
 <button onclick="clearPeopleSearch()" class="text-xs font-black text-blue-700 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 px-3 py-1 rounded-lg">مسح</button>
 </div>
 </div>
 
-<div id="people-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+<div id="people-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 <div id="empty-people" class="hidden text-center py-20 opacity-40">
 <i class="fa-regular fa-folder-open text-8xl mb-4"></i>
 <p class="text-xl">لا توجد أسماء مضافة بعد</p>
@@ -529,21 +618,21 @@ transform: translateX(0);
 
 <!-- PERSON VIEW -->
 <div id="person-view" class="hidden fade-in">
-<div class="mb-6 pt-16 lg:pt-0">
-<button onclick="goBackToCategory()" class="text-blue-700 dark:text-blue-300 font-black mb-4 flex items-center gap-2 hover:gap-3 transition-all">
+<div class="mb-5">
+<button onclick="goBackToCategory()" class="text-blue-700 dark:text-blue-300 font-black mb-3 flex items-center gap-2 hover:gap-3 transition-all text-sm">
 <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
 </button>
 <div class="flex justify-between items-end">
 <div>
-<h2 id="person-name-title" class="text-4xl font-black">--</h2>
-<p class="text-slate-500 dark:text-slate-300">الأرشيف الشهري</p>
+<h2 id="person-name-title" class="text-3xl md:text-4xl font-black">--</h2>
+<p class="text-slate-500 dark:text-slate-300 text-sm">الأرشيف الشهري</p>
 </div>
-<button onclick="openModal(&#39;add-month-modal&#39;)" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl shadow-md font-black flex items-center gap-2 hover:bg-indigo-700 transition">
+<button onclick="openModal(&#39;add-month-modal&#39;)" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-md font-black flex items-center gap-2 hover:bg-indigo-700 transition text-sm">
 <i class="fa-solid fa-calendar-plus"></i> إضافة شهر
 </button>
 </div>
 </div>
-<div id="months-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+<div id="months-list" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
 <div id="empty-months" class="hidden text-center py-20 opacity-40">
 <i class="fa-solid fa-calendar-xmark text-8xl mb-4"></i>
 <p class="text-xl">لا توجد شهور لهذا الشخص</p>
@@ -552,35 +641,35 @@ transform: translateX(0);
 
 <!-- DASHBOARD VIEW -->
 <div id="dashboard-view" class="hidden fade-in">
-<div class="flex flex-col xl:flex-row gap-6">
+<div class="flex flex-col xl:flex-row gap-4">
 
 <!-- Sidebar Controls -->
-<div class="xl:w-80 space-y-6 no-print pt-16 lg:pt-0">
-<div class="glass rounded-2xl p-6">
-<h4 id="dashboard-title" class="text-xl font-black mb-1">--</h4>
-<p id="dashboard-subtitle" class="text-xs text-slate-500 dark:text-slate-300 mb-6">إدارة الملفات</p>
-<div class="space-y-4">
-<label for="file-upload" class="cursor-pointer block w-full bg-blue-600 text-white text-center py-3 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">
+<div class="xl:w-72 space-y-4 no-print">
+<div class="glass rounded-2xl p-5">
+<h4 id="dashboard-title" class="text-lg font-black mb-0.5">--</h4>
+<p id="dashboard-subtitle" class="text-xs text-slate-500 dark:text-slate-300 mb-4">إدارة الملفات</p>
+<div class="space-y-3">
+<label for="file-upload" class="cursor-pointer block w-full bg-blue-600 text-white text-center py-2.5 rounded-xl font-black shadow-lg hover:bg-blue-700 transition text-sm">
 <i class="fa-solid fa-cloud-arrow-up ml-2"></i> رفع ملفات
 </label>
 <input id="file-upload" type="file" multiple="" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(this)"/>
 
 <div class="grid grid-cols-2 gap-2">
-<button onclick="exportImage()" class="bg-emerald-500 text-white py-2 rounded-lg font-black text-sm hover:bg-emerald-600 transition"><i class="fa-solid fa-image"></i> صورة</button>
-<button onclick="exportExcel()" class="bg-green-600 text-white py-2 rounded-lg font-black text-sm hover:bg-green-700 transition"><i class="fa-solid fa-file-excel"></i> Excel</button>
+<button onclick="exportImage()" class="bg-emerald-500 text-white py-2 rounded-lg font-black text-xs hover:bg-emerald-600 transition"><i class="fa-solid fa-image"></i> صورة</button>
+<button onclick="exportExcel()" class="bg-green-600 text-white py-2 rounded-lg font-black text-xs hover:bg-green-700 transition"><i class="fa-solid fa-file-excel"></i> Excel</button>
 </div>
 
-<button onclick="window.print()" class="w-full bg-slate-700 text-white py-2 rounded-lg font-black text-sm hover:bg-slate-800 transition"><i class="fa-solid fa-print"></i> طباعة كشف</button>
+<button onclick="window.print()" class="w-full bg-slate-700 text-white py-2 rounded-lg font-black text-xs hover:bg-slate-800 transition"><i class="fa-solid fa-print"></i> طباعة كشف</button>
 
 <div class="grid grid-cols-2 gap-2">
-<button onclick="exportBackup()" class="bg-slate-900 text-white py-2 rounded-lg font-black text-sm hover:bg-black transition"><i class="fa-solid fa-database"></i> نسخ</button>
-<button onclick="document.getElementById(&#39;backup-upload&#39;).click()" class="bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-100 py-2 rounded-lg font-black text-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-upload"></i> استعادة</button>
+<button onclick="exportBackup()" class="bg-slate-900 text-white py-2 rounded-lg font-black text-xs hover:bg-black transition"><i class="fa-solid fa-database"></i> نسخ</button>
+<button onclick="document.getElementById(&#39;backup-upload&#39;).click()" class="bg-slate-100 dark:bg-slate-900/40 text-slate-700 dark:text-slate-100 py-2 rounded-lg font-black text-xs border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-upload"></i> استعادة</button>
 </div>
 <input id="backup-upload" type="file" accept=".json" class="hidden" onchange="importBackup(this)"/>
 </div>
 </div>
 
-<div class="glass rounded-2xl p-6 border-t-4 border-amber-500">
+<div class="glass rounded-2xl p-5 border-t-4 border-amber-500">
 <label class="block text-sm font-black text-slate-600 dark:text-slate-200 mb-2 italic">سعر الألف</label>
 <div class="flex items-center gap-2">
 <input type="number" id="rate-input" onchange="updateRate(this.value)" class="w-full text-2xl font-black bg-transparent outline-none text-amber-700 dark:text-amber-200 border-b-2 border-amber-100 dark:border-amber-800 focus:border-amber-400 transition"/>
@@ -591,27 +680,27 @@ transform: translateX(0);
 </div>
 
 <!-- Main Content -->
-<div class="flex-1 space-y-6">
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-<div class="glass rounded-2xl p-5 border-b-4 border-blue-500">
-<span class="text-xs font-black text-slate-400">لوح هذا الشهر</span>
-<h3 id="total-count-display" class="text-3xl font-black text-blue-800 dark:text-blue-200">0</h3>
+<div class="flex-1 space-y-4">
+<div class="grid grid-cols-3 gap-3">
+<div class="glass rounded-2xl p-4 border-b-4 border-blue-500">
+<span class="text-[10px] md:text-xs font-black text-slate-400">لوح هذا الشهر</span>
+<h3 id="total-count-display" class="text-xl md:text-3xl font-black text-blue-800 dark:text-blue-200">0</h3>
 <p id="total-count-diff" class="text-xs text-amber-600 mt-1 h-4"></p>
 </div>
-<div class="glass rounded-2xl p-5 border-b-4 border-emerald-500">
-<span class="text-xs font-black text-slate-400">إجمالي المبلغ (<span class="rate-symbol">EGP</span>)</span>
-<h3 id="total-cost-display" class="text-3xl font-black text-emerald-800 dark:text-emerald-200">0</h3>
+<div class="glass rounded-2xl p-4 border-b-4 border-emerald-500">
+<span class="text-[10px] md:text-xs font-black text-slate-400">المبلغ (<span class="rate-symbol">EGP</span>)</span>
+<h3 id="total-cost-display" class="text-xl md:text-3xl font-black text-emerald-800 dark:text-emerald-200">0</h3>
 </div>
-<div class="glass rounded-2xl p-5 border-b-4 border-indigo-500">
-<span class="text-xs font-black text-slate-400">عدد الملفات</span>
-<h3 id="files-count-badge" class="text-3xl font-black text-indigo-800 dark:text-indigo-200">0</h3>
+<div class="glass rounded-2xl p-4 border-b-4 border-indigo-500">
+<span class="text-[10px] md:text-xs font-black text-slate-400">عدد الملفات</span>
+<h3 id="files-count-badge" class="text-xl md:text-3xl font-black text-indigo-800 dark:text-indigo-200">0</h3>
 </div>
 </div>
 
-<div class="glass rounded-2xl p-4 no-print">
+<div class="glass rounded-2xl p-3 no-print">
 <div class="flex flex-col md:flex-row md:items-center gap-3">
 <div class="flex items-center gap-3 flex-1">
-<i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+<i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
 <input id="files-search" oninput="setFilesSearch(this.value)" class="w-full bg-transparent outline-none text-sm font-black" placeholder="بحث باسم الملف أو التاريخ..."/>
 <button onclick="clearFilesSearch()" class="text-xs font-black text-blue-700 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 px-3 py-1 rounded-lg">مسح</button>
 </div>
@@ -623,8 +712,8 @@ transform: translateX(0);
 </div>
 </div>
 
-<div class="glass rounded-2xl p-6 no-print">
-<div class="h-64"><canvas id="filesChart"></canvas></div>
+<div class="glass rounded-2xl p-4 no-print">
+<div class="h-52 md:h-64"><canvas id="filesChart"></canvas></div>
 </div>
 
 <div class="glass rounded-2xl overflow-hidden">
@@ -632,23 +721,23 @@ transform: translateX(0);
 <table class="w-full text-sm text-right">
 <thead class="bg-slate-50/50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-300">
 <tr>
-<th class="p-4">الملف</th>
-<th class="p-4 text-center">التاريخ</th>
-<th class="p-4 text-center no-print">الفعلي</th>
-<th class="p-4 text-center">المحسوب</th>
-<th class="p-4 text-center">المبلغ</th>
-<th class="p-4 text-center no-print">إجراء</th>
+<th class="p-3 md:p-4">الملف</th>
+<th class="p-3 md:p-4 text-center">التاريخ</th>
+<th class="p-3 md:p-4 text-center no-print">الفعلي</th>
+<th class="p-3 md:p-4 text-center">المحسوب</th>
+<th class="p-3 md:p-4 text-center">المبلغ</th>
+<th class="p-3 md:p-4 text-center no-print">إجراء</th>
 </tr>
 </thead>
 <tbody id="files-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
 <tfoot class="bg-slate-50/50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-200 font-black">
 <tr>
-<td class="p-4">الإجمالي</td>
-<td class="p-4"></td>
-<td class="p-4 no-print text-center" id="table-total-original">0</td>
-<td class="p-4 text-center" id="table-total-count">0</td>
-<td class="p-4 text-center" id="table-total-cost">0</td>
-<td class="p-4 no-print"></td>
+<td class="p-3 md:p-4">الإجمالي</td>
+<td class="p-3 md:p-4"></td>
+<td class="p-3 md:p-4 no-print text-center" id="table-total-original">0</td>
+<td class="p-3 md:p-4 text-center" id="table-total-count">0</td>
+<td class="p-3 md:p-4 text-center" id="table-total-cost">0</td>
+<td class="p-3 md:p-4 no-print"></td>
 </tr>
 </tfoot>
 </table>
@@ -701,25 +790,25 @@ transform: translateX(0);
 
 <!-- DAY REPORT VIEW -->
 <div id="day-view" class="hidden fade-in">
-<div class="glass rounded-3xl p-8 mb-6 pt-20 lg:pt-8">
-<h2 class="text-3xl font-black mb-6 flex items-center gap-3"><i class="fa-solid fa-calendar-day text-blue-600"></i> تقرير يوم محدد</h2>
-<div class="flex flex-wrap items-end gap-4">
-<div class="flex-1 min-w-[220px]">
+<div class="glass rounded-2xl p-5 md:p-8 mb-5">
+<h2 class="text-2xl md:text-3xl font-black mb-5 flex items-center gap-3"><i class="fa-solid fa-calendar-day text-blue-600"></i> تقرير يوم محدد</h2>
+<div class="flex flex-wrap items-end gap-3">
+<div class="flex-1 min-w-[200px]">
 <label class="block text-xs font-black mb-2">اختر التاريخ:</label>
 <input type="date" id="report-date-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 outline-none focus:ring-2 ring-blue-500"/>
 </div>
-<button onclick="generateDayReport()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">عرض التقرير</button>
+<button onclick="generateDayReport()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">عرض التقرير</button>
 </div>
 </div>
-<div id="day-report-content" class="hidden space-y-6">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div class="glass rounded-2xl p-6 text-center border-b-4 border-blue-600">
-<span class="text-sm font-black text-slate-400">لوح اليوم</span>
-<div id="day-total-count" class="text-4xl font-black">0</div>
+<div id="day-report-content" class="hidden space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="glass rounded-2xl p-5 text-center border-b-4 border-blue-600">
+<span class="text-xs md:text-sm font-black text-slate-400">لوح اليوم</span>
+<div id="day-total-count" class="text-3xl md:text-4xl font-black">0</div>
 </div>
-<div class="glass rounded-2xl p-6 text-center border-b-4 border-emerald-600">
-<span class="text-sm font-black text-slate-400">مبالغ اليوم (<span class="rate-symbol">EGP</span>)</span>
-<div id="day-total-cost" class="text-4xl font-black text-emerald-800 dark:text-emerald-200">0</div>
+<div class="glass rounded-2xl p-5 text-center border-b-4 border-emerald-600">
+<span class="text-xs md:text-sm font-black text-slate-400">مبالغ اليوم (<span class="rate-symbol">EGP</span>)</span>
+<div id="day-total-cost" class="text-3xl md:text-4xl font-black text-emerald-800 dark:text-emerald-200">0</div>
 </div>
 </div>
 <div class="glass rounded-2xl overflow-hidden">
@@ -727,10 +816,10 @@ transform: translateX(0);
 <table class="w-full text-right text-sm">
 <thead class="bg-slate-800 text-white">
 <tr>
-<th class="p-4">الاسم</th>
-<th class="p-4 text-center">الفئة</th>
-<th class="p-4 text-center">العدد</th>
-<th class="p-4 text-center">المبلغ</th>
+<th class="p-3 md:p-4">الاسم</th>
+<th class="p-3 md:p-4 text-center">الفئة</th>
+<th class="p-3 md:p-4 text-center">العدد</th>
+<th class="p-3 md:p-4 text-center">المبلغ</th>
 </tr>
 </thead>
 <tbody id="day-report-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
@@ -742,9 +831,9 @@ transform: translateX(0);
 
 <!-- MONTHLY BEST VIEW -->
 <div id="monthly-best-view" class="hidden fade-in">
-<div class="glass rounded-3xl p-8 mb-8 pt-20 lg:pt-8">
-<h2 class="text-3xl font-black mb-2 flex items-center gap-3"><i class="fa-solid fa-trophy text-yellow-500"></i> أفضل أداء شهري</h2>
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
+<div class="glass rounded-2xl p-5 md:p-8 mb-6">
+<h2 class="text-2xl md:text-3xl font-black mb-2 flex items-center gap-3"><i class="fa-solid fa-trophy text-yellow-500"></i> أفضل أداء شهري</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-5">
 <div>
 <h4 class="font-black text-slate-700 dark:text-slate-200 mb-4">الترتيب</h4>
 <div class="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
@@ -760,28 +849,28 @@ transform: translateX(0);
 </table>
 </div>
 </div>
-<div class="h-80"><canvas id="monthlyBestChart"></canvas></div>
+<div class="h-72 md:h-80"><canvas id="monthlyBestChart"></canvas></div>
 </div>
 </div>
 </div>
 
 <!-- ADMIN VIEW -->
-<div id="admin-dashboard" class="hidden fade-in space-y-6">
-<div class="glass rounded-2xl p-8 border-t-8 border-yellow-500 pt-20 lg:pt-8">
-<div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
-<h2 class="text-2xl font-black flex items-center gap-3"><i class="fa-solid fa-shield-halved text-yellow-500"></i> لوحة الإدارة</h2>
+<div id="admin-dashboard" class="hidden fade-in space-y-5">
+<div class="glass rounded-2xl p-5 md:p-8 border-t-8 border-yellow-500">
+<div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
+<h2 class="text-xl md:text-2xl font-black flex items-center gap-3"><i class="fa-solid fa-shield-halved text-yellow-500"></i> لوحة الإدارة</h2>
 <div class="text-xs text-slate-500 dark:text-slate-300 font-bold">* owner/admin: إدارة المستخدمين - manager: عرض فقط</div>
 </div>
 <div class="overflow-x-auto">
 <table class="w-full text-right text-sm">
 <thead class="bg-slate-100 dark:bg-slate-900/30">
 <tr>
-<th class="p-4">المستخدم</th>
-<th class="p-4">البريد</th>
-<th class="p-4">الحالة</th>
-<th class="p-4">الدور</th>
-<th class="p-4">تاريخ الانضمام</th>
-<th class="p-4 text-center">إجراءات</th>
+<th class="p-3 md:p-4">المستخدم</th>
+<th class="p-3 md:p-4">البريد</th>
+<th class="p-3 md:p-4">الحالة</th>
+<th class="p-3 md:p-4">الدور</th>
+<th class="p-3 md:p-4">تاريخ الانضمام</th>
+<th class="p-3 md:p-4 text-center">إجراءات</th>
 </tr>
 </thead>
 <tbody id="admin-users-list" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
@@ -796,13 +885,55 @@ transform: translateX(0);
 </div>
 
 </main>
+
+<!-- Bottom Navigation (Mobile) -->
+<nav id="bottom-nav" class="no-print">
+<button class="bottom-nav-btn active" id="bnav-home" onclick="goHome(); setBottomNav(&#39;home&#39;)">
+<i class="fa-solid fa-home"></i>
+<span>الرئيسية</span>
+</button>
+<button class="bottom-nav-btn" id="bnav-delegates" onclick="navigateToCategory(&#39;delegates&#39;); setBottomNav(&#39;delegates&#39;)">
+<i class="fa-solid fa-truck-fast"></i>
+<span>المناديب</span>
+</button>
+<button class="bottom-nav-btn" id="bnav-unloaders" onclick="navigateToCategory(&#39;unloaders&#39;); setBottomNav(&#39;unloaders&#39;)">
+<i class="fa-solid fa-dolly"></i>
+<span>المفرغين</span>
+</button>
+<button class="bottom-nav-btn" id="bnav-report" onclick="showDayReport(); setBottomNav(&#39;report&#39;)">
+<i class="fa-solid fa-calendar-day"></i>
+<span>التقرير</span>
+</button>
+<button class="bottom-nav-btn" id="bnav-best" onclick="showMonthlyBest(); setBottomNav(&#39;best&#39;)">
+<i class="fa-solid fa-trophy"></i>
+<span>الأفضل</span>
+</button>
+</nav>
+
+<!-- PWA Install Banner -->
+<div id="pwa-install-bar" class="no-print">
+<div class="flex items-center justify-between gap-3">
+<div class="flex items-center gap-3">
+<img src="/icons/icon-192.png" class="w-10 h-10 rounded-xl" alt="icon"/>
+<div>
+<p class="font-black text-sm">ثبّت التطبيق على هاتفك</p>
+<p class="text-xs opacity-75">وصول سريع بدون فتح المتصفح</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button id="pwa-install-btn" class="bg-white text-blue-700 font-black text-xs px-4 py-2 rounded-xl">تثبيت</button>
+<button onclick="document.getElementById(&#39;pwa-install-bar&#39;).style.display=&#39;none&#39;" class="text-white/60 text-xs px-2">✕</button>
+</div>
+</div>
+</div>
+
 </div>
 
 <!-- MODALS -->
 <div id="add-person-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-<div class="glass w-full max-w-sm rounded-3xl p-8">
-<h3 class="text-xl font-black mb-6">إضافة اسم</h3>
-<input type="text" id="new-person-name" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none" placeholder="الاسم الكامل"/>
+<div class="glass w-full max-w-sm rounded-3xl p-6 md:p-8">
+<h3 class="text-xl font-black mb-5">إضافة اسم</h3>
+<input type="text" id="new-person-name" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-5 outline-none" placeholder="الاسم الكامل"/>
 <div class="flex gap-2">
 <button onclick="closeModal(&#39;add-person-modal&#39;)" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
 <button onclick="addPerson()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black">حفظ</button>
@@ -811,9 +942,9 @@ transform: translateX(0);
 </div>
 
 <div id="add-month-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-<div class="glass w-full max-w-sm rounded-3xl p-8">
-<h3 class="text-xl font-black mb-6">إضافة شهر</h3>
-<input type="text" id="new-month-name" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none" placeholder="يناير 2026"/>
+<div class="glass w-full max-w-sm rounded-3xl p-6 md:p-8">
+<h3 class="text-xl font-black mb-5">إضافة شهر</h3>
+<input type="text" id="new-month-name" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-5 outline-none" placeholder="يناير 2026"/>
 <div class="flex gap-2">
 <button onclick="closeModal(&#39;add-month-modal&#39;)" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
 <button onclick="addMonth()" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-black">حفظ</button>
@@ -822,12 +953,63 @@ transform: translateX(0);
 </div>
 
 <div id="edit-count-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-<div class="glass w-full max-w-sm rounded-3xl p-8">
-<h3 class="text-xl font-black mb-6">تعديل العدد</h3>
-<input type="number" id="edit-count-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none text-center text-2xl font-black"/>
+<div class="glass w-full max-w-sm rounded-3xl p-6 md:p-8">
+<h3 class="text-xl font-black mb-5">تعديل العدد</h3>
+<input type="number" id="edit-count-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-5 outline-none text-center text-2xl font-black"/>
 <div class="flex gap-2">
 <button onclick="closeModal(&#39;edit-count-modal&#39;)" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
 <button id="save-edit-btn" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-black">تحديث</button>
+</div>
+</div>
+</div>
+
+<!-- Setup Name Modal -->
+<div id="setup-name-modal" class="hidden fixed inset-0 z-[250] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+<div class="glass w-full max-w-md rounded-3xl p-6 md:p-8">
+<div class="text-center mb-6">
+<i class="fa-solid fa-user-plus text-5xl text-blue-600 mb-4"></i>
+<h3 class="text-2xl font-black mb-2">مرحباً بك!</h3>
+<p class="text-slate-500 dark:text-slate-300">يرجى إدخال اسمك للمتابعة</p>
+</div>
+<input type="text" id="setup-name-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-5 outline-none font-bold text-center" placeholder="اسمك الكامل" required=""/>
+<button onclick="saveSetupName()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black hover:bg-blue-700 transition">حفظ ومتابعة</button>
+</div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+<div class="glass w-full max-w-md rounded-3xl p-6 md:p-8">
+<h3 class="text-2xl font-black mb-5 flex items-center gap-2">
+<i class="fa-solid fa-user-pen text-blue-600"></i>
+الملف الشخصي
+</h3>
+
+<div class="text-center mb-5">
+<div class="relative inline-block">
+<img id="profile-preview" src="" alt="Profile" class="profile-img w-24 h-24 rounded-full mx-auto bg-slate-200 dark:bg-slate-700 hidden"/>
+<div id="profile-initials-preview" class="w-24 h-24 rounded-full mx-auto bg-blue-600 text-white flex items-center justify-center font-black text-3xl">؟</div>
+<label for="profile-image-input" class="absolute bottom-0 right-1/2 translate-x-1/2 translate-y-1/2 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition shadow-lg">
+<i class="fa-solid fa-camera text-sm"></i>
+</label>
+<input type="file" id="profile-image-input" accept="image/*" class="hidden" onchange="handleProfileImageUpload(this)"/>
+</div>
+<button onclick="removeProfileImage()" class="text-xs text-red-600 dark:text-red-400 mt-2 hover:underline" id="remove-img-btn">إزالة الصورة</button>
+</div>
+
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-black mb-2">الاسم</label>
+<input type="text" id="profile-name-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 outline-none font-bold" placeholder="اسمك الكامل"/>
+</div>
+<div>
+<label class="block text-sm font-black mb-2 text-slate-400">البريد الإلكتروني</label>
+<input type="email" id="profile-email-display" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 outline-none text-slate-500" readonly=""/>
+</div>
+</div>
+
+<div class="flex gap-2 mt-5">
+<button onclick="closeModal(&#39;profile-modal&#39;)" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
+<button onclick="saveProfile()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black hover:bg-blue-700 transition">حفظ التعديلات</button>
 </div>
 </div>
 </div>
@@ -938,19 +1120,21 @@ function initTheme() {
 const saved = localStorage.getItem('theme') || 'light';
 document.documentElement.classList.toggle('dark', saved === 'dark');
 const icon = document.getElementById('theme-icon-sidebar');
-if (icon) icon.className = saved === 'dark' ? 'fa-solid fa-sun text-lg w-6' : 'fa-solid fa-moon text-lg w-6';
+if (icon) icon.className = saved === 'dark' ? 'fa-solid fa-sun text-base w-5' : 'fa-solid fa-moon text-base w-5';
 }
 
 window.toggleTheme = () => {
 const isDark = document.documentElement.classList.toggle('dark');
 localStorage.setItem('theme', isDark ? 'dark' : 'light');
 const icon = document.getElementById('theme-icon-sidebar');
-if (icon) icon.className = isDark ? 'fa-solid fa-sun text-lg w-6' : 'fa-solid fa-moon text-lg w-6';
+if (icon) icon.className = isDark ? 'fa-solid fa-sun text-base w-5' : 'fa-solid fa-moon text-base w-5';
 };
 
 window.toggleSidebar = () => {
 const sidebar = document.getElementById('sidebar');
-sidebar.classList.toggle('active');
+const overlay = document.getElementById('sidebar-overlay');
+const isActive = sidebar.classList.toggle('active');
+if (overlay) overlay.classList.toggle('hidden', !isActive);
 };
 
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
@@ -1000,8 +1184,8 @@ return converted.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' +
 function updateCurrencyUI() {
 document.querySelectorAll('.curr-btn').forEach(b => {
 b.className = (b.dataset.curr === activeCurrency)
-? 'curr-btn bg-blue-600 text-white px-2.5 py-1 rounded-lg font-black text-xs'
-: 'curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-1 rounded-lg font-black text-xs';
+? 'curr-btn bg-blue-600 text-white px-2 py-1 rounded-lg font-black text-[11px]'
+: 'curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]';
 });
 document.querySelectorAll('.rate-symbol').forEach(s => s.textContent = activeCurrency);
 }
@@ -1120,31 +1304,105 @@ calculateGlobalStats();
 } catch (e) { console.error('save cloud', e); }
 }
 
+async function updateUserProfile(updates) {
+if (!auth.currentUser) return;
+const key = userKey(currentUser.id);
+try {
+await updateDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', key), updates);
+Object.assign(currentUser, updates);
+updateProfileUI();
+} catch (e) { console.error('update profile', e); }
+}
+
+function updateProfileUI() {
+const name = currentUser?.name || 'مستخدم';
+const initial = name.charAt(0);
+const profileImg = currentUser?.profileImage;
+
+document.getElementById('sidebar-username').textContent = name;
+document.getElementById('welcome-name').textContent = name;
+
+const sidebarImg = document.getElementById('sidebar-profile-img');
+const sidebarInitials = document.getElementById('sidebar-profile-initials');
+
+if (profileImg) {
+sidebarImg.src = profileImg;
+sidebarImg.classList.remove('hidden');
+sidebarInitials.classList.add('hidden');
+} else {
+sidebarImg.classList.add('hidden');
+sidebarInitials.classList.remove('hidden');
+sidebarInitials.textContent = initial;
+}
+}
+
+window.handleProfileImageUpload = (input) => {
+if (!input.files?.length) return;
+const file = input.files[0];
+if (file.size > 2 * 1024 * 1024) {
+alert('حجم الصورة كبير جداً. الحد الأقصى 2MB');
+return;
+}
+
+const reader = new FileReader();
+reader.onload = (e) => {
+const preview = document.getElementById('profile-preview');
+const initials = document.getElementById('profile-initials-preview');
+preview.src = e.target.result;
+preview.classList.remove('hidden');
+initials.classList.add('hidden');
+document.getElementById('remove-img-btn').classList.remove('hidden');
+};
+reader.readAsDataURL(file);
+};
+
+window.removeProfileImage = () => {
+const preview = document.getElementById('profile-preview');
+const initials = document.getElementById('profile-initials-preview');
+const input = document.getElementById('profile-image-input');
+preview.src = '';
+preview.classList.add('hidden');
+initials.classList.remove('hidden');
+input.value = '';
+};
+
+window.saveProfile = async () => {
+const name = document.getElementById('profile-name-input').value.trim();
+if (!name) {
+alert('يرجى إدخال الاسم');
+return;
+}
+
+const preview = document.getElementById('profile-preview');
+const profileImage = preview.classList.contains('hidden') ? null : preview.src;
+
+await updateUserProfile({ name, profileImage });
+logEvent('profile_update', { hasImage: !!profileImage });
+closeModal('profile-modal');
+};
+
+window.saveSetupName = async () => {
+const name = document.getElementById('setup-name-input').value.trim();
+if (!name) {
+alert('يرجى إدخال الاسم');
+return;
+}
+
+await updateUserProfile({ name });
+logEvent('setup_name', { name });
+closeModal('setup-name-modal');
+};
+
 const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
 
 window.setStatsFilter = (filter) => {
 globalStatsFilter = filter;
-
-// Update desktop filter buttons
-const fdAll = document.getElementById('filter-all');
-const fdMonth = document.getElementById('filter-month');
-if (fdAll) fdAll.className = filter === 'all'
-? 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white'
-: 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700';
-if (fdMonth) fdMonth.className = filter === 'month'
-? 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white'
-: 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700';
-
-// Update mobile filter buttons
-const mfAll = document.getElementById('mobile-filter-all');
-const mfMonth = document.getElementById('mobile-filter-month');
-if (mfAll) mfAll.className = filter === 'all'
-? 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md'
-: 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 shadow-sm';
-if (mfMonth) mfMonth.className = filter === 'month'
-? 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md'
-: 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 shadow-sm';
-
+document.getElementById('filter-all').className = filter === 'all'
+? 'flex-1 px-3 py-2 rounded-lg text-xs font-black bg-blue-600 text-white'
+: 'flex-1 px-3 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200';
+document.getElementById('filter-month').className = filter === 'month'
+? 'flex-1 px-3 py-2 rounded-lg text-xs font-black bg-blue-600 text-white'
+: 'flex-1 px-3 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200';
 calculateGlobalStats();
 };
 
@@ -1183,10 +1441,8 @@ else link.classList.remove('active');
 function showView(id) {
 ['home-view', 'category-view', 'person-view', 'dashboard-view', 'day-view', 'monthly-best-view', 'admin-dashboard'].forEach(v => document.getElementById(v).classList.add('hidden'));
 document.getElementById(id).classList.remove('hidden');
-if (window.innerWidth < 1024) {
 const sidebar = document.getElementById('sidebar');
-if (sidebar.classList.contains('active')) toggleSidebar();
-}
+if (sidebar && sidebar.classList.contains('active')) toggleSidebar();
 }
 
 window.goHome = () => {
@@ -1229,12 +1485,12 @@ document.getElementById('empty-people').classList.toggle('hidden', ids.length > 
 ids.forEach(id => {
 const p = people[id];
 const card = document.createElement('div');
-card.className = 'glass p-6 rounded-2xl cursor-pointer hover:-translate-y-1 transition-all flex justify-between items-center';
+card.className = 'glass p-5 rounded-2xl cursor-pointer hover:-translate-y-1 transition-all flex justify-between items-center';
 card.onclick = () => navigateToPerson(id);
 card.innerHTML = `
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900/30 flex items-center justify-center font-black text-slate-500">${(p.name || '?').charAt(0)}</div>
-<span class="font-black text-lg">${esc(p.name)}</span>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900/30 flex items-center justify-center font-black text-slate-500">${(p.name || '?').charAt(0)}</div>
+<span class="font-black text-base">${esc(p.name)}</span>
 </div>
 <div class="flex gap-3">
 <button onclick="editPerson('${id}', event)" class="text-slate-300 hover:text-blue-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
@@ -1274,17 +1530,17 @@ document.getElementById('empty-months').classList.toggle('hidden', ids.length > 
 ids.forEach(id => {
 const m = months[id];
 const card = document.createElement('div');
-card.className = 'glass p-6 rounded-2xl cursor-pointer hover:shadow-lg transition-all border-t-4 border-indigo-400';
+card.className = 'glass p-5 rounded-2xl cursor-pointer hover:shadow-lg transition-all border-t-4 border-indigo-400';
 card.onclick = () => navigateToMonth(id);
 card.innerHTML = `
-<div class="flex justify-between items-start mb-4">
-<i class="fa-regular fa-calendar text-3xl text-indigo-500"></i>
+<div class="flex justify-between items-start mb-3">
+<i class="fa-regular fa-calendar text-2xl text-indigo-500"></i>
 <div class="flex gap-3">
 <button onclick="editMonth('${id}', event)" class="text-slate-300 hover:text-blue-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
 <button onclick="deleteMonth('${id}', event)" class="text-slate-300 hover:text-red-500" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
 </div>
 </div>
-<h4 class="font-black text-xl">${esc(m.name)}</h4>
+<h4 class="font-black text-lg">${esc(m.name)}</h4>
 <p class="text-xs text-slate-400 mt-1">${(m.files || []).length} ملفات</p>
 `;
 list.appendChild(card);
@@ -1418,16 +1674,16 @@ const badge = f.manualOverride
 const tr = document.createElement('tr');
 tr.className = 'hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors';
 tr.innerHTML = `
-<td class="p-4 font-black">${badge}${esc(f.name)}</td>
-<td class="p-4 text-center text-slate-400 text-xs">${esc(f.dateDisplay || '-')}</td>
-<td class="p-4 text-center text-slate-400 text-xs no-print">${orig.toLocaleString()}</td>
-<td class="p-4 text-center font-black text-blue-700 dark:text-blue-200">${used.toLocaleString()}</td>
-<td class="p-4 text-center font-black text-emerald-700 dark:text-emerald-200">${formatMoney(cost)}</td>
-<td class="p-4 text-center no-print">
-<div class="flex justify-center gap-3">
-<button onclick="openEditModal('${f.id}', ${used})" class="text-slate-300 hover:text-amber-600" title="تعديل"><i class="fa-solid fa-pen"></i></button>
-${f.manualOverride ? `<button onclick="resetFileCount('${f.id}')" class="text-slate-300 hover:text-orange-600" title="إرجاع"><i class="fa-solid fa-rotate-left"></i></button>` : ''}
-<button onclick="deleteFile('${f.id}')" class="text-slate-300 hover:text-red-600" title="حذف"><i class="fa-solid fa-trash-can"></i></button>
+<td class="p-3 md:p-4 font-black text-xs md:text-sm">${badge}${esc(f.name)}</td>
+<td class="p-3 md:p-4 text-center text-slate-400 text-xs">${esc(f.dateDisplay || '-')}</td>
+<td class="p-3 md:p-4 text-center text-slate-400 text-xs no-print">${orig.toLocaleString()}</td>
+<td class="p-3 md:p-4 text-center font-black text-blue-700 dark:text-blue-200 text-xs md:text-sm">${used.toLocaleString()}</td>
+<td class="p-3 md:p-4 text-center font-black text-emerald-700 dark:text-emerald-200 text-xs md:text-sm">${formatMoney(cost)}</td>
+<td class="p-3 md:p-4 text-center no-print">
+<div class="flex justify-center gap-2 md:gap-3">
+<button onclick="openEditModal('${f.id}', ${used})" class="text-slate-300 hover:text-amber-600" title="تعديل"><i class="fa-solid fa-pen text-sm"></i></button>
+${f.manualOverride ? `<button onclick="resetFileCount('${f.id}')" class="text-slate-300 hover:text-orange-600" title="إرجاع"><i class="fa-solid fa-rotate-left text-sm"></i></button>` : ''}
+<button onclick="deleteFile('${f.id}')" class="text-slate-300 hover:text-red-600" title="حذف"><i class="fa-solid fa-trash-can text-sm"></i></button>
 </div>
 </td>
 `;
@@ -1591,10 +1847,10 @@ const title2 = `الاسم: ${p.name}`;
 const title3 = `تاريخ استخراج التقرير: ${today}`;
 
 const data = [
-[title1, '', ''],
-[title2, '', ''],
-[title3, '', ''],
-['التاريخ', 'عدد اللوح', `المبلغ (${activeCurrency})`]
+[title1, '', '', ''],
+[title2, '', '', ''],
+[title3, '', '', ''],
+['اسم الملف', 'التاريخ', 'عدد اللوح', `المبلغ (${activeCurrency})`]
 ];
 
 let totalCount = 0;
@@ -1607,20 +1863,20 @@ const costEg = (used / 1000) * Number(m.rate || 100);
 const costCurr = costEg / Number(currencyRates[activeCurrency] || 1);
 totalCount += used;
 totalMoney += costCurr;
-data.push([f.dateDisplay || '', used, costCurr]);
+data.push([f.name || '', f.dateDisplay || '', used, costCurr]);
 });
 
-data.push(['الإجمالي', totalCount, totalMoney]);
+data.push(['الإجمالي', '', totalCount, totalMoney]);
 
 const ws = XLSX.utils.aoa_to_sheet(data);
 
 ws['!merges'] = [
-{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
-{ s: { r: 1, c: 0 }, e: { r: 1, c: 2 } },
-{ s: { r: 2, c: 0 }, e: { r: 2, c: 2 } }
+{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
+{ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } },
+{ s: { r: 2, c: 0 }, e: { r: 2, c: 3 } }
 ];
 
-ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 18 }];
+ws['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 18 }];
 
 const borderThick = {
 top: { style: 'thick', color: { rgb: '000000' } },
@@ -1648,7 +1904,7 @@ ws[addr].s = style;
 
 const lastRow = data.length - 1;
 for (let r = 0; r <= lastRow; r++) {
-for (let c = 0; c < 3; c++) {
+for (let c = 0; c < 4; c++) {
 if (r <= 2) setCellStyle(r, c, titleStyle);
 else if (r === 3) setCellStyle(r, c, headerStyle);
 else if (r === lastRow) setCellStyle(r, c, totalStyle);
@@ -1657,8 +1913,8 @@ else setCellStyle(r, c, normalStyle);
 }
 
 for (let r = 4; r <= lastRow; r++) {
-const addrCount = XLSX.utils.encode_cell({ r, c: 1 });
-const addrMoney = XLSX.utils.encode_cell({ r, c: 2 });
+const addrCount = XLSX.utils.encode_cell({ r, c: 2 });
+const addrMoney = XLSX.utils.encode_cell({ r, c: 3 });
 if (ws[addrCount]) ws[addrCount].z = '#,##0';
 if (ws[addrMoney]) ws[addrMoney].z = '#,##0.0';
 }
@@ -1716,10 +1972,10 @@ const cost = (file.usedCount / 1000) * (month.rate || 100);
 totalP += file.usedCount || 0;
 totalC += cost;
 tbody.innerHTML += `<tr>
-<td class="p-4 font-black">${esc(person.name)}</td>
-<td class="p-4 text-center">${catLabel(cat)}</td>
-<td class="p-4 text-center font-black">${(file.usedCount || 0).toLocaleString()}</td>
-<td class="p-4 text-center font-black text-emerald-600">${formatMoney(cost)}</td>
+<td class="p-3 md:p-4 font-black">${esc(person.name)}</td>
+<td class="p-3 md:p-4 text-center">${catLabel(cat)}</td>
+<td class="p-3 md:p-4 text-center font-black">${(file.usedCount || 0).toLocaleString()}</td>
+<td class="p-3 md:p-4 text-center font-black text-emerald-600">${formatMoney(cost)}</td>
 </tr>`;
 }
 });
@@ -1791,12 +2047,12 @@ ${canManageUsers() ? `<button onclick="deleteUserSystem('${email}')" class="bg-s
 </div>`;
 
 tbody.innerHTML += `<tr>
-<td class="p-4 font-black">${esc(u.name || '-')}</td>
-<td class="p-4 text-slate-500 dark:text-slate-300 dir-ltr">${esc(email)}</td>
-<td class="p-4">${isBanned ? '<span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 px-2 py-1 rounded text-xs font-black">محظور</span>' : '<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-200 px-2 py-1 rounded text-xs font-black">نشط</span>'}</td>
-<td class="p-4">${roleSelect}</td>
-<td class="p-4 text-xs text-slate-400">${created}</td>
-<td class="p-4 text-center">${actions}</td>
+<td class="p-3 md:p-4 font-black">${esc(u.name || '-')}</td>
+<td class="p-3 md:p-4 text-slate-500 dark:text-slate-300 dir-ltr text-xs">${esc(email)}</td>
+<td class="p-3 md:p-4">${isBanned ? '<span class="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 px-2 py-1 rounded text-xs font-black">محظور</span>' : '<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-200 px-2 py-1 rounded text-xs font-black">نشط</span>'}</td>
+<td class="p-3 md:p-4">${roleSelect}</td>
+<td class="p-3 md:p-4 text-xs text-slate-400">${created}</td>
+<td class="p-3 md:p-4 text-center">${actions}</td>
 </tr>`;
 });
 if (!tbody.innerHTML.trim()) tbody.innerHTML = `<tr><td class="p-4" colspan="6">لا يوجد مستخدمين</td></tr>`;
@@ -1911,16 +2167,35 @@ document.getElementById('verification-overlay').classList.add('hidden');
 document.getElementById('banned-overlay').classList.add('hidden');
 document.getElementById('main-app').classList.remove('hidden');
 
-document.getElementById('sidebar-username').textContent = currentUser.name;
-
-// Update mobile greeting name
-const mobileGreeting = document.getElementById('mobile-greeting-name');
-if (mobileGreeting) mobileGreeting.textContent = currentUser.name;
-
 if (canAccessAdmin()) document.getElementById('admin-nav-btn').classList.remove('hidden');
 
 updateCurrencyUI();
 await loadDataCloud();
+
+if (!currentUser.name || currentUser.name === 'مستخدم جديد') {
+openModal('setup-name-modal');
+} else {
+updateProfileUI();
+}
+
+const nameInput = document.getElementById('profile-name-input');
+const emailInput = document.getElementById('profile-email-display');
+const profilePreview = document.getElementById('profile-preview');
+const initialsPreview = document.getElementById('profile-initials-preview');
+
+if (nameInput) nameInput.value = currentUser.name || '';
+if (emailInput) emailInput.value = currentUser.email || '';
+
+if (currentUser.profileImage) {
+profilePreview.src = currentUser.profileImage;
+profilePreview.classList.remove('hidden');
+initialsPreview.classList.add('hidden');
+} else {
+initialsPreview.textContent = (currentUser.name || '؟').charAt(0);
+profilePreview.classList.add('hidden');
+initialsPreview.classList.remove('hidden');
+}
+
 goHome();
 }
 
@@ -1983,8 +2258,73 @@ msg.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
 }
 };
 
+// ===== Bottom Nav Helper =====
+window.setBottomNav = (active) => {
+['home','delegates','unloaders','report','best'].forEach(id => {
+const btn = document.getElementById('bnav-' + id);
+if (btn) btn.classList.toggle('active', id === active);
+});
+};
+
+// Override navigation functions to update bottom nav
+const _origGoHome = window.goHome;
+window.goHome = () => { _origGoHome(); setBottomNav('home'); };
+
+const _origShowDayReport = window.showDayReport;
+window.showDayReport = () => { _origShowDayReport(); setBottomNav('report'); };
+
+const _origShowMonthlyBest = window.showMonthlyBest;
+window.showMonthlyBest = () => { _origShowMonthlyBest(); setBottomNav('best'); };
+
+const _origNavCat = window.navigateToCategory;
+window.navigateToCategory = (cat) => {
+_origNavCat(cat);
+setBottomNav(cat === 'delegates' ? 'delegates' : 'unloaders');
+};
+
 </script>
 
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('/sw.js').then(reg => {
+console.log('[PWA] Service Worker registered:', reg.scope);
+}).catch(err => {
+console.warn('[PWA] SW registration failed:', err);
+});
+});
+}
+
+// PWA Install Prompt
+let deferredPrompt = null;
+const installBar = document.getElementById('pwa-install-bar');
+const installBtn = document.getElementById('pwa-install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+setTimeout(() => {
+if (installBar) installBar.style.display = 'block';
+}, 3000);
+});
+
+if (installBtn) {
+installBtn.addEventListener('click', async () => {
+if (!deferredPrompt) return;
+deferredPrompt.prompt();
+const { outcome } = await deferredPrompt.userChoice;
+if (outcome === 'accepted') {
+installBar.style.display = 'none';
+}
+deferredPrompt = null;
+});
+}
+
+if (window.matchMedia('(display-mode: standalone)').matches) {
+if (installBar) installBar.style.display = 'none';
+}
+</script>
 
 
 </body></html>
