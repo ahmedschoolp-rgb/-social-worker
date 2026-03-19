@@ -9,13 +9,13 @@
 <meta property="og:url" content="https://www.onspace.ai"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="OnSpace.AI"/>
-<meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bga0u.jpg"/>
+<meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg784.jpg"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="نظام إدارة اللوح - Pro+"/>
 <meta name="twitter:description" content="نظام متكامل لإدارة ومتابعة المناديب والمفرغين مع تقارير شاملة"/>
-<meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bga0u.jpg"/>
+<meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg784.jpg"/>
 <meta name="twitter:url" content="https://www.onspace.ai"/>
 
 <!-- Tailwind CSS -->
@@ -161,7 +161,8 @@ right: 12px;
 z-index: 9999;
 }
 
-/* Sidebar - Hidden by default */
+/* Mobile Sidebar */
+@media (max-width: 1024px) {
 .sidebar {
 transform: translateX(100%);
 transition: transform 0.3s ease;
@@ -169,11 +170,6 @@ transition: transform 0.3s ease;
 .sidebar.active {
 transform: translateX(0);
 }
-
-.profile-img {
-width: 48px;
-height: 48px;
-object-fit: cover;
 }
 </style>
 </head>
@@ -282,7 +278,7 @@ object-fit: cover;
 <div class="max-w-sm">
 <i class="fa-solid fa-ban text-6xl text-red-400 mb-6"></i>
 <h2 class="text-2xl font-black mb-3">تم حظر الحساب</h2>
-<p class="opacity-80 mb-6">ارجع لمسؤول المنصة لإعادة التفعيل.</p>
+<p class="opacity-80 mb-6">ارجع لمسؤول المنظمة لإعادة التفعيل.</p>
 <a href="https://wa.me/201140440601" target="_blank" class="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full font-black hover:bg-green-600 transition">
 <i class="fa-brands fa-whatsapp text-xl"></i> تواصل واتساب
 </a>
@@ -293,16 +289,13 @@ object-fit: cover;
 <!-- MAIN APP -->
 <div id="main-app" class="hidden">
 
-<!-- Menu Toggle Button -->
-<button id="mobile-menu-btn" onclick="toggleSidebar()" class="fixed top-4 right-4 z-50 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center no-print hover:bg-blue-700 transition">
+<!-- Mobile Menu Toggle -->
+<button id="mobile-menu-btn" onclick="toggleSidebar()" class="lg:hidden fixed top-4 right-4 z-50 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center no-print">
 <i class="fa-solid fa-bars text-xl"></i>
 </button>
 
-<!-- Sidebar Overlay -->
-<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden" onclick="toggleSidebar()"></div>
-
 <!-- Sidebar -->
-<aside id="sidebar" class="sidebar fixed top-0 right-0 h-full w-80 sidebar-gradient text-white shadow-2xl z-40 flex flex-col">
+<aside id="sidebar" class="sidebar fixed top-0 right-0 h-full w-80 sidebar-gradient text-white shadow-2xl z-40 flex flex-col lg:translate-x-0">
 <!-- Header -->
 <div class="p-6 border-b border-white/10">
 <div class="flex items-center gap-3 mb-4">
@@ -314,16 +307,9 @@ object-fit: cover;
 <p class="text-xs text-blue-200">Pro+ Edition</p>
 </div>
 </div>
-<div class="bg-white/10 p-3 rounded-xl cursor-pointer hover:bg-white/20 transition" onclick="openModal(&#39;profile-modal&#39;)" title="تعديل الملف الشخصي">
-<div class="flex items-center gap-3">
-<img id="sidebar-profile-img" src="" alt="Profile" class="profile-img rounded-full bg-white/20 hidden"/>
-<div id="sidebar-profile-initials" class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-black text-xl">؟</div>
-<div class="flex-1">
+<div class="bg-white/10 p-3 rounded-xl">
 <p class="text-xs opacity-80 mb-1">مرحباً،</p>
 <p id="sidebar-username" class="font-black truncate">...</p>
-</div>
-<i class="fa-solid fa-pen text-xs opacity-60"></i>
-</div>
 </div>
 </div>
 
@@ -348,10 +334,6 @@ object-fit: cover;
 
 <!-- Settings -->
 <div class="pt-4 border-t border-white/10 mt-4">
-<button onclick="openModal(&#39;profile-modal&#39;)" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
-<i class="fa-solid fa-user-pen text-lg w-6"></i>
-<span>تعديل الملف الشخصي</span>
-</button>
 <button id="theme-toggle-sidebar" onclick="toggleTheme()" class="sidebar-link w-full text-right px-4 py-3 rounded-xl font-bold flex items-center gap-3">
 <i id="theme-icon-sidebar" class="fa-solid fa-moon text-lg w-6"></i>
 <span>الوضع الليلي</span>
@@ -381,118 +363,146 @@ object-fit: cover;
 </aside>
 
 <!-- Main Content -->
-<main id="app-container" class="min-h-screen p-4 md:p-8">
+<main id="app-container" class="lg:mr-80 min-h-screen p-3 md:p-8">
 
 <!-- HOME VIEW -->
-<div id="home-view" class="fade-in space-y-6">
-<!-- Header Card -->
-<div class="glass rounded-3xl p-6 md:p-8">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-<div>
-<h2 class="text-2xl md:text-3xl font-black mb-2">مرحباً بك، <span id="welcome-name" class="text-blue-600">...</span></h2>
-<p class="text-slate-500 dark:text-slate-300">نظرة شاملة على البيانات والإحصائيات</p>
-</div>
-<div class="flex gap-3">
-<div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl">
-<span class="text-xs font-black text-blue-600 dark:text-blue-200 block mb-1">العملة</span>
-<div class="flex gap-2">
-<button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-3 py-1 rounded-lg font-black text-xs" data-curr="EGP">EGP</button>
-<button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs" data-curr="SAR">SAR</button>
-<button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs" data-curr="USD">USD</button>
-</div>
-</div>
-</div>
-</div>
+<div id="home-view" class="fade-in space-y-4">
 
-<!-- Filter -->
-<div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl flex items-center gap-3">
-<i class="fa-solid fa-filter text-slate-400"></i>
-<span class="text-sm font-bold">نطاق الإحصائيات:</span>
-<div class="flex gap-2 flex-1">
-<button onclick="setStatsFilter(&#39;all&#39;)" id="filter-all" class="flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white">كل الوقت</button>
-<button onclick="setStatsFilter(&#39;month&#39;)" id="filter-month" class="flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700">الشهر الحالي</button>
-</div>
-</div>
-</div>
+  <!-- ===== MOBILE HEADER (visible on mobile only) ===== -->
+  <div class="lg:hidden pt-16 pb-2">
+    <!-- Greeting row -->
+    <div class="flex items-start justify-between gap-2 mb-3">
+      <!-- Currency buttons on the LEFT (start) -->
+      <div class="flex gap-1.5 mt-1">
+        <button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-2.5 py-1 rounded-lg font-black text-xs" data-curr="EGP">EGP</button>
+        <button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-1 rounded-lg font-black text-xs" data-curr="SAR">SAR</button>
+        <button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-1 rounded-lg font-black text-xs" data-curr="USD">USD</button>
+      </div>
+      <!-- Greeting text on the RIGHT (end) -->
+      <div class="text-right">
+        <h2 class="text-xl font-black leading-tight">مرحباً بك، <span id="mobile-greeting-name" class="text-blue-600">...</span></h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">نظرة سريعة على الإحصائيات</p>
+      </div>
+    </div>
+    <!-- Filter buttons -->
+    <div class="flex gap-2">
+      <button onclick="setStatsFilter(&#39;month&#39;)" id="mobile-filter-month" class="flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 shadow-sm">الشهر الحالي</button>
+      <button onclick="setStatsFilter(&#39;all&#39;)" id="mobile-filter-all" class="flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md">كل الوقت</button>
+    </div>
+  </div>
 
-<!-- Stats Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-<!-- Card 1 -->
-<div class="stat-card glass rounded-2xl p-6 border-r-4 border-blue-500">
-<div class="flex items-center justify-between mb-4">
-<div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-<i class="fa-solid fa-users text-blue-600 text-xl"></i>
-</div>
-</div>
-<p class="text-sm font-bold text-slate-500 dark:text-slate-300 mb-1">إجمالي المناديب</p>
-<h3 id="global-delegates-count" class="text-3xl font-black text-blue-600">0</h3>
-</div>
+  <!-- ===== DESKTOP HEADER (hidden on mobile) ===== -->
+  <div class="hidden lg:block">
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-black mb-2">لوحة التحكم الرئيسية</h2>
+          <p class="text-slate-500 dark:text-slate-300">نظرة شاملة على البيانات والإحصائيات</p>
+        </div>
+        <div class="flex gap-3">
+          <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl">
+            <span class="text-xs font-black text-blue-600 dark:text-blue-200 block mb-1">العملة</span>
+            <div class="flex gap-2">
+              <button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-3 py-1 rounded-lg font-black text-xs" data-curr="EGP">EGP</button>
+              <button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs" data-curr="SAR">SAR</button>
+              <button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs" data-curr="USD">USD</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Desktop Filter -->
+      <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl flex items-center gap-3 mt-4">
+        <i class="fa-solid fa-filter text-slate-400"></i>
+        <span class="text-sm font-bold">نطاق الإحصائيات:</span>
+        <div class="flex gap-2 flex-1">
+          <button onclick="setStatsFilter(&#39;all&#39;)" id="filter-all" class="flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white">كل الوقت</button>
+          <button onclick="setStatsFilter(&#39;month&#39;)" id="filter-month" class="flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700">الشهر الحالي</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!-- Card 2 -->
-<div class="stat-card glass rounded-2xl p-6 border-r-4 border-emerald-500">
-<div class="flex items-center justify-between mb-4">
-<div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-<i class="fa-solid fa-users-gear text-emerald-600 text-xl"></i>
-</div>
-</div>
-<p class="text-sm font-bold text-slate-500 dark:text-slate-300 mb-1">إجمالي المفرغين</p>
-<h3 id="global-unloaders-count" class="text-3xl font-black text-emerald-600">0</h3>
-</div>
+<!-- Stats Cards — 2 columns on mobile, 4 on desktop -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
 
-<!-- Card 3 -->
-<div class="stat-card glass rounded-2xl p-6 border-r-4 border-indigo-500">
-<div class="flex items-center justify-between mb-4">
-<div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
-<i class="fa-solid fa-cubes text-indigo-600 text-xl"></i>
-</div>
-</div>
-<p class="text-sm font-bold text-slate-500 dark:text-slate-300 mb-1">إجمالي اللوح</p>
-<h3 id="global-plates-count" class="text-3xl font-black text-indigo-600">0</h3>
-</div>
+  <!-- Card: إجمالي اللوح -->
+  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-indigo-400">
+    <div class="flex justify-center mb-3">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+        <i class="fa-solid fa-cubes text-indigo-500 text-lg md:text-xl"></i>
+      </div>
+    </div>
+    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي اللوح</p>
+    <h3 id="global-plates-count" class="text-2xl md:text-3xl font-black text-indigo-600 text-center">0</h3>
+  </div>
 
-<!-- Card 4 -->
-<div class="stat-card glass rounded-2xl p-6 border-r-4 border-amber-500">
-<div class="flex items-center justify-between mb-4">
-<div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-<i class="fa-solid fa-sack-dollar text-amber-600 text-xl"></i>
-</div>
-</div>
-<p class="text-sm font-bold text-slate-500 dark:text-slate-300 mb-1">إجمالي المبلغ</p>
-<h3 id="global-cost-sum" class="text-2xl font-black text-amber-600">0</h3>
-</div>
+  <!-- Card: إجمالي المبلغ -->
+  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-amber-400">
+    <div class="flex justify-center mb-3">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+        <i class="fa-solid fa-sack-dollar text-amber-500 text-lg md:text-xl"></i>
+      </div>
+    </div>
+    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي المبلغ</p>
+    <h3 id="global-cost-sum" class="text-lg md:text-2xl font-black text-amber-600 text-center">0</h3>
+  </div>
+
+  <!-- Card: إجمالي المفرغين -->
+  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-emerald-400">
+    <div class="flex justify-center mb-3">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+        <i class="fa-solid fa-users-gear text-emerald-500 text-lg md:text-xl"></i>
+      </div>
+    </div>
+    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي المفرغين</p>
+    <h3 id="global-unloaders-count" class="text-2xl md:text-3xl font-black text-emerald-600 text-center">0</h3>
+  </div>
+
+  <!-- Card: إجمالي المناديب -->
+  <div class="stat-card glass rounded-2xl p-4 md:p-6 border-b-4 border-blue-400">
+    <div class="flex justify-center mb-3">
+      <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+        <i class="fa-solid fa-users text-blue-500 text-lg md:text-xl"></i>
+      </div>
+    </div>
+    <p class="text-xs font-bold text-slate-500 dark:text-slate-300 mb-1 text-center">إجمالي المناديب</p>
+    <h3 id="global-delegates-count" class="text-2xl md:text-3xl font-black text-blue-600 text-center">0</h3>
+  </div>
+
 </div>
 
 <!-- Categories -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<div onclick="navigateToCategory(&#39;delegates&#39;)" class="stat-card glass rounded-2xl p-8 cursor-pointer group">
-<div class="flex justify-between items-center">
-<div>
-<h3 class="text-2xl font-black mb-2 group-hover:text-blue-600 transition">المناديب</h3>
-<p class="text-slate-500 dark:text-slate-300">إدارة حسابات المناديب</p>
-</div>
-<div class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-4xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-<i class="fa-solid fa-truck-fast"></i>
-</div>
-</div>
+<div class="grid grid-cols-1 gap-3 md:gap-6">
+  <div onclick="navigateToCategory(&#39;unloaders&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-emerald-600 transition">المفرغين</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-300">إدارة الملفات والإنتاجية</p>
+      </div>
+      <div class="w-14 h-14 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-3xl md:text-4xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+        <i class="fa-solid fa-dolly"></i>
+      </div>
+    </div>
+  </div>
+
+  <div onclick="navigateToCategory(&#39;delegates&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
+    <div class="flex justify-between items-center">
+      <div>
+        <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-blue-600 transition">المناديب</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-300">إدارة حسابات المناديب</p>
+      </div>
+      <div class="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-3xl md:text-4xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+        <i class="fa-solid fa-truck-fast"></i>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div onclick="navigateToCategory(&#39;unloaders&#39;)" class="stat-card glass rounded-2xl p-8 cursor-pointer group">
-<div class="flex justify-between items-center">
-<div>
-<h3 class="text-2xl font-black mb-2 group-hover:text-emerald-600 transition">المفرغين</h3>
-<p class="text-slate-500 dark:text-slate-300">إدارة ملفات المفرغين</p>
-</div>
-<div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-4xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-<i class="fa-solid fa-dolly"></i>
-</div>
-</div>
-</div>
-</div>
 </div>
 
 <!-- CATEGORY VIEW -->
 <div id="category-view" class="hidden fade-in">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 pt-16 lg:pt-0">
 <div>
 <h2 id="category-title" class="text-3xl font-black">قائمة الأسماء</h2>
 <p class="text-slate-500 dark:text-slate-300">بحث + تعديل + حذف + إضافة</p>
@@ -519,7 +529,7 @@ object-fit: cover;
 
 <!-- PERSON VIEW -->
 <div id="person-view" class="hidden fade-in">
-<div class="mb-6">
+<div class="mb-6 pt-16 lg:pt-0">
 <button onclick="goBackToCategory()" class="text-blue-700 dark:text-blue-300 font-black mb-4 flex items-center gap-2 hover:gap-3 transition-all">
 <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
 </button>
@@ -545,7 +555,7 @@ object-fit: cover;
 <div class="flex flex-col xl:flex-row gap-6">
 
 <!-- Sidebar Controls -->
-<div class="xl:w-80 space-y-6 no-print">
+<div class="xl:w-80 space-y-6 no-print pt-16 lg:pt-0">
 <div class="glass rounded-2xl p-6">
 <h4 id="dashboard-title" class="text-xl font-black mb-1">--</h4>
 <p id="dashboard-subtitle" class="text-xs text-slate-500 dark:text-slate-300 mb-6">إدارة الملفات</p>
@@ -691,7 +701,7 @@ object-fit: cover;
 
 <!-- DAY REPORT VIEW -->
 <div id="day-view" class="hidden fade-in">
-<div class="glass rounded-3xl p-8 mb-6">
+<div class="glass rounded-3xl p-8 mb-6 pt-20 lg:pt-8">
 <h2 class="text-3xl font-black mb-6 flex items-center gap-3"><i class="fa-solid fa-calendar-day text-blue-600"></i> تقرير يوم محدد</h2>
 <div class="flex flex-wrap items-end gap-4">
 <div class="flex-1 min-w-[220px]">
@@ -732,7 +742,7 @@ object-fit: cover;
 
 <!-- MONTHLY BEST VIEW -->
 <div id="monthly-best-view" class="hidden fade-in">
-<div class="glass rounded-3xl p-8 mb-8">
+<div class="glass rounded-3xl p-8 mb-8 pt-20 lg:pt-8">
 <h2 class="text-3xl font-black mb-2 flex items-center gap-3"><i class="fa-solid fa-trophy text-yellow-500"></i> أفضل أداء شهري</h2>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
 <div>
@@ -757,7 +767,7 @@ object-fit: cover;
 
 <!-- ADMIN VIEW -->
 <div id="admin-dashboard" class="hidden fade-in space-y-6">
-<div class="glass rounded-2xl p-8 border-t-8 border-yellow-500">
+<div class="glass rounded-2xl p-8 border-t-8 border-yellow-500 pt-20 lg:pt-8">
 <div class="flex items-center justify-between gap-4 mb-6 flex-wrap">
 <h2 class="text-2xl font-black flex items-center gap-3"><i class="fa-solid fa-shield-halved text-yellow-500"></i> لوحة الإدارة</h2>
 <div class="text-xs text-slate-500 dark:text-slate-300 font-bold">* owner/admin: إدارة المستخدمين - manager: عرض فقط</div>
@@ -818,57 +828,6 @@ object-fit: cover;
 <div class="flex gap-2">
 <button onclick="closeModal(&#39;edit-count-modal&#39;)" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
 <button id="save-edit-btn" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-black">تحديث</button>
-</div>
-</div>
-</div>
-
-<!-- Setup Name Modal -->
-<div id="setup-name-modal" class="hidden fixed inset-0 z-[250] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
-<div class="glass w-full max-w-md rounded-3xl p-8">
-<div class="text-center mb-6">
-<i class="fa-solid fa-user-plus text-5xl text-blue-600 mb-4"></i>
-<h3 class="text-2xl font-black mb-2">مرحباً بك!</h3>
-<p class="text-slate-500 dark:text-slate-300">يرجى إدخال اسمك للمتابعة</p>
-</div>
-<input type="text" id="setup-name-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 mb-6 outline-none font-bold text-center" placeholder="اسمك الكامل" required=""/>
-<button onclick="saveSetupName()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black hover:bg-blue-700 transition">حفظ ومتابعة</button>
-</div>
-</div>
-
-<!-- Profile Modal -->
-<div id="profile-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-<div class="glass w-full max-w-md rounded-3xl p-8">
-<h3 class="text-2xl font-black mb-6 flex items-center gap-2">
-<i class="fa-solid fa-user-pen text-blue-600"></i>
-الملف الشخصي
-</h3>
-
-<div class="text-center mb-6">
-<div class="relative inline-block">
-<img id="profile-preview" src="" alt="Profile" class="profile-img w-24 h-24 rounded-full mx-auto bg-slate-200 dark:bg-slate-700 hidden"/>
-<div id="profile-initials-preview" class="w-24 h-24 rounded-full mx-auto bg-blue-600 text-white flex items-center justify-center font-black text-3xl">؟</div>
-<label for="profile-image-input" class="absolute bottom-0 right-1/2 translate-x-1/2 translate-y-1/2 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition shadow-lg">
-<i class="fa-solid fa-camera text-sm"></i>
-</label>
-<input type="file" id="profile-image-input" accept="image/*" class="hidden" onchange="handleProfileImageUpload(this)"/>
-</div>
-<button onclick="removeProfileImage()" class="text-xs text-red-600 dark:text-red-400 mt-2 hover:underline" id="remove-img-btn">إزالة الصورة</button>
-</div>
-
-<div class="space-y-4">
-<div>
-<label class="block text-sm font-black mb-2">الاسم</label>
-<input type="text" id="profile-name-input" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/40 outline-none font-bold" placeholder="اسمك الكامل"/>
-</div>
-<div>
-<label class="block text-sm font-black mb-2 text-slate-400">البريد الإلكتروني</label>
-<input type="email" id="profile-email-display" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 outline-none text-slate-500" readonly=""/>
-</div>
-</div>
-
-<div class="flex gap-2 mt-6">
-<button onclick="closeModal(&#39;profile-modal&#39;)" class="flex-1 py-3 text-slate-500 dark:text-slate-300 font-black">إلغاء</button>
-<button onclick="saveProfile()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black hover:bg-blue-700 transition">حفظ التعديلات</button>
 </div>
 </div>
 </div>
@@ -991,9 +950,7 @@ if (icon) icon.className = isDark ? 'fa-solid fa-sun text-lg w-6' : 'fa-solid fa
 
 window.toggleSidebar = () => {
 const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('sidebar-overlay');
-const isActive = sidebar.classList.toggle('active');
-if (overlay) overlay.classList.toggle('hidden', !isActive);
+sidebar.classList.toggle('active');
 };
 
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
@@ -1043,8 +1000,8 @@ return converted.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' +
 function updateCurrencyUI() {
 document.querySelectorAll('.curr-btn').forEach(b => {
 b.className = (b.dataset.curr === activeCurrency)
-? 'curr-btn bg-blue-600 text-white px-3 py-1 rounded-lg font-black text-xs'
-: 'curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-3 py-1 rounded-lg font-black text-xs';
+? 'curr-btn bg-blue-600 text-white px-2.5 py-1 rounded-lg font-black text-xs'
+: 'curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-1 rounded-lg font-black text-xs';
 });
 document.querySelectorAll('.rate-symbol').forEach(s => s.textContent = activeCurrency);
 }
@@ -1163,105 +1120,31 @@ calculateGlobalStats();
 } catch (e) { console.error('save cloud', e); }
 }
 
-async function updateUserProfile(updates) {
-if (!auth.currentUser) return;
-const key = userKey(currentUser.id);
-try {
-await updateDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory', key), updates);
-Object.assign(currentUser, updates);
-updateProfileUI();
-} catch (e) { console.error('update profile', e); }
-}
-
-function updateProfileUI() {
-const name = currentUser?.name || 'مستخدم';
-const initial = name.charAt(0);
-const profileImg = currentUser?.profileImage;
-
-document.getElementById('sidebar-username').textContent = name;
-document.getElementById('welcome-name').textContent = name;
-
-const sidebarImg = document.getElementById('sidebar-profile-img');
-const sidebarInitials = document.getElementById('sidebar-profile-initials');
-
-if (profileImg) {
-sidebarImg.src = profileImg;
-sidebarImg.classList.remove('hidden');
-sidebarInitials.classList.add('hidden');
-} else {
-sidebarImg.classList.add('hidden');
-sidebarInitials.classList.remove('hidden');
-sidebarInitials.textContent = initial;
-}
-}
-
-window.handleProfileImageUpload = (input) => {
-if (!input.files?.length) return;
-const file = input.files[0];
-if (file.size > 2 * 1024 * 1024) {
-alert('حجم الصورة كبير جداً. الحد الأقصى 2MB');
-return;
-}
-
-const reader = new FileReader();
-reader.onload = (e) => {
-const preview = document.getElementById('profile-preview');
-const initials = document.getElementById('profile-initials-preview');
-preview.src = e.target.result;
-preview.classList.remove('hidden');
-initials.classList.add('hidden');
-document.getElementById('remove-img-btn').classList.remove('hidden');
-};
-reader.readAsDataURL(file);
-};
-
-window.removeProfileImage = () => {
-const preview = document.getElementById('profile-preview');
-const initials = document.getElementById('profile-initials-preview');
-const input = document.getElementById('profile-image-input');
-preview.src = '';
-preview.classList.add('hidden');
-initials.classList.remove('hidden');
-input.value = '';
-};
-
-window.saveProfile = async () => {
-const name = document.getElementById('profile-name-input').value.trim();
-if (!name) {
-alert('يرجى إدخال الاسم');
-return;
-}
-
-const preview = document.getElementById('profile-preview');
-const profileImage = preview.classList.contains('hidden') ? null : preview.src;
-
-await updateUserProfile({ name, profileImage });
-logEvent('profile_update', { hasImage: !!profileImage });
-closeModal('profile-modal');
-};
-
-window.saveSetupName = async () => {
-const name = document.getElementById('setup-name-input').value.trim();
-if (!name) {
-alert('يرجى إدخال الاسم');
-return;
-}
-
-await updateUserProfile({ name });
-logEvent('setup_name', { name });
-closeModal('setup-name-modal');
-};
-
 const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
 
 window.setStatsFilter = (filter) => {
 globalStatsFilter = filter;
-document.getElementById('filter-all').className = filter === 'all'
+
+// Update desktop filter buttons
+const fdAll = document.getElementById('filter-all');
+const fdMonth = document.getElementById('filter-month');
+if (fdAll) fdAll.className = filter === 'all'
 ? 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white'
 : 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700';
-document.getElementById('filter-month').className = filter === 'month'
+if (fdMonth) fdMonth.className = filter === 'month'
 ? 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-blue-600 text-white'
 : 'flex-1 px-4 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700';
+
+// Update mobile filter buttons
+const mfAll = document.getElementById('mobile-filter-all');
+const mfMonth = document.getElementById('mobile-filter-month');
+if (mfAll) mfAll.className = filter === 'all'
+? 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md'
+: 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 shadow-sm';
+if (mfMonth) mfMonth.className = filter === 'month'
+? 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md'
+: 'flex-1 px-3 py-2.5 rounded-xl text-sm font-black bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 shadow-sm';
+
 calculateGlobalStats();
 };
 
@@ -1300,8 +1183,10 @@ else link.classList.remove('active');
 function showView(id) {
 ['home-view', 'category-view', 'person-view', 'dashboard-view', 'day-view', 'monthly-best-view', 'admin-dashboard'].forEach(v => document.getElementById(v).classList.add('hidden'));
 document.getElementById(id).classList.remove('hidden');
+if (window.innerWidth < 1024) {
 const sidebar = document.getElementById('sidebar');
-if (sidebar && sidebar.classList.contains('active')) toggleSidebar();
+if (sidebar.classList.contains('active')) toggleSidebar();
+}
 }
 
 window.goHome = () => {
@@ -1706,10 +1591,10 @@ const title2 = `الاسم: ${p.name}`;
 const title3 = `تاريخ استخراج التقرير: ${today}`;
 
 const data = [
-[title1, '', '', ''],
-[title2, '', '', ''],
-[title3, '', '', ''],
-['اسم الملف', 'التاريخ', 'عدد اللوح', `المبلغ (${activeCurrency})`]
+[title1, '', ''],
+[title2, '', ''],
+[title3, '', ''],
+['التاريخ', 'عدد اللوح', `المبلغ (${activeCurrency})`]
 ];
 
 let totalCount = 0;
@@ -1722,20 +1607,20 @@ const costEg = (used / 1000) * Number(m.rate || 100);
 const costCurr = costEg / Number(currencyRates[activeCurrency] || 1);
 totalCount += used;
 totalMoney += costCurr;
-data.push([f.name || '', f.dateDisplay || '', used, costCurr]);
+data.push([f.dateDisplay || '', used, costCurr]);
 });
 
-data.push(['الإجمالي', '', totalCount, totalMoney]);
+data.push(['الإجمالي', totalCount, totalMoney]);
 
 const ws = XLSX.utils.aoa_to_sheet(data);
 
 ws['!merges'] = [
-{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
-{ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } },
-{ s: { r: 2, c: 0 }, e: { r: 2, c: 3 } }
+{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } },
+{ s: { r: 1, c: 0 }, e: { r: 1, c: 2 } },
+{ s: { r: 2, c: 0 }, e: { r: 2, c: 2 } }
 ];
 
-ws['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 18 }];
+ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 18 }];
 
 const borderThick = {
 top: { style: 'thick', color: { rgb: '000000' } },
@@ -1763,7 +1648,7 @@ ws[addr].s = style;
 
 const lastRow = data.length - 1;
 for (let r = 0; r <= lastRow; r++) {
-for (let c = 0; c < 4; c++) {
+for (let c = 0; c < 3; c++) {
 if (r <= 2) setCellStyle(r, c, titleStyle);
 else if (r === 3) setCellStyle(r, c, headerStyle);
 else if (r === lastRow) setCellStyle(r, c, totalStyle);
@@ -1772,8 +1657,8 @@ else setCellStyle(r, c, normalStyle);
 }
 
 for (let r = 4; r <= lastRow; r++) {
-const addrCount = XLSX.utils.encode_cell({ r, c: 2 });
-const addrMoney = XLSX.utils.encode_cell({ r, c: 3 });
+const addrCount = XLSX.utils.encode_cell({ r, c: 1 });
+const addrMoney = XLSX.utils.encode_cell({ r, c: 2 });
 if (ws[addrCount]) ws[addrCount].z = '#,##0';
 if (ws[addrMoney]) ws[addrMoney].z = '#,##0.0';
 }
@@ -2026,35 +1911,16 @@ document.getElementById('verification-overlay').classList.add('hidden');
 document.getElementById('banned-overlay').classList.add('hidden');
 document.getElementById('main-app').classList.remove('hidden');
 
+document.getElementById('sidebar-username').textContent = currentUser.name;
+
+// Update mobile greeting name
+const mobileGreeting = document.getElementById('mobile-greeting-name');
+if (mobileGreeting) mobileGreeting.textContent = currentUser.name;
+
 if (canAccessAdmin()) document.getElementById('admin-nav-btn').classList.remove('hidden');
 
 updateCurrencyUI();
 await loadDataCloud();
-
-if (!currentUser.name || currentUser.name === 'مستخدم جديد') {
-openModal('setup-name-modal');
-} else {
-updateProfileUI();
-}
-
-const nameInput = document.getElementById('profile-name-input');
-const emailInput = document.getElementById('profile-email-display');
-const profilePreview = document.getElementById('profile-preview');
-const initialsPreview = document.getElementById('profile-initials-preview');
-
-if (nameInput) nameInput.value = currentUser.name || '';
-if (emailInput) emailInput.value = currentUser.email || '';
-
-if (currentUser.profileImage) {
-profilePreview.src = currentUser.profileImage;
-profilePreview.classList.remove('hidden');
-initialsPreview.classList.add('hidden');
-} else {
-initialsPreview.textContent = (currentUser.name || '؟').charAt(0);
-profilePreview.classList.add('hidden');
-initialsPreview.classList.remove('hidden');
-}
-
 goHome();
 }
 
@@ -2118,6 +1984,7 @@ msg.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
 };
 
 </script>
+
 
 
 </body></html>
