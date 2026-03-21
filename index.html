@@ -637,6 +637,39 @@ font-size: 11px !important;
 <i class="fa-solid fa-calendar-xmark text-8xl mb-4"></i>
 <p class="text-xl">لا توجد شهور لهذا الشخص</p>
 </div>
+
+<!-- Person Performance Chart -->
+<div id="person-chart-section" class="hidden mt-6 space-y-4">
+  <!-- Change badges row -->
+  <div id="person-change-badges" class="flex flex-wrap gap-2"></div>
+  <!-- Chart Card -->
+  <div class="glass rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-black text-base flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-500"></i> مقارنة الإنتاجية عبر الشهور</h3>
+      <div class="flex gap-2">
+        <button onclick="setPersonChartType(&#39;bar&#39;)" id="pchart-bar" class="text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white">أعمدة</button>
+        <button onclick="setPersonChartType(&#39;line&#39;)" id="pchart-line" class="text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">خط</button>
+      </div>
+    </div>
+    <div class="h-56 md:h-72"><canvas id="personPerfChart"></canvas></div>
+  </div>
+  <!-- Summary Table -->
+  <div class="glass rounded-2xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-right">
+        <thead class="bg-slate-50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-300">
+          <tr>
+            <th class="p-3 md:p-4">الشهر</th>
+            <th class="p-3 md:p-4 text-center">اللوح</th>
+            <th class="p-3 md:p-4 text-center">المبلغ</th>
+            <th class="p-3 md:p-4 text-center">التغيير</th>
+          </tr>
+        </thead>
+        <tbody id="person-perf-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 </div>
 
 <!-- DASHBOARD VIEW -->
@@ -1465,6 +1498,7 @@ window.navigateToPerson = (pid) => {
 currentPersonId = pid;
 document.getElementById('person-name-title').textContent = appData[currentCategory][pid].name;
 renderMonths();
+renderPersonChart();
 showView('person-view');
 };
 
@@ -1545,6 +1579,155 @@ card.innerHTML = `
 `;
 list.appendChild(card);
 });
+}
+
+let personChartType = 'bar';
+window.setPersonChartType = (type) => {
+personChartType = type;
+const barBtn = document.getElementById('pchart-bar');
+const lineBtn = document.getElementById('pchart-line');
+if (barBtn) barBtn.className = type === 'bar' ? 'text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white' : 'text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700';
+if (lineBtn) lineBtn.className = type === 'line' ? 'text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white' : 'text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700';
+renderPersonChart();
+};
+
+function renderPersonChart() {
+const person = appData[currentCategory] && appData[currentCategory][currentPersonId];
+const section = document.getElementById('person-chart-section');
+if (!person || !person.months) { if(section) section.classList.add('hidden'); return; }
+
+const months = person.months;
+const ids = Object.keys(months).sort();
+if (ids.length < 2) { if(section) section.classList.add('hidden'); return; }
+
+const labels = [];
+const plateData = [];
+const costData = [];
+
+ids.forEach(id => {
+const m = months[id];
+const total = (m.files || []).reduce((s, f) => s + (f.usedCount || 0), 0);
+const cost = (total / 1000) * (m.rate || 100);
+labels.push(m.name || id);
+plateData.push(total);
+costData.push(cost);
+});
+
+// Render change badges
+const badgesEl = document.getElementById('person-change-badges');
+if (badgesEl) {
+badgesEl.innerHTML = '';
+for (let i = 1; i < plateData.length; i++) {
+const prev = plateData[i - 1];
+const curr = plateData[i];
+const diff = curr - prev;
+const pct = prev === 0 ? (curr > 0 ? 100 : 0) : Math.round((diff / prev) * 100);
+const isUp = diff >= 0;
+const badge = document.createElement('div');
+badge.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${
+isUp ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+}`;
+badge.innerHTML = `<i class="fa-solid ${isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
+<span>${labels[i]}</span>
+<span>${isUp ? '+' : ''}${pct}%</span>
+<span class="opacity-60">(${isUp ? '+' : ''}${diff.toLocaleString()} لوحة)</span>`;
+badgesEl.appendChild(badge);
+}
+}
+
+// Render summary table
+const tbody = document.getElementById('person-perf-table');
+if (tbody) {
+tbody.innerHTML = '';
+plateData.forEach((plates, i) => {
+const prev = i > 0 ? plateData[i - 1] : null;
+const diff = prev !== null ? plates - prev : null;
+const pct = diff !== null ? (prev === 0 ? (plates > 0 ? 100 : 0) : Math.round((diff / prev) * 100)) : null;
+const isUp = diff !== null && diff >= 0;
+const changeCell = diff !== null
+? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-black ${
+isUp ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+}"><i class="fa-solid ${isUp ? 'fa-caret-up' : 'fa-caret-down'}"></i>${isUp ? '+' : ''}${pct}%</span>`
+: '<span class="text-slate-400 text-xs">—</span>';
+const tr = document.createElement('tr');
+tr.className = 'hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors cursor-pointer';
+tr.onclick = () => navigateToMonth(ids[i]);
+tr.innerHTML = `
+<td class="p-3 md:p-4 font-black">${esc(labels[i])}</td>
+<td class="p-3 md:p-4 text-center font-black text-blue-700 dark:text-blue-200">${plates.toLocaleString()}</td>
+<td class="p-3 md:p-4 text-center font-black text-emerald-700 dark:text-emerald-200">${formatMoney(costData[i])}</td>
+<td class="p-3 md:p-4 text-center">${changeCell}</td>
+`;
+tbody.appendChild(tr);
+});
+}
+
+// Render chart
+const canvasId = 'personPerfChart';
+const ctx = document.getElementById(canvasId);
+if (!ctx) return;
+
+if (charts[canvasId]) charts[canvasId].destroy();
+
+const isDark = document.documentElement.classList.contains('dark');
+const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(0,0,0,0.06)';
+const textColor = isDark ? '#94a3b8' : '#64748b';
+
+charts[canvasId] = new Chart(ctx, {
+type: personChartType,
+data: {
+labels,
+datasets: [{
+label: 'عدد اللوح',
+data: plateData,
+backgroundColor: plateData.map((v, i) => {
+if (i === 0) return 'rgba(59,130,246,0.7)';
+return v >= plateData[i-1] ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)';
+}),
+borderColor: plateData.map((v, i) => {
+if (i === 0) return '#3b82f6';
+return v >= plateData[i-1] ? '#10b981' : '#ef4444';
+}),
+borderWidth: personChartType === 'line' ? 2.5 : 0,
+borderRadius: personChartType === 'bar' ? 8 : 0,
+tension: 0.4,
+fill: personChartType === 'line',
+pointBackgroundColor: plateData.map((v, i) => {
+if (i === 0) return '#3b82f6';
+return v >= plateData[i-1] ? '#10b981' : '#ef4444';
+}),
+pointRadius: 5,
+pointHoverRadius: 7,
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: { display: false },
+tooltip: {
+callbacks: {
+label: (ctx) => {
+const v = ctx.parsed.y;
+const i = ctx.dataIndex;
+if (i > 0) {
+const diff = v - plateData[i-1];
+const pct = plateData[i-1] === 0 ? 100 : Math.round((diff/plateData[i-1])*100);
+return [` ${v.toLocaleString()} لوحة`, ` ${diff>=0?'+':''}${pct}% عن الشهر السابق`];
+}
+return ` ${v.toLocaleString()} لوحة`;
+}
+}
+}
+},
+scales: {
+y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Cairo' } } },
+x: { grid: { display: false }, ticks: { color: textColor, font: { family: 'Cairo' } } }
+}
+}
+});
+
+section.classList.remove('hidden');
 }
 
 window.editMonth = async (id, e) => {
@@ -2325,6 +2508,8 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 if (installBar) installBar.style.display = 'none';
 }
 </script>
+
+<script>window.onload=function(){var d=document.createElement("div");d.id="appLoadFinished";document.body.appendChild(d);};</script>
 
 
 </body></html>
