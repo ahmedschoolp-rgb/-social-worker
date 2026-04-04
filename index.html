@@ -9,13 +9,13 @@
 <meta property="og:url" content="https://www.onspace.ai"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="OnSpace.AI"/>
-<meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg7dz.jpg"/>
+<meta property="og:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bgrsj.jpg"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="نظام إدارة اللوح - Pro+"/>
 <meta name="twitter:description" content="نظام متكامل لإدارة ومتابعة المناديب والمفرغين مع تقارير شاملة"/>
-<meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bg7dz.jpg"/>
+<meta name="twitter:image" content="https://cdn-ai.onspace.ai/onspace/project/screenshot/online/pre-site/9bgrsj.jpg"/>
 <meta name="twitter:url" content="https://www.onspace.ai"/>
 
 <!-- PWA Manifest -->
@@ -166,6 +166,48 @@ right: 12px;
 z-index: 9999;
 }
 
+/* ===== Upload Success Toast ===== */
+#upload-toast {
+position: fixed;
+top: 20px;
+left: 50%;
+transform: translateX(-50%) translateY(-200px);
+z-index: 9998;
+transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+min-width: 300px;
+max-width: 92vw;
+pointer-events: none;
+}
+#upload-toast.show {
+transform: translateX(-50%) translateY(0);
+pointer-events: all;
+}
+
+/* ===== Notification Bell Badge ===== */
+.notif-badge {
+position: absolute;
+top: -4px;
+left: -4px;
+min-width: 18px;
+height: 18px;
+border-radius: 999px;
+background: #ef4444;
+color: #fff;
+font-size: 10px;
+font-weight: 900;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 0 4px;
+border: 2px solid white;
+}
+
+/* ===== Admin Notifications Panel ===== */
+#admin-notif-panel {
+max-height: 480px;
+overflow-y: auto;
+}
+
 /* ===== Sidebar ===== */
 .sidebar {
 transform: translateX(100%);
@@ -304,6 +346,54 @@ font-size: 11px !important;
 </div>
 </div>
 
+<!-- ===== UPLOAD SUCCESS TOAST ===== -->
+<div id="upload-toast">
+  <div class="glass rounded-2xl shadow-2xl border-r-4 border-emerald-500 overflow-hidden">
+    <div class="bg-emerald-500 px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-white text-xl"></i>
+        <span class="text-white font-black text-sm">تم رفع الملفات بنجاح ✅</span>
+      </div>
+      <button onclick="hideUploadToast()" class="text-white/80 hover:text-white transition text-lg leading-none">✕</button>
+    </div>
+    <div class="bg-white dark:bg-slate-900 px-5 py-4">
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-3 text-center">
+          <div class="text-xs font-bold text-indigo-500 mb-1">عدد اللوح</div>
+          <div id="toast-plates-count" class="text-2xl font-black text-indigo-700 dark:text-indigo-200">0</div>
+        </div>
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 text-center">
+          <div class="text-xs font-bold text-emerald-500 mb-1">إجمالي الحساب</div>
+          <div id="toast-amount" class="text-lg font-black text-emerald-700 dark:text-emerald-200">0</div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-center" id="toast-files-detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN NOTIFICATIONS MODAL ===== -->
+<div id="admin-notif-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="glass w-full max-w-lg rounded-3xl overflow-hidden">
+    <div class="sidebar-gradient px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-bell text-yellow-400 text-xl"></i>
+        <h3 class="text-white font-black text-lg">إشعارات رفع الملفات</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="clearAdminNotifications()" class="text-white/70 hover:text-white text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition">مسح الكل</button>
+        <button onclick="closeModal(&#39;admin-notif-modal&#39;)" class="text-white/70 hover:text-white transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+    </div>
+    <div id="admin-notif-panel" class="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+      <div id="admin-notif-empty" class="text-center py-12 text-slate-400">
+        <i class="fa-regular fa-bell-slash text-4xl mb-3 block"></i>
+        <p class="font-bold">لا توجد إشعارات</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- AUTH OVERLAY -->
 <div id="auth-overlay" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4">
 <div class="glass rounded-3xl w-full max-w-md overflow-hidden">
@@ -399,6 +489,14 @@ font-size: 11px !important;
 <!-- MAIN APP -->
 <div id="main-app" class="hidden">
 
+<!-- Notification Bell (Admin Only) -->
+<div id="admin-notif-btn" class="hidden fixed z-50 no-print" style="top: calc(env(safe-area-inset-top, 0px) + 12px); left: 64px;">
+  <button onclick="openAdminNotifications()" class="relative bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 w-11 h-11 rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition border border-slate-200 dark:border-slate-700">
+    <i class="fa-solid fa-bell text-lg text-blue-600"></i>
+    <span id="notif-badge" class="notif-badge hidden">0</span>
+  </button>
+</div>
+
 <!-- Menu Toggle Button -->
 <button id="mobile-menu-btn" onclick="toggleSidebar()" class="fixed top-4 right-4 z-50 bg-blue-600 text-white w-11 h-11 rounded-full shadow-lg flex items-center justify-center no-print hover:bg-blue-700 transition" style="top: calc(env(safe-area-inset-top, 0px) + 12px);">
 <i class="fa-solid fa-bars text-lg"></i>
@@ -492,101 +590,101 @@ font-size: 11px !important;
 <!-- HOME VIEW -->
 <div id="home-view" class="fade-in space-y-4">
 
-  <!-- Header Card — mobile-compact -->
-  <div class="glass rounded-2xl p-4 md:p-6">
-    <div class="flex items-start justify-between gap-3">
-      <!-- Welcome Text -->
-      <div class="flex-1 min-w-0">
-        <h2 class="text-xl md:text-3xl font-black leading-tight">مرحباً بك، <span id="welcome-name" class="text-blue-600">...</span></h2>
-        <p class="text-slate-500 dark:text-slate-300 text-xs md:text-sm mt-0.5">نظرة سريعة على الإحصائيات</p>
-      </div>
-      <!-- Currency Buttons — compact column on mobile -->
-      <div class="flex flex-col gap-1 shrink-0">
-        <span class="text-[10px] font-black text-slate-400 text-center">العملة</span>
-        <div class="flex gap-1">
-          <button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-2 py-1 rounded-lg font-black text-[11px]" data-curr="EGP">EGP</button>
-          <button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]" data-curr="SAR">SAR</button>
-          <button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]" data-curr="USD">USD</button>
-        </div>
-      </div>
-    </div>
+<!-- Header Card — mobile-compact -->
+<div class="glass rounded-2xl p-4 md:p-6">
+<div class="flex items-start justify-between gap-3">
+<!-- Welcome Text -->
+<div class="flex-1 min-w-0">
+<h2 class="text-xl md:text-3xl font-black leading-tight">مرحباً بك، <span id="welcome-name" class="text-blue-600">...</span></h2>
+<p class="text-slate-500 dark:text-slate-300 text-xs md:text-sm mt-0.5">نظرة سريعة على الإحصائيات</p>
+</div>
+<!-- Currency Buttons — compact column on mobile -->
+<div class="flex flex-col gap-1 shrink-0">
+<span class="text-[10px] font-black text-slate-400 text-center">العملة</span>
+<div class="flex gap-1">
+<button onclick="changeCurrency(&#39;EGP&#39;)" class="curr-btn bg-blue-600 text-white px-2 py-1 rounded-lg font-black text-[11px]" data-curr="EGP">EGP</button>
+<button onclick="changeCurrency(&#39;SAR&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]" data-curr="SAR">SAR</button>
+<button onclick="changeCurrency(&#39;USD&#39;)" class="curr-btn bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2 py-1 rounded-lg font-black text-[11px]" data-curr="USD">USD</button>
+</div>
+</div>
+</div>
 
-    <!-- Filter -->
-    <div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl flex items-center gap-2 mt-3">
-      <i class="fa-solid fa-filter text-slate-400 text-xs"></i>
-      <div class="flex gap-1.5 flex-1">
-        <button onclick="setStatsFilter(&#39;all&#39;)" id="filter-all" class="flex-1 px-3 py-2 rounded-lg text-xs font-black bg-blue-600 text-white">كل الوقت</button>
-        <button onclick="setStatsFilter(&#39;month&#39;)" id="filter-month" class="flex-1 px-3 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200">الشهر الحالي</button>
-      </div>
-    </div>
-  </div>
+<!-- Filter -->
+<div class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl flex items-center gap-2 mt-3">
+<i class="fa-solid fa-filter text-slate-400 text-xs"></i>
+<div class="flex gap-1.5 flex-1">
+<button onclick="setStatsFilter(&#39;all&#39;)" id="filter-all" class="flex-1 px-3 py-2 rounded-lg text-xs font-black bg-blue-600 text-white">كل الوقت</button>
+<button onclick="setStatsFilter(&#39;month&#39;)" id="filter-month" class="flex-1 px-3 py-2 rounded-lg text-xs font-black bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200">الشهر الحالي</button>
+</div>
+</div>
+</div>
 
-  <!-- Stats Cards — 2 columns on mobile, 4 on desktop -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+<!-- Stats Cards — 2 columns on mobile, 4 on desktop -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
 
-    <!-- Card 1: المناديب -->
-    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-blue-500">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-3">
-        <i class="fa-solid fa-truck-fast text-blue-600 text-base md:text-xl"></i>
-      </div>
-      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المناديب</p>
-      <h3 id="global-delegates-count" class="text-2xl md:text-3xl font-black text-blue-600">0</h3>
-    </div>
+<!-- Card 1: المناديب -->
+<div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-blue-500">
+<div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-3">
+<i class="fa-solid fa-truck-fast text-blue-600 text-base md:text-xl"></i>
+</div>
+<p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المناديب</p>
+<h3 id="global-delegates-count" class="text-2xl md:text-3xl font-black text-blue-600">0</h3>
+</div>
 
-    <!-- Card 2: المبلغ -->
-    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-amber-500">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mb-3">
-        <i class="fa-solid fa-sack-dollar text-amber-600 text-base md:text-xl"></i>
-      </div>
-      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المبلغ</p>
-      <h3 id="global-cost-sum" class="text-lg md:text-2xl font-black text-amber-600">0</h3>
-    </div>
+<!-- Card 2: المبلغ -->
+<div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-amber-500">
+<div class="w-10 h-10 md:w-12 md:h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mb-3">
+<i class="fa-solid fa-sack-dollar text-amber-600 text-base md:text-xl"></i>
+</div>
+<p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المبلغ</p>
+<h3 id="global-cost-sum" class="text-lg md:text-2xl font-black text-amber-600">0</h3>
+</div>
 
-    <!-- Card 3: اللوح -->
-    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-indigo-500">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center mb-3">
-        <i class="fa-solid fa-cubes text-indigo-600 text-base md:text-xl"></i>
-      </div>
-      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي اللوح</p>
-      <h3 id="global-plates-count" class="text-2xl md:text-3xl font-black text-indigo-600">0</h3>
-    </div>
+<!-- Card 3: اللوح -->
+<div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-indigo-500">
+<div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center mb-3">
+<i class="fa-solid fa-cubes text-indigo-600 text-base md:text-xl"></i>
+</div>
+<p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي اللوح</p>
+<h3 id="global-plates-count" class="text-2xl md:text-3xl font-black text-indigo-600">0</h3>
+</div>
 
-    <!-- Card 4: المفرغين -->
-    <div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-emerald-500">
-      <div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-3">
-        <i class="fa-solid fa-dolly text-emerald-600 text-base md:text-xl"></i>
-      </div>
-      <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المفرغين</p>
-      <h3 id="global-unloaders-count" class="text-2xl md:text-3xl font-black text-emerald-600">0</h3>
-    </div>
-  </div>
+<!-- Card 4: المفرغين -->
+<div class="stat-card glass rounded-2xl p-4 md:p-6 border-r-4 border-emerald-500">
+<div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-3">
+<i class="fa-solid fa-dolly text-emerald-600 text-base md:text-xl"></i>
+</div>
+<p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-300 leading-tight mb-1">إجمالي المفرغين</p>
+<h3 id="global-unloaders-count" class="text-2xl md:text-3xl font-black text-emerald-600">0</h3>
+</div>
+</div>
 
-  <!-- Categories -->
-  <div class="grid grid-cols-1 gap-3">
-    <div onclick="navigateToCategory(&#39;unloaders&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
-      <div class="flex justify-between items-center">
-        <div>
-          <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-emerald-600 transition">المفرغين</h3>
-          <p class="text-slate-500 dark:text-slate-300 text-sm">إدارة الملفات والإنتاجية</p>
-        </div>
-        <div class="w-14 h-14 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-3xl md:text-4xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-          <i class="fa-solid fa-dolly"></i>
-        </div>
-      </div>
-    </div>
+<!-- Categories -->
+<div class="grid grid-cols-1 gap-3">
+<div onclick="navigateToCategory(&#39;unloaders&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
+<div class="flex justify-between items-center">
+<div>
+<h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-emerald-600 transition">المفرغين</h3>
+<p class="text-slate-500 dark:text-slate-300 text-sm">إدارة الملفات والإنتاجية</p>
+</div>
+<div class="w-14 h-14 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-600 text-3xl md:text-4xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+<i class="fa-solid fa-dolly"></i>
+</div>
+</div>
+</div>
 
-    <div onclick="navigateToCategory(&#39;delegates&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
-      <div class="flex justify-between items-center">
-        <div>
-          <h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-blue-600 transition">المناديب</h3>
-          <p class="text-slate-500 dark:text-slate-300 text-sm">إدارة حسابات المناديب</p>
-        </div>
-        <div class="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-3xl md:text-4xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-          <i class="fa-solid fa-truck-fast"></i>
-        </div>
-      </div>
-    </div>
-  </div>
+<div onclick="navigateToCategory(&#39;delegates&#39;)" class="stat-card glass rounded-2xl p-5 md:p-8 cursor-pointer group">
+<div class="flex justify-between items-center">
+<div>
+<h3 class="text-xl md:text-2xl font-black mb-1 group-hover:text-blue-600 transition">المناديب</h3>
+<p class="text-slate-500 dark:text-slate-300 text-sm">إدارة حسابات المناديب</p>
+</div>
+<div class="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-600 text-3xl md:text-4xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+<i class="fa-solid fa-truck-fast"></i>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 <!-- CATEGORY VIEW -->
@@ -640,35 +738,35 @@ font-size: 11px !important;
 
 <!-- Person Performance Chart -->
 <div id="person-chart-section" class="hidden mt-6 space-y-4">
-  <!-- Change badges row -->
-  <div id="person-change-badges" class="flex flex-wrap gap-2"></div>
-  <!-- Chart Card -->
-  <div class="glass rounded-2xl p-5">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="font-black text-base flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-500"></i> مقارنة الإنتاجية عبر الشهور</h3>
-      <div class="flex gap-2">
-        <button onclick="setPersonChartType(&#39;bar&#39;)" id="pchart-bar" class="text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white">أعمدة</button>
-        <button onclick="setPersonChartType(&#39;line&#39;)" id="pchart-line" class="text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">خط</button>
-      </div>
-    </div>
-    <div class="h-56 md:h-72"><canvas id="personPerfChart"></canvas></div>
-  </div>
-  <!-- Summary Table -->
-  <div class="glass rounded-2xl overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm text-right">
-        <thead class="bg-slate-50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-300">
-          <tr>
-            <th class="p-3 md:p-4">الشهر</th>
-            <th class="p-3 md:p-4 text-center">اللوح</th>
-            <th class="p-3 md:p-4 text-center">المبلغ</th>
-            <th class="p-3 md:p-4 text-center">التغيير</th>
-          </tr>
-        </thead>
-        <tbody id="person-perf-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
-      </table>
-    </div>
-  </div>
+<!-- Change badges row -->
+<div id="person-change-badges" class="flex flex-wrap gap-2"></div>
+<!-- Chart Card -->
+<div class="glass rounded-2xl p-5">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-black text-base flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-500"></i> مقارنة الإنتاجية عبر الشهور</h3>
+<div class="flex gap-2">
+<button onclick="setPersonChartType(&#39;bar&#39;)" id="pchart-bar" class="text-xs font-black px-3 py-1 rounded-lg bg-blue-600 text-white">أعمدة</button>
+<button onclick="setPersonChartType(&#39;line&#39;)" id="pchart-line" class="text-xs font-black px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">خط</button>
+</div>
+</div>
+<div class="h-56 md:h-72"><canvas id="personPerfChart"></canvas></div>
+</div>
+<!-- Summary Table -->
+<div class="glass rounded-2xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-right">
+<thead class="bg-slate-50 dark:bg-slate-900/30 text-slate-500 dark:text-slate-300">
+<tr>
+<th class="p-3 md:p-4">الشهر</th>
+<th class="p-3 md:p-4 text-center">اللوح</th>
+<th class="p-3 md:p-4 text-center">المبلغ</th>
+<th class="p-3 md:p-4 text-center">التغيير</th>
+</tr>
+</thead>
+<tbody id="person-perf-table" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 
@@ -1081,7 +1179,9 @@ query,
 orderBy,
 limit,
 addDoc,
-serverTimestamp
+serverTimestamp,
+onSnapshot,
+where
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // Global Error Handling
@@ -1131,8 +1231,100 @@ let charts = {};
 let globalStatsFilter = 'all';
 
 let auditLogs = [];
+let adminNotifications = [];
+let pushUnsubscribes = []; // Firestore onSnapshot unsubscribers
+let notifPermission = 'default';
+let lastSeenNotifTime = Date.now();
 
 function userKey(email) { return String(email || '').trim().toLowerCase(); }
+
+// ===== Push Notification Helpers =====
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) return;
+  try {
+    notifPermission = await Notification.requestPermission();
+  } catch(e) { console.warn('Notification permission error', e); }
+}
+
+function showBrowserNotification(title, body, icon) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SHOW_NOTIFICATION',
+        title,
+        body,
+        icon: icon || '/icons/icon-192.png'
+      });
+    } else {
+      new Notification(title, {
+        body,
+        icon: icon || '/icons/icon-192.png',
+        dir: 'rtl',
+        lang: 'ar'
+      });
+    }
+  } catch(e) { console.warn('showNotification error', e); }
+}
+
+// Listen to user's own push notifications in Firestore
+function startUserNotifListener(userEmail) {
+  if (!userEmail) return;
+  const colRef = collection(db, 'artifacts', appNamespace, 'public', 'data', 'push_notifications');
+  const q = query(colRef, where('targetEmail', '==', userKey(userEmail)), orderBy('createdAt', 'desc'), limit(10));
+  const unsub = onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        const data = change.doc.data();
+        // Only show notifications that arrived after page load
+        const ts = data.createdAt?.toMillis ? data.createdAt.toMillis() : Date.now();
+        if (ts > lastSeenNotifTime) {
+          showBrowserNotification(
+            data.title || 'نظام إدارة اللوح',
+            data.body || '',
+            '/icons/icon-192.png'
+          );
+        }
+      }
+    });
+  }, err => console.error('user notif listener error', err));
+  pushUnsubscribes.push(unsub);
+}
+
+// Send push notification to target user via Firestore
+async function sendPushNotification(targetEmail, title, body) {
+  if (!targetEmail) return;
+  try {
+    await addDoc(collection(db, 'artifacts', appNamespace, 'public', 'data', 'push_notifications'), {
+      targetEmail: userKey(targetEmail),
+      title,
+      body,
+      sentBy: currentUser?.email || '',
+      createdAt: serverTimestamp()
+    });
+  } catch(e) { console.error('sendPushNotification error', e); }
+}
+
+// Get all admin emails to notify them
+async function getAdminEmails() {
+  try {
+    const snap = await getDocs(collection(db, 'artifacts', appNamespace, 'public', 'data', 'users_directory'));
+    const emails = [];
+    snap.forEach(d => {
+      const u = d.data();
+      const role = u.role || (u.isAdmin ? 'admin' : 'user');
+      if (['owner', 'admin', 'manager'].includes(role)) {
+        emails.push(userKey(u.email || d.id));
+      }
+    });
+    // Always include owner
+    if (!emails.includes(userKey(OWNER_EMAIL))) emails.push(userKey(OWNER_EMAIL));
+    return emails;
+  } catch(e) {
+    console.error('getAdminEmails error', e);
+    return [userKey(OWNER_EMAIL)];
+  }
+}
 
 function showDomainAlert() {
 document.getElementById('current-domain').textContent = window.location.hostname;
@@ -1613,7 +1805,6 @@ plateData.push(total);
 costData.push(cost);
 });
 
-// Render change badges
 const badgesEl = document.getElementById('person-change-badges');
 if (badgesEl) {
 badgesEl.innerHTML = '';
@@ -1635,7 +1826,6 @@ badgesEl.appendChild(badge);
 }
 }
 
-// Render summary table
 const tbody = document.getElementById('person-perf-table');
 if (tbody) {
 tbody.innerHTML = '';
@@ -1662,7 +1852,6 @@ tbody.appendChild(tr);
 });
 }
 
-// Render chart
 const canvasId = 'personPerfChart';
 const ctx = document.getElementById(canvasId);
 if (!ctx) return;
@@ -1948,11 +2137,173 @@ r.readAsArrayBuffer(file);
 });
 }
 
+// ===== Upload Toast =====
+function showUploadToast(platesCount, amount, filesCount) {
+const toast = document.getElementById('upload-toast');
+const toastPlates = document.getElementById('toast-plates-count');
+const toastAmount = document.getElementById('toast-amount');
+const toastDetail = document.getElementById('toast-files-detail');
+if (!toast) return;
+if (toastPlates) toastPlates.textContent = platesCount.toLocaleString();
+if (toastAmount) toastAmount.textContent = amount;
+if (toastDetail) toastDetail.textContent = `تم رفع ${filesCount} ملف(ات) بنجاح`;
+toast.classList.add('show');
+if (window._toastTimer) clearTimeout(window._toastTimer);
+window._toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 7000);
+}
+
+window.hideUploadToast = () => {
+const toast = document.getElementById('upload-toast');
+if (toast) toast.classList.remove('show');
+if (window._toastTimer) clearTimeout(window._toastTimer);
+};
+
+// ===== Save Admin Notification =====
+async function saveAdminNotification(data) {
+if (isViewingUser || !auth.currentUser) return;
+try {
+await addDoc(collection(db, 'artifacts', appNamespace, 'public', 'data', 'admin_notifications'), {
+...data,
+read: false,
+createdAt: serverTimestamp()
+});
+// Refresh badge if admin
+if (canAccessAdmin()) {
+await loadAdminNotifications();
+}
+} catch (e) {
+console.error('notification save error', e);
+}
+}
+
+// ===== Load Admin Notifications =====
+async function loadAdminNotifications() {
+if (!canAccessAdmin()) return;
+try {
+const snap = await getDocs(query(
+collection(db, 'artifacts', appNamespace, 'public', 'data', 'admin_notifications'),
+orderBy('createdAt', 'desc'),
+limit(50)
+));
+adminNotifications = [];
+snap.forEach(d => adminNotifications.push({ id: d.id, ...d.data() }));
+const unread = adminNotifications.filter(n => !n.read).length;
+const badge = document.getElementById('notif-badge');
+if (badge) {
+badge.textContent = unread > 99 ? '99+' : String(unread);
+badge.classList.toggle('hidden', unread === 0);
+}
+} catch (e) {
+console.error('load notifications error', e);
+}
+}
+
+// ===== Open Admin Notifications =====
+window.openAdminNotifications = async () => {
+if (!canAccessAdmin()) return;
+await loadAdminNotifications();
+renderAdminNotifications();
+openModal('admin-notif-modal');
+// Mark all as read
+try {
+const unreadBatch = adminNotifications.filter(n => !n.read).map(n =>
+updateDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'admin_notifications', n.id), { read: true })
+);
+await Promise.all(unreadBatch);
+adminNotifications.forEach(n => n.read = true);
+const badge = document.getElementById('notif-badge');
+if (badge) badge.classList.add('hidden');
+} catch (e) { console.error(e); }
+};
+
+// ===== Render Admin Notifications =====
+function renderAdminNotifications() {
+const panel = document.getElementById('admin-notif-panel');
+if (!panel) return;
+panel.innerHTML = '';
+
+if (!adminNotifications.length) {
+const empty = document.createElement('div');
+empty.className = 'text-center py-12 text-slate-400';
+empty.innerHTML = '<i class="fa-regular fa-bell-slash text-4xl mb-3 block"></i><p class="font-bold">لا توجد إشعارات</p>';
+panel.appendChild(empty);
+return;
+}
+
+adminNotifications.forEach(n => {
+const catLabel = n.category === 'delegates' ? 'مناديب' : 'مفرغين';
+const catColorBg = n.category === 'delegates' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30';
+const catColorText = n.category === 'delegates' ? 'text-blue-600' : 'text-emerald-600';
+const dt = n.timestamp ? new Date(n.timestamp) : null;
+const timeStr = dt ? dt.toLocaleString('ar-EG') : '';
+const amountDisplay = (n.amountEGP !== undefined) ? formatMoney(n.amountEGP) : '—';
+const catBadge = n.category === 'delegates'
+? '<span class="text-[10px] font-black bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-2 py-0.5 rounded-full">مناديب</span>'
+: '<span class="text-[10px] font-black bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 px-2 py-0.5 rounded-full">مفرغين</span>';
+
+const el = document.createElement('div');
+el.className = `p-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition ${!n.read ? 'bg-blue-50/60 dark:bg-blue-900/10 border-r-4 border-blue-400' : ''}`;
+el.innerHTML = `
+<div class="flex items-start gap-3">
+  <div class="w-10 h-10 rounded-xl ${catColorBg} flex items-center justify-center shrink-0">
+    <i class="fa-solid fa-cloud-arrow-up ${catColorText} text-sm"></i>
+  </div>
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="font-black text-sm text-slate-800 dark:text-slate-100">${esc(n.userName || 'مستخدم')}</span>
+        ${catBadge}
+        ${!n.read ? '<span class="w-2 h-2 rounded-full bg-blue-500 shrink-0 inline-block"></span>' : ''}
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+      رفع ملفات لـ <span class="font-black text-slate-700 dark:text-slate-200">${esc(n.personName || '—')}</span>
+      — شهر: <span class="font-bold">${esc(n.monthName || '—')}</span>
+    </p>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl px-3 py-2 text-center">
+        <div class="text-[10px] font-bold text-indigo-400 mb-0.5">عدد اللوح</div>
+        <div class="font-black text-indigo-700 dark:text-indigo-200 text-lg">${(n.platesCount || 0).toLocaleString()}</div>
+      </div>
+      <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-3 py-2 text-center">
+        <div class="text-[10px] font-bold text-emerald-400 mb-0.5">الحساب</div>
+        <div class="font-black text-emerald-700 dark:text-emerald-200 text-sm">${amountDisplay}</div>
+      </div>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-2">${n.filesCount || 1} ملف • ${timeStr}</p>
+  </div>
+</div>
+`;
+panel.appendChild(el);
+});
+}
+
+// ===== Clear Admin Notifications =====
+window.clearAdminNotifications = async () => {
+if (!confirm('مسح جميع الإشعارات؟')) return;
+try {
+const batch = adminNotifications.map(n =>
+deleteDoc(doc(db, 'artifacts', appNamespace, 'public', 'data', 'admin_notifications', n.id))
+);
+await Promise.all(batch);
+adminNotifications = [];
+renderAdminNotifications();
+const badge = document.getElementById('notif-badge');
+if (badge) badge.classList.add('hidden');
+} catch (e) { console.error(e); alert('تعذر المسح'); }
+};
+
+// ===== Handle File Upload (with notification) =====
 window.handleFileUpload = async (input) => {
 if (!input.files?.length) return;
 toggleLoader(true);
 const m = appData[currentCategory][currentPersonId].months[currentMonthId];
+const p = appData[currentCategory][currentPersonId];
 if (!m.files) m.files = [];
+
+let sessionPlates = 0;
+const uploadedFilesList = [];
+
 for (const file of input.files) {
 try {
 const count = await parseExcel(file);
@@ -1969,10 +2320,49 @@ manualOverride: false,
 dateDisplay: d.display,
 sortVal: d.sortVal
 });
+sessionPlates += final;
+uploadedFilesList.push({ name: file.name, count: final });
 } catch (e) { console.error(e); alert('تعذر قراءة الملف: ' + file.name); }
 }
+
 m.files.sort((a, b) => (a.sortVal || 0) - (b.sortVal || 0));
 await saveToCloud();
+
+// Calc amount for this session
+const sessionCostEGP = (sessionPlates / 1000) * (m.rate || 100);
+const sessionAmountDisplay = formatMoney(sessionCostEGP);
+
+// 1. Show toast to uploader
+showUploadToast(sessionPlates, sessionAmountDisplay, uploadedFilesList.length);
+
+// 2. Save admin notification to Firestore (for bell icon panel)
+await saveAdminNotification({
+userName: currentUser?.name || 'مستخدم',
+userEmail: currentUser?.email || '',
+personName: p.name,
+monthName: m.name,
+category: currentCategory,
+platesCount: sessionPlates,
+rate: m.rate || 100,
+amountEGP: sessionCostEGP,
+filesCount: uploadedFilesList.length,
+timestamp: new Date().toISOString()
+});
+
+// 3. Send browser push notifications
+const notifTitle = '📦 تم رفع ملفات جديدة';
+const notifBody = `${currentUser?.name || 'مستخدم'} رفع ${uploadedFilesList.length} ملف لـ ${p.name} — ${sessionPlates.toLocaleString()} لوحة — ${sessionAmountDisplay}`;
+
+// Notify the uploader on all their devices
+await sendPushNotification(currentUser.email, '✅ تم رفع الملفات بنجاح', `${p.name} • ${m.name} — ${sessionPlates.toLocaleString()} لوحة — ${sessionAmountDisplay}`);
+
+// Notify all admins/managers
+const adminEmails = await getAdminEmails();
+const uniqueAdmins = adminEmails.filter(e => e !== userKey(currentUser?.email || ''));
+await Promise.all(uniqueAdmins.map(adminEmail =>
+  sendPushNotification(adminEmail, notifTitle, notifBody)
+));
+
 logEvent('files_upload', { category: currentCategory, personId: currentPersonId, monthId: currentMonthId, filesCount: input.files.length });
 renderDashboard();
 toggleLoader(false);
@@ -2350,10 +2740,25 @@ document.getElementById('verification-overlay').classList.add('hidden');
 document.getElementById('banned-overlay').classList.add('hidden');
 document.getElementById('main-app').classList.remove('hidden');
 
-if (canAccessAdmin()) document.getElementById('admin-nav-btn').classList.remove('hidden');
+if (canAccessAdmin()) {
+document.getElementById('admin-nav-btn').classList.remove('hidden');
+document.getElementById('admin-notif-btn').classList.remove('hidden');
+}
 
 updateCurrencyUI();
 await loadDataCloud();
+
+// Request notification permission & start listener
+await requestNotificationPermission();
+lastSeenNotifTime = Date.now();
+if (currentUser?.email) {
+startUserNotifListener(currentUser.email);
+}
+
+// Load notifications for admins
+if (canAccessAdmin()) {
+await loadAdminNotifications();
+}
 
 if (!currentUser.name || currentUser.name === 'مستخدم جديد') {
 openModal('setup-name-modal');
@@ -2449,7 +2854,6 @@ if (btn) btn.classList.toggle('active', id === active);
 });
 };
 
-// Override navigation functions to update bottom nav
 const _origGoHome = window.goHome;
 window.goHome = () => { _origGoHome(); setBottomNav('home'); };
 
@@ -2510,6 +2914,81 @@ if (installBar) installBar.style.display = 'none';
 </script>
 
 <script>window.onload=function(){var d=document.createElement("div");d.id="appLoadFinished";document.body.appendChild(d);};</script>
+
+<!-- Service Worker Message Handler for Push Notifications -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SW_READY') {
+      console.log('[SW] Ready for notifications');
+    }
+  });
+}
+
+// Inject notification handler into SW via postMessage
+// The SW at /sw.js needs to handle SHOW_NOTIFICATION messages
+// We patch it by registering a minimal inline SW if none is available
+async function ensureNotificationSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if (!reg.active) return;
+    // SW is ready, notifications will be posted via postMessage
+    console.log('[PWA] SW active, push notifications enabled');
+  } catch(e) {
+    console.warn('[PWA] SW not ready:', e);
+  }
+}
+
+// Register a dedicated notification service worker as a blob
+// This allows background notifications without a separate file
+(async function() {
+  if (!('serviceWorker' in navigator)) return;
+  const swCode = `
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    const { title, body, icon } = event.data;
+    self.registration.showNotification(title, {
+      body: body || '',
+      icon: icon || '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      dir: 'rtl',
+      lang: 'ar',
+      vibrate: [200, 100, 200],
+      tag: 'plates-notif-' + Date.now()
+    });
+  }
+});
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cls => {
+    if (cls.length > 0) return cls[0].focus();
+    return clients.openWindow('/');
+  }));
+});
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+`;
+  try {
+    // Try to use existing /sw.js first
+    const existingReg = await navigator.serviceWorker.getRegistration('/');
+    if (existingReg && existingReg.active) {
+      console.log('[PWA] Using existing SW for notifications');
+      return;
+    }
+    // Register blob SW for notifications
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const blobUrl = URL.createObjectURL(blob);
+    await navigator.serviceWorker.register(blobUrl, { scope: '/' }).catch(() => {
+      // Blob SW scope restricted — use Notification API directly
+      console.warn('[PWA] Blob SW failed, using direct Notification API');
+    });
+    URL.revokeObjectURL(blobUrl);
+  } catch(e) {
+    console.warn('[SW Notif] Setup error:', e);
+  }
+})();
+</script>
 
 
 </body></html>
